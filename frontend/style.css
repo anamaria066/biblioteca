@@ -1,0 +1,59 @@
+body {
+    background-color: rgb(252, 240, 224);
+    color: #3B3A4F;
+}
+
+#titluWelcome {
+    margin-bottom: 20px;
+    margin-left: -80px;
+}
+
+
+#btnAuth, #btnCreareCont {
+    background-color: #5A7FA6;
+    color: #3B3A4F;
+    margin-right: 80px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+
+/* Efect hover - schimbă culoarea și adaugă umbră */
+#btnAuth:hover, #btnCreareCont:hover {
+    background-color: #496B8C;
+    box-shadow: 0px 4px 10px rgba(73, 107, 140, 0.4); /* Adaugă o umbra */
+    transform: translateY(-2px); /* efect de ridicare */
+}
+
+.header-image {
+    position: fixed; /* Lipită de partea de sus */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Lățime completă a paginii */
+    height: 250px; /* Înălțimea dorită */
+    overflow: hidden; /* Evită depășirea */
+    z-index: 0; /* Asigură că este în fundal */
+}
+
+/* Asigură-te că imaginea se întinde corect */
+.header-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Se asigură că imaginea umple spațiul */
+}
+
+
+.welcome-box {
+    border: 1.5px solid #f5b181; /* Contur maro */
+    border-radius: 12px; /* Colțuri rotunjite */
+    padding: 30px 30px;
+    padding-left: 90px;
+    padding-bottom: 50px;
+    text-align: center;
+    box-shadow: 0px 5px 17px rgba(139, 69, 19, 0.5); /* Strălucire subtilă */
+    transition: box-shadow 0.8s ease-in-out;
+    display: inline-block;
+    margin-top: 100px; /* Ajustează poziția față de imaginea de fundal */
+}
