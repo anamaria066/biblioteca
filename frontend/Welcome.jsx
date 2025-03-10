@@ -11,8 +11,8 @@ function Welcome() {
             </div>
             <div className="welcome-box">
                 <h2 id='titluWelcome'>Bun venit în biblioteca online!</h2>
-                <button id='btnAuth'>Autentificare</button>
-                <button id='btnCreareCont'>Creare cont</button>
+                <button id='btnAuth' onClick={() => navigate('/login')}>Autentificare</button>
+                <button id='btnCreareCont' onClick={() => navigate('/signup')}>Creare cont</button>
             </div>
         </div>
     );
