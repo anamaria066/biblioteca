@@ -59,6 +59,13 @@ const Carte = sequelize.define('Carte', {
     disponibil: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },rating: {
+        type: DataTypes.FLOAT,  // Nota din 10
+        allowNull: true,
+        validate: {
+            min: 0,
+            max: 5
+        }
     },
     imagine: {
         type: DataTypes.STRING,  // Stocăm URL-ul imaginii
@@ -136,7 +143,7 @@ const Recenzie = sequelize.define('Recenzie', {
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        validate: { min: 1, max: 5 }
+        validate: { min: 0, max: 5 }
     },
     comentariu: {
         type: DataTypes.TEXT,
@@ -401,15 +408,16 @@ app.post('/login', async (req, res) => {
 //     "titlu": "1984",
 //     "autor": "George Orwell",
 //     "an_publicatie": 1949,
-//     "gen": "Dystopie",
+//     "gen": "Distopie",
 //     "pret": 39.99,
 //     "stoc": 10,
 //     "disponibil": true,
-//     "imagine": "https://example.com/1984.jpg"
+//     "rating": 9.5,
+//     "imagine": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657781256i/61439040.jpg"
 // }
 app.post('/adauga-carte', async (req, res) => {
     try {
-        const { titlu, autor, an_publicatie, gen, pret, stoc, disponibil, imagine } = req.body;
+        const { titlu, autor, an_publicatie, gen, pret, stoc, disponibil, rating, imagine } = req.body;
 
         if (!titlu || !autor) {
             return res.status(400).json({ message: "Titlul și autorul sunt obligatorii!" });
@@ -423,6 +431,7 @@ app.post('/adauga-carte', async (req, res) => {
             pret,
             stoc,
             disponibil,
+            rating,
             imagine
         });
 
@@ -438,10 +447,35 @@ app.post('/adauga-carte', async (req, res) => {
 // Vizualizare toate cărțile - http://localhost:3000/carti
 app.get('/carti', async (req, res) => {
     try {
-        const carti = await Carte.findAll();
+        const carti = await Carte.findAll({
+            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'gen', 'pret', 'stoc', 'disponibil', 'rating', 'imagine']
+        });
+
         res.status(200).json(carti);
     } catch (error) {
         console.error("Eroare la obținerea cărților:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+// Endpoint pentru ștergerea unei cărți după ID - http://localhost:3000/sterge-carte/:id
+app.delete('/sterge-carte/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Verificăm dacă există cartea în baza de date
+        const carte = await Carte.findByPk(id);
+        if (!carte) {
+            return res.status(404).json({ message: "Cartea nu a fost găsită!" });
+        }
+
+        // Ștergem cartea
+        await carte.destroy();
+        res.status(200).json({ message: `Cartea cu ID-ul ${id} a fost ștearsă cu succes!` });
+
+    } catch (error) {
+        console.error("Eroare la ștergerea cărții:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
