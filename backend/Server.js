@@ -56,17 +56,6 @@ const Carte = sequelize.define('Carte', {
     stoc: {
         type: DataTypes.INTEGER
     },
-    disponibil: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true
-    },rating: {
-        type: DataTypes.FLOAT,  // Nota din 10
-        allowNull: true,
-        validate: {
-            min: 0,
-            max: 5
-        }
-    },
     imagine: {
         type: DataTypes.STRING,  // Stocăm URL-ul imaginii
         allowNull: true
@@ -412,7 +401,6 @@ app.post('/login', async (req, res) => {
 //     "pret": 39.99,
 //     "stoc": 10,
 //     "disponibil": true,
-//     "rating": 9.5,
 //     "imagine": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657781256i/61439040.jpg"
 // }
 app.post('/adauga-carte', async (req, res) => {
@@ -442,16 +430,40 @@ app.post('/adauga-carte', async (req, res) => {
     }
 });
 
+// Endpoint pentru adăugarea unui vector de cărți - http://localhost:3000/adauga-carti
+app.post('/adauga-carti', async (req, res) => {
+    try {
+        const carti = req.body;
+
+        if (!Array.isArray(carti) || carti.length === 0) {
+            return res.status(400).json({ message: "Trebuie să furnizați un vector de cărți!" });
+        }
+
+        const cartiAdaugate = await Carte.bulkCreate(carti);
+
+        res.status(201).json({ message: "Cărți adăugate cu succes!", carti: cartiAdaugate });
+    } catch (error) {
+        console.error("Eroare la adăugarea cărților:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
 
 
 // Vizualizare toate cărțile - http://localhost:3000/carti
 app.get('/carti', async (req, res) => {
     try {
         const carti = await Carte.findAll({
-            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'gen', 'pret', 'stoc', 'disponibil', 'rating', 'imagine']
+            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'gen', 'pret', 'stoc', 'rating', 'imagine']
         });
 
-        res.status(200).json(carti);
+        // Determinăm automat dacă fiecare carte este disponibilă
+        const cartiCuDisponibilitate = carti.map(carte => ({
+            ...carte.toJSON(),
+            disponibil: carte.stoc > 0  // Dacă stocul > 0, e disponibilă
+        }));
+
+        res.status(200).json(cartiCuDisponibilitate);
     } catch (error) {
         console.error("Eroare la obținerea cărților:", error);
         res.status(500).json({ message: "Eroare la server!" });
@@ -481,6 +493,126 @@ app.delete('/sterge-carte/:id', async (req, res) => {
 });
 
 
+//adauga recenzie - http://localhost:3000/adauga-recenzie
+app.post('/adauga-recenzie', async (req, res) => {
+    try {
+        const { utilizator_id, carte_id, rating, comentariu } = req.body;
+
+        if (!utilizator_id || !carte_id || !rating) {
+            return res.status(400).json({ message: "Utilizatorul, cartea și rating-ul sunt obligatorii!" });
+        }
+
+        // Adaugă recenzia în baza de date
+        await Recenzie.create({
+            utilizator_id,
+            carte_id,
+            rating,
+            comentariu
+        });
+
+        // Recalculează rating-ul mediu al cărții
+        const recenzii = await Recenzie.findAll({ where: { carte_id } });
+        const ratingMediu = recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length;
+
+        // Actualizează rating-ul în tabelul Carte
+        await Carte.update({ rating: ratingMediu.toFixed(1) }, { where: { id: carte_id } });
+
+        res.status(201).json({ message: "Recenzie adăugată cu succes și rating actualizat!" });
+    } catch (error) {
+        console.error("Eroare la adăugarea recenziei:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//iau toate cărțile cu rating calculat din recenzii - //localhost:3000/carti-cu-rating
+app.get('/carti-cu-rating', async (req, res) => {
+    try {
+        const carti = await Carte.findAll({
+            include: [{
+                model: Recenzie,
+                attributes: ['rating']
+            }]
+        });
+
+        const cartiCuRating = carti.map(carte => {
+            const recenzii = carte.Recenzies; // Obținem recenziile pentru carte
+            const ratingMediu = recenzii.length
+                ? recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length
+                : 0;
+
+            return {
+                id: carte.id,
+                titlu: carte.titlu,
+                autor: carte.autor,
+                an_publicatie: carte.an_publicatie,
+                gen: carte.gen,
+                pret: carte.pret,
+                stoc: carte.stoc,
+                disponibil: carte.disponibil,
+                imagine: carte.imagine,
+                rating: ratingMediu.toFixed(1) // Rotunjim la 1 zecimală
+            };
+        });
+
+        res.status(200).json(cartiCuRating);
+    } catch (error) {
+        console.error("Eroare la obținerea cărților:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//iau toate recenziile unei anumite carti - http://localhost:3000/recenzii/:id
+app.get('/recenzii/:carte_id', async (req, res) => {
+    const { carte_id } = req.params;
+
+    try {
+        const recenzii = await Recenzie.findAll({
+            where: { carte_id },
+            include: {
+                model: Utilizator,
+                attributes: ['nume', 'prenume']
+            }
+        });
+
+        res.status(200).json(recenzii);
+    } catch (error) {
+        console.error("Eroare la obținerea recenziilor:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//sterg o recenzie in fc de id si recalculez ratingul - http://localhost:3000/sterge-recenzie/:id
+app.delete('/sterge-recenzie/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const recenzie = await Recenzie.findByPk(id);
+        if (!recenzie) {
+            return res.status(404).json({ message: "Recenzia nu a fost găsită!" });
+        }
+
+        const carte_id = recenzie.carte_id;
+
+        // Șterge recenzia
+        await recenzie.destroy();
+
+        // Recalculează rating-ul cărții
+        const recenziiRamase = await Recenzie.findAll({ where: { carte_id } });
+        const ratingMediu = recenziiRamase.length
+            ? recenziiRamase.reduce((sum, r) => sum + r.rating, 0) / recenziiRamase.length
+            : 0;
+
+        await Carte.update({ rating: ratingMediu.toFixed(1) }, { where: { id: carte_id } });
+
+        res.status(200).json({ message: "Recenzia a fost ștearsă și rating-ul cărții a fost actualizat!" });
+    } catch (error) {
+        console.error("Eroare la ștergerea recenziei:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
 
 
 

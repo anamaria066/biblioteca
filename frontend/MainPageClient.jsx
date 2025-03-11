@@ -7,18 +7,24 @@ function MainPageClient() {
 
     // Fetch cărțile din backend
     useEffect(() => {
-        fetch("http://localhost:3000/carti")
+        fetch("http://localhost:3000/carti-cu-rating")
             .then((response) => response.json())
             .then((data) => setCarti(data))
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
     }, []);
 
     // Funcție pentru generarea stelelor de rating
+    // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
-        const maxRating = 10;
-        const starCount = Math.round((rating / maxRating) * 5);
-        return "★".repeat(starCount) + "☆".repeat(5 - starCount);
-    };
+    const maxStars = 5; // Folosim un sistem de rating pe 5 stele
+    const fullStars = Math.round((rating / 10) * maxStars); // Convertim ratingul de 10 în 5 stele
+
+    return [...Array(maxStars)].map((_, index) => (
+        <span key={index} className={index < fullStars ? "star-filled" : "star-empty"}>
+            ★
+        </span>
+    ));
+};
 
     // Filtrare cărți după titlu sau autor
     const filteredBooks = carti.filter((carte) =>
@@ -47,11 +53,7 @@ function MainPageClient() {
 
             {/* ======= Căutare ======= */}
             <div className="search-container">
-                <input
-                    type="text"
-                    placeholder="🔍 Căutare"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                <input className="search-bar" type="text" placeholder="🔍 Căutare" value={search} onChange={(e) => setSearch(e.target.value)}
                 />
                 <button className="filter-button">🔽</button> {/* Pâlnia de filtrare */}
             </div>
