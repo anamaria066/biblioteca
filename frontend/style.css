@@ -21,6 +21,15 @@ body {
     box-shadow: 0px 2px 6px;
 }
 
+.forgot-password-link a {
+    color: rgb(120, 99, 104); /* Schimbă cu culoarea dorită */
+    text-decoration: none; /* Elimină sublinierea */
+}
+
+.forgot-password-link a:hover {
+    text-decoration: underline; /* Adaugă subliniere la hover */
+}
+
 /* Efect hover - schimbă culoarea și adaugă umbră */
 #btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover {
     background-color: rgb(255, 209, 220);
@@ -127,22 +136,27 @@ body {
 /* MainPageClient */
 /* Resetarea stilului paginii */
 html, body {
-    height: 100%;
+    min-height: 100%;
+    height: 950px;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    background-color: rgb(252, 240, 224); /* Asigură fundalul până jos */
+    display: flex;
+    flex-direction: column;
 }
+
+
 
 /* Face ca .main-container să ocupe întreaga pagină */
 .main-container {
-    height: 100vh;
+    min-height: 100vh; /* Asigură că ocupă cel puțin toată înălțimea vizibilă */
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Aliniază tot conținutul spre stânga */
+    justify-content: space-between; /* Asigură că paginarea rămâne jos */
+    align-items: center;
     background-color: rgb(252, 240, 224);
-    padding: 0; /* Elimină orice padding */
-    margin: 0; /* Elimină marginile implicite */
-    width: 100%; /* Se asigură că ocupă toată lățimea */
+    width: 100%;
+    
 }
 
 /* ======= Header fix sus ======= */
@@ -158,6 +172,7 @@ html, body {
     align-items: center;
     padding: 15px 30px;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Se asigură că rămâne deasupra */
 }
 
 /* Butoanele din stânga (navigare) */
@@ -207,6 +222,7 @@ html, body {
     align-items: center;
     margin-top: 80px;
     width: 60%;
+    
 }
 
 .search-container input {
@@ -217,6 +233,7 @@ html, body {
     font-size: 16px;
     background-color: white;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    color: rgb(62, 45, 36);
 }
 
 /* Buton de filtrare (pâlnie) */
@@ -234,10 +251,10 @@ html, body {
     grid-template-columns: repeat(6, 1fr); /* 4 coloane */
     gap: 20px;
     justify-content: flex-start; /* Aliniază cărțile spre marginea stângă */
-    padding: 20px; /* Poți reduce padding-ul pentru a începe chiar de la margine */
+    padding: 20px; 
     margin: 0;
     width: 100%;
-    margin-top: 20px;
+    margin-top: -10px;
     margin-left: -45px;
 }
 
@@ -295,14 +312,128 @@ html, body {
 }
 
 .search-bar {
-    position: fixed;
-    width: 1100px;
-    height: 5px;
-    margin-top: 10px;
+    width: 900px;  /* Ajustează lățimea la 50% din pagină */
+    height: 10px;
+    padding: 12px;
+    border: 2px solid rgb(255, 209, 220);
+    border-radius: 20px;
+    font-size: 16px;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .filter-button {
-    position: fixed;
-    margin-left: 1110px;
-    margin-top: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrează pe orizontală */
+    width: 100%;
+    margin-top: 60px;
+    padding: 10px 0;
+}
+
+
+/* ======= Butoane pentru paginare ======= */
+.pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(252, 240, 224); /* Același fundal ca restul paginii */
+    padding: 20px 0;
+    position: relative; /* Asigură poziționarea corectă */
+}
+
+.pagination-button {
+    background-color: rgb(255, 209, 220);
+    border: none;
+    padding: 10px 15px;
+    margin: 0 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: rgb(255, 180, 200);
+}
+
+.pagination-button:disabled {
+    background-color: rgb(200, 200, 200);
+    cursor: not-allowed;
+}
+
+.pagina-info {
+    font-size: 16px;
+    font-weight: bold;
+    color: #3B3A4F;
+}
+
+
+
+
+/* Detalii carte */
+.detalii-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(252, 240, 224);
+    min-height: 100vh;
+    padding-top: 80px; /* Asigură spațiu sub header */
+}
+
+.detalii-carte {
+    display: flex;
+    width: 1000px;
+    height: auto;
+    background-color: rgb(255, 219, 204);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.detalii-text {
+    flex: 1;
+    padding: 20px;
+}
+
+.detalii-text h2 {
+    margin-bottom: 10px;
+    color: #3B3A4F;
+}
+
+.detalii-text p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.detalii-imagine {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coperta-mare {
+    width: 80%;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.book-card {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.book-card:hover {
+    transform: scale(1.05);
 }

@@ -47,6 +47,10 @@ const Carte = sequelize.define('Carte', {
     an_publicatie: {
         type: DataTypes.INTEGER
     },
+    descriere: {
+        type: DataTypes.TEXT, // Am adăugat câmpul "descriere"
+        allowNull: true
+    },
     gen: {
         type: DataTypes.STRING
     },
@@ -397,6 +401,7 @@ app.post('/login', async (req, res) => {
 //     "titlu": "1984",
 //     "autor": "George Orwell",
 //     "an_publicatie": 1949,
+//     "descriere": "",
 //     "gen": "Distopie",
 //     "pret": 39.99,
 //     "stoc": 10,
@@ -415,6 +420,7 @@ app.post('/adauga-carte', async (req, res) => {
             titlu,
             autor,
             an_publicatie,
+            descriere,
             gen,
             pret,
             stoc,
@@ -454,7 +460,7 @@ app.post('/adauga-carti', async (req, res) => {
 app.get('/carti', async (req, res) => {
     try {
         const carti = await Carte.findAll({
-            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'gen', 'pret', 'stoc', 'rating', 'imagine']
+            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'descriere','gen', 'pret', 'stoc', 'imagine']
         });
 
         // Determinăm automat dacă fiecare carte este disponibilă
@@ -610,6 +616,22 @@ app.delete('/sterge-recenzie/:id', async (req, res) => {
         res.status(200).json({ message: "Recenzia a fost ștearsă și rating-ul cărții a fost actualizat!" });
     } catch (error) {
         console.error("Eroare la ștergerea recenziei:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+//ia o carte dupa id - http://localhost:3000/carte/:id
+app.get('/carte/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const carte = await Carte.findByPk(id);
+        if (!carte) {
+            return res.status(404).json({ message: "Cartea nu a fost găsită!" });
+        }
+        res.status(200).json(carte);
+    } catch (error) {
+        console.error("Eroare la obținerea detaliilor cărții:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });

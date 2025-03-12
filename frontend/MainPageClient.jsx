@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import './style.css';
+import { useNavigate } from "react-router-dom"; // Importă pentru navigare
+import "./style.css";
 
 function MainPageClient() {
     const [carti, setCarti] = useState([]);
     const [search, setSearch] = useState("");
+    const [paginaCurenta, setPaginaCurenta] = useState(1);
+    const cartiPerPagina = 12; // 2 rânduri x 6 coloane
+    const navigate = useNavigate(); // Inițializează navigarea
 
     // Fetch cărțile din backend
     useEffect(() => {
@@ -13,18 +17,17 @@ function MainPageClient() {
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
     }, []);
 
-    // Funcție pentru generarea stelelor de rating
     // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
-    const maxStars = 5; // Folosim un sistem de rating pe 5 stele
-    const fullStars = Math.round((rating / 10) * maxStars); // Convertim ratingul de 10 în 5 stele
+        const maxStars = 5;
+        const fullStars = Math.round((rating / 10) * maxStars);
 
-    return [...Array(maxStars)].map((_, index) => (
-        <span key={index} className={index < fullStars ? "star-filled" : "star-empty"}>
-            ★
-        </span>
-    ));
-};
+        return [...Array(maxStars)].map((_, index) => (
+            <span key={index} className={index < fullStars ? "star-filled" : "star-empty"}>
+                ★
+            </span>
+        ));
+    };
 
     // Filtrare cărți după titlu sau autor
     const filteredBooks = carti.filter((carte) =>
@@ -32,11 +35,31 @@ function MainPageClient() {
         carte.autor.toLowerCase().includes(search.toLowerCase())
     );
 
+    // Calculăm numărul total de pagini
+    const numarTotalPagini = Math.ceil(filteredBooks.length / cartiPerPagina);
+
+    // Selectăm cărțile pentru pagina curentă
+    const indexStart = (paginaCurenta - 1) * cartiPerPagina;
+    const cartiAfisate = filteredBooks.slice(indexStart, indexStart + cartiPerPagina);
+
+    // Funcții pentru navigarea între pagini
+    const paginaAnterioara = () => {
+        if (paginaCurenta > 1) setPaginaCurenta(paginaCurenta - 1);
+    };
+
+    const paginaUrmatoare = () => {
+        if (paginaCurenta < numarTotalPagini) setPaginaCurenta(paginaCurenta + 1);
+    };
+
+    // ✅ Funcție care redirecționează către pagina de detalii când se face click pe o carte
+    const handleClick = (id) => {
+        navigate(`/detalii/${id}`);
+    };
+
     return (
         <div className="main-container">
             {/* ======= Header fixat sus ======= */}
             <header className="header">
-                {/* Butoanele de navigare */}
                 <div className="nav-buttons">
                     <button className="nav-button">Explorează</button>
                     <button className="nav-button">Recomandate</button>
@@ -44,7 +67,6 @@ function MainPageClient() {
                     <button className="nav-button">Istoric</button>
                 </div>
 
-                {/* Butoanele din dreapta */}
                 <div className="right-buttons">
                     <button className="icon-button">⭐</button>
                     <button className="icon-button">👤</button>
@@ -53,20 +75,32 @@ function MainPageClient() {
 
             {/* ======= Căutare ======= */}
             <div className="search-container">
-                <input className="search-bar" type="text" placeholder="🔍 Căutare" value={search} onChange={(e) => setSearch(e.target.value)}
+                <input className="search-bar" type="text" placeholder="🔍 Căutare"
+                    value={search} onChange={(e) => setSearch(e.target.value)}
                 />
-                <button className="filter-button">🔽</button> {/* Pâlnia de filtrare */}
+                <button className="filter-button">🔽</button>
             </div>
 
             {/* ======= Afișarea cărților ======= */}
             <div className="book-grid">
-                {filteredBooks.map((carte) => (
-                    <div className="book-card" key={carte.id}>
+                {cartiAfisate.map((carte) => (
+                    <div className="book-card" key={carte.id} onClick={() => handleClick(carte.id)}>
                         <img src={carte.imagine} alt={carte.titlu} className="book-image" />
                         <p className="book-title">{carte.titlu} - {carte.autor}</p>
                         <p className="book-rating">{renderStars(carte.rating)}</p>
                     </div>
                 ))}
+            </div>
+
+            {/* ======= Butoane pentru paginare ======= */}
+            <div className="pagination-container">
+                <button className="pagination-button" onClick={paginaAnterioara} disabled={paginaCurenta === 1}>
+                    ◀
+                </button>
+                <span className="pagina-info">Pagina {paginaCurenta} din {numarTotalPagini}</span>
+                <button className="pagination-button" onClick={paginaUrmatoare} disabled={paginaCurenta === numarTotalPagini}>
+                    ▶
+                </button>
             </div>
         </div>
     );
