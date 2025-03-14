@@ -20,7 +20,7 @@ function MainPageClient() {
     // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
         const maxStars = 5;
-        const fullStars = Math.round((rating / 10) * maxStars);
+        const fullStars = Math.round((rating / 5) * maxStars);
 
         return [...Array(maxStars)].map((_, index) => (
             <span key={index} className={index < fullStars ? "star-filled" : "star-empty"}>
@@ -56,6 +56,9 @@ function MainPageClient() {
         navigate(`/detalii/${id}`);
     };
 
+    const spatiiGoale = cartiPerPagina - cartiAfisate.length;
+    const cartiComplete = [...cartiAfisate, ...Array(spatiiGoale).fill(null)];
+
     return (
         <div className="main-container">
             {/* ======= Header fixat sus ======= */}
@@ -83,11 +86,19 @@ function MainPageClient() {
 
             {/* ======= Afișarea cărților ======= */}
             <div className="book-grid">
-                {cartiAfisate.map((carte) => (
-                    <div className="book-card" key={carte.id} onClick={() => handleClick(carte.id)}>
-                        <img src={carte.imagine} alt={carte.titlu} className="book-image" />
-                        <p className="book-title">{carte.titlu} - {carte.autor}</p>
-                        <p className="book-rating">{renderStars(carte.rating)}</p>
+                {cartiComplete.map((carte, index) => (
+                    <div 
+                        className={`book-card ${carte ? "" : "hidden"}`} 
+                        key={index} 
+                        onClick={carte ? () => handleClick(carte.id) : null} // Asigură clic doar pe cărți valide
+                    >
+                        {carte && (
+                            <>
+                                <img src={carte.imagine} alt={carte.titlu} className="book-image" />
+                                <p className="book-title">{carte.titlu} - {carte.autor}</p>
+                                <p className="book-rating">{renderStars(carte.rating)}</p>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>

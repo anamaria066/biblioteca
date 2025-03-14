@@ -397,17 +397,7 @@ app.post('/login', async (req, res) => {
 
 
 //adaugare carte - http://localhost:3000/adauga-carte
-// {
-//     "titlu": "1984",
-//     "autor": "George Orwell",
-//     "an_publicatie": 1949,
-//     "descriere": "",
-//     "gen": "Distopie",
-//     "pret": 39.99,
-//     "stoc": 10,
-//     "disponibil": true,
-//     "imagine": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657781256i/61439040.jpg"
-// }
+
 app.post('/adauga-carte', async (req, res) => {
     try {
         const { titlu, autor, an_publicatie, gen, pret, stoc, disponibil, rating, imagine } = req.body;
@@ -578,7 +568,7 @@ app.get('/recenzii/:carte_id', async (req, res) => {
             where: { carte_id },
             include: {
                 model: Utilizator,
-                attributes: ['nume', 'prenume']
+                attributes: ['nume', 'prenume'] // Adaugă numele utilizatorului
             }
         });
 
