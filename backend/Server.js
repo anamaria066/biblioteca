@@ -236,6 +236,37 @@ const Cheltuiala = sequelize.define('Cheltuiala', {
 });
 
 
+//Definirea tabelei Favorite
+const Favorite = sequelize.define('Favorite', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    utilizator_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Utilizator,
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
+    },
+    carte_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Carte,
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
+    }
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
+
 //Definirea relațiilor între tabele
 Utilizator.hasMany(Recenzie, { foreignKey: 'utilizator_id' });//Un utilizator poate lăsa mai multe recenzii
 Carte.hasMany(Recenzie, { foreignKey: 'carte_id' });//O carte poate avea mai multe recenzii
@@ -247,6 +278,10 @@ Imprumut.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//Un împrumut a
 Imprumut.belongsTo(Carte, { foreignKey: 'carte_id' });//Un împrumut aparține unei singure cărți
 Carte.hasMany(Cheltuiala, { foreignKey: 'carte_id' });//O carte poate avea mai multe cheltuieli asociate (ex: reparații, înlocuire)
 Cheltuiala.belongsTo(Carte, { foreignKey: 'carte_id' });//O cheltuială este legată de o singură carte
+Utilizator.hasMany(Favorite, { foreignKey: 'utilizator_id' });
+Carte.hasMany(Favorite, { foreignKey: 'carte_id' });
+Favorite.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
+Favorite.belongsTo(Carte, { foreignKey: 'carte_id' });
 
 
 // Sincronizarea bazei de date (crearea tabelei, dacă nu există)
@@ -622,6 +657,104 @@ app.get('/carte/:id', async (req, res) => {
         res.status(200).json(carte);
     } catch (error) {
         console.error("Eroare la obținerea detaliilor cărții:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//adauga o carte la favorite - http://localhost:3000/adauga-favorite
+app.post('/adauga-favorite', async (req, res) => {
+    try {
+        const { utilizator_id, carte_id } = req.body;
+
+        if (!utilizator_id || !carte_id) {
+            return res.status(400).json({ message: "ID utilizator și ID carte sunt necesare!" });
+        }
+
+        const dejaFavorit = await Favorite.findOne({ where: { utilizator_id, carte_id } });
+
+        if (dejaFavorit) {
+            return res.status(400).json({ message: "Cartea este deja în favorite!" });
+        }
+
+        await Favorite.create({ utilizator_id, carte_id });
+
+        res.status(201).json({ message: "Carte adăugată la favorite!" });
+    } catch (error) {
+        console.error("Eroare la adăugarea la favorite:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//sterge o carte de la favorite - http://localhost:3000/sterge-favorite
+app.delete('/sterge-favorite', async (req, res) => {
+    try {
+        const { utilizator_id, carte_id } = req.body;
+
+        const favorita = await Favorite.findOne({ where: { utilizator_id, carte_id } });
+
+        if (!favorita) {
+            return res.status(404).json({ message: "Cartea nu se află în lista de favorite!" });
+        }
+
+        await favorita.destroy();
+        res.status(200).json({ message: "Carte ștearsă din favorite!" });
+    } catch (error) {
+        console.error("Eroare la ștergerea favorite:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+
+//vizualizare carti de la favorite ale unui utilizator - http://localhost:3000/favorite/:utilizator_id
+app.get('/favorite/:utilizator_id', async (req, res) => {
+    try {
+        const { utilizator_id } = req.params;
+
+        // Obține toate cărțile favorite ale utilizatorului
+        const favorite = await Favorite.findAll({
+            where: { utilizator_id },
+            include: [
+                {
+                    model: Carte,
+                    include: [
+                        {
+                            model: Recenzie, // ✅ Include recenziile pentru a calcula rating-ul
+                            attributes: ['rating']
+                        }
+                    ]
+                }
+            ]
+        });
+
+        // ✅ Calculare rating mediu pentru fiecare carte favorită
+        const favoriteCuRating = favorite.map(fav => {
+            const carte = fav.Carte;
+            const recenzii = carte.Recenzies; // Obținem lista de recenzii
+
+            // ✅ Dacă sunt recenzii, calculăm media rating-ului
+            const ratingMediu = recenzii.length
+                ? recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length
+                : 0;
+
+            return {
+                id: carte.id,
+                titlu: carte.titlu,
+                autor: carte.autor,
+                an_publicatie: carte.an_publicatie,
+                gen: carte.gen,
+                pret: carte.pret,
+                stoc: carte.stoc,
+                imagine: carte.imagine,
+                rating: ratingMediu.toFixed(1) // Rotunjire la o zecimală
+            };
+        });
+
+        res.status(200).json(favoriteCuRating);
+    } catch (error) {
+        console.error("Eroare la obținerea cărților favorite:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });

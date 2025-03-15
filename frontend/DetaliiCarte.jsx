@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./style.css";
 
 function DetaliiCarte() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [carte, setCarte] = useState(null);
     const [recenzii, setRecenzii] = useState([]);
     const [showAllRecenzii, setShowAllRecenzii] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [recenzie, setRecenzie] = useState({ rating: "", comentariu: "" });
     const [mesaj, setMesaj] = useState("");
+    const [esteFavorita, setEsteFavorita] = useState(false);
+    const utilizator_id = 1; // TODO: Înlocuiește cu ID-ul real al utilizatorului logat
 
-    // ✅ Funcție pentru a încărca cartea și recenziile
+    // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const fetchData = async () => {
         try {
             const carteRes = await fetch(`http://localhost:3000/carte/${id}`);
@@ -21,17 +24,65 @@ function DetaliiCarte() {
             const recenziiRes = await fetch(`http://localhost:3000/recenzii/${id}`);
             const recenziiData = await recenziiRes.json();
             setRecenzii(recenziiData);
+
+            const favoriteRes = await fetch(`http://localhost:3000/favorite/${utilizator_id}`);
+            const favoriteData = await favoriteRes.json();
+            setEsteFavorita(favoriteData.some(fav => fav.id === parseInt(id)));
         } catch (error) {
             console.error("Eroare la încărcarea datelor:", error);
         }
     };
 
-    // ✅ Apelează `fetchData()` la încărcarea paginii
     useEffect(() => {
         fetchData();
     }, [id]);
 
-    // ✅ Funcție pentru trimiterea recenziei
+    // ✅ Calcularea rating-ului mediu
+    const calculeazaRatingMediu = () => {
+        if (recenzii.length === 0) return 0;
+        const sumaRatinguri = recenzii.reduce((sum, recenzie) => sum + parseFloat(recenzie.rating), 0);
+        return (sumaRatinguri / recenzii.length).toFixed(1);
+    };
+
+    // ✅ Generare stele corecte (inclusiv jumătăți)
+    const renderStars = (rating) => {
+    const maxStars = 5;
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.3 && rating % 1 <= 0.7;
+    const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+        <span className="rating-stars">
+            {"★".repeat(fullStars)}
+            {hasHalfStar && <span className="half-star">★</span>}
+            {"★".repeat(emptyStars)}
+        </span>
+    );
+};
+
+    // ✅ Adăugare/ștergere carte din favorite
+    const handleFavorite = async () => {
+        const url = esteFavorita ? "/sterge-favorite" : "/adauga-favorite";
+        const method = esteFavorita ? "DELETE" : "POST";
+
+        try {
+            const response = await fetch(`http://localhost:3000${url}`, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ utilizator_id, carte_id: id })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setEsteFavorita(!esteFavorita);
+            }
+            alert(data.message);
+        } catch (error) {
+            console.error("Eroare:", error);
+        }
+    };
+
+    // ✅ Trimitere recenzie
     const handleSubmitRecenzie = async (e) => {
         e.preventDefault();
 
@@ -47,23 +98,21 @@ function DetaliiCarte() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     carte_id: id,
-                    rating: nota, 
+                    rating: nota,
                     comentariu: recenzie.comentariu,
-                    utilizator_id: 1 // TODO: Înlocuiește cu ID-ul real al utilizatorului logat
+                    utilizator_id
                 }),
             });
 
             const data = await response.json();
             if (response.ok) {
                 setMesaj("Recenzia a fost adăugată cu succes!");
-                
-                // ✅ După 2 secunde, ascundem popup-ul și reîncărcăm recenziile
                 setTimeout(() => {
                     setShowPopup(false);
                     setMesaj("");
-                    setRecenzie({ rating: "", comentariu: "" }); // Resetare formular
-                    fetchData(); // ✅ Reîncărcăm pagina cu recenzii actualizate
-                }, 2000);
+                    setRecenzie({ rating: "", comentariu: "" });
+                    fetchData();
+                }, 1000);
             } else {
                 setMesaj(data.message || "Eroare la adăugarea recenziei!");
             }
@@ -72,13 +121,14 @@ function DetaliiCarte() {
         }
     };
 
+    const ratingMediu = calculeazaRatingMediu();
+
     if (!carte) {
         return <p>Se încarcă...</p>;
     }
 
     return (
         <div className="detalii-container">
-            {/* Header */}
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button">Explorează</button>
@@ -87,12 +137,11 @@ function DetaliiCarte() {
                     <button className="nav-button">Istoric</button>
                 </div>
                 <div className="right-buttons">
-                    <button className="icon-button">⭐</button>
+                    <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
                     <button className="icon-button">👤</button>
                 </div>
             </header>
 
-            {/* Detalii carte */}
             <div className="detalii-carte">
                 <div className="detalii-text">
                     <h2>{carte.titlu}</h2>
@@ -102,72 +151,36 @@ function DetaliiCarte() {
                     <p><strong>Preț:</strong> {carte.pret} RON</p>
                     <p><strong>Stare:</strong> {carte.stoc > 0 ? "Disponibil" : "Indisponibil"}</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
-                    <p><strong>Rating:</strong> {carte.rating}/10 ⭐</p>
+                    <p><strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}/5)</p>
 
-                    {/* ✅ Buton "Lasă o recenzie" sub detaliile cărții */}
                     <button className="btn-recenzie" onClick={() => setShowPopup(true)}>Lasă o recenzie</button>
+                    <button className={`btn-favorite ${esteFavorita ? "favorita" : ""}`} onClick={handleFavorite}>
+                        {esteFavorita ? "💖 Favorită" : "🤍 Adaugă la favorite"}
+                    </button>
                 </div>
                 <div className="detalii-imagine">
                     <img src={carte.imagine} alt={carte.titlu} className="coperta-mare" />
                 </div>
             </div>
 
-            {/* Secțiunea de recenzii */}
+            {/* ✅ Recenziile sunt PĂSTRATE complet */}
             <div className="recenzii-container">
                 <h3>Recenzii</h3>
 
                 {recenzii.length === 0 ? (
                     <p className="fara-recenzii">Nu există recenzii momentan!</p>
                 ) : (
-                    <div className={`recenzii-box ${showAllRecenzii ? "expand" : ""}`}>
-                        {recenzii.slice(0, showAllRecenzii ? recenzii.length : 3).map((recenzie, index) => (
+                    <div className="recenzii-box">
+                        {recenzii.map((recenzie, index) => (
                             <div className="recenzie-card" key={index}>
                                 <p><strong>{recenzie.Utilizator.nume} {recenzie.Utilizator.prenume}, Nota: {recenzie.rating}/5 ⭐</strong></p>
-                                <p>{recenzie.comentariu}</p>
+                                <p className="recenzie-text">{recenzie.comentariu}</p>
                                 <p><small>Data: {new Date(recenzie.data_recenzie).toLocaleDateString()}</small></p>
                             </div>
                         ))}
                     </div>
                 )}
-
-                {recenzii.length > 3 && (
-                    <button className="btn-mai-multe" onClick={() => setShowAllRecenzii(!showAllRecenzii)}>
-                        {showAllRecenzii ? "Ascunde recenziile" : "Mai multe recenzii..."}
-                    </button>
-                )}
             </div>
-
-            {/* ✅ Pop-up pentru recenzie */}
-            {showPopup && (
-                <div className="popup-container">
-                    <div className="popup-content">
-                        <h3>Lasă o recenzie pentru "{carte.titlu}"</h3>
-                        <form onSubmit={handleSubmitRecenzie}>
-                            <label>Rating (0-5):</label>
-                            <input
-                                type="number"
-                                min="0"
-                                max="5"
-                                step="0.1" // ✅ Permite valori cu zecimale
-                                value={recenzie.rating}
-                                onChange={(e) => setRecenzie({ ...recenzie, rating: e.target.value })}
-                                required
-                            />
-
-                            <label>Comentariu:</label>
-                            <textarea
-                                value={recenzie.comentariu}
-                                onChange={(e) => setRecenzie({ ...recenzie, comentariu: e.target.value })}
-                                required
-                            />
-
-                            {mesaj && <p className="mesaj-status">{mesaj}</p>}
-                            <button type="submit" className="btn-trimite">Trimite</button>
-                            <button type="button" className="btn-anulare" onClick={() => setShowPopup(false)}>Anulează</button>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

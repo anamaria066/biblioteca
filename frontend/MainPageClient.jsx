@@ -20,13 +20,17 @@ function MainPageClient() {
     // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
         const maxStars = 5;
-        const fullStars = Math.round((rating / 5) * maxStars);
-
-        return [...Array(maxStars)].map((_, index) => (
-            <span key={index} className={index < fullStars ? "star-filled" : "star-empty"}>
-                ★
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.3 && rating % 1 <= 0.7;
+        const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
+    
+        return (
+            <span className="rating-stars">
+                {"★".repeat(fullStars)}
+                {hasHalfStar && <span className="half-star">★</span>}
+                {"☆".repeat(emptyStars)}
             </span>
-        ));
+        );
     };
 
     // Filtrare cărți după titlu sau autor
