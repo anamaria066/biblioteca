@@ -75,7 +75,7 @@ function MainPageClient() {
                 </div>
 
                 <div className="right-buttons">
-                    <button className="icon-button">⭐</button>
+                <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
                     <button className="icon-button">👤</button>
                 </div>
             </header>

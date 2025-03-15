@@ -416,14 +416,20 @@ app.post('/login', async (req, res) => {
 
     try {
         const utilizator = await Utilizator.findOne({ where: { email } });
+
         if (!utilizator || utilizator.parola !== parola) {
             return res.status(400).json({ message: "Email sau parolă incorectă!" });
         }
 
-        // Creăm token JWT
+        // ✅ Creăm un token JWT care conține ID-ul utilizatorului și tipul
         const token = jwt.sign({ id: utilizator.id, tip: utilizator.tip }, SECRET_KEY, { expiresIn: '2h' });
 
-        res.status(200).json({ message: "Autentificare reușită!", token, tip: utilizator.tip });
+        res.status(200).json({
+            message: "Autentificare reușită!",
+            token,
+            id: utilizator.id, // ✅ Trimitem și ID-ul utilizatorului
+            tip: utilizator.tip
+        });
     } catch (error) {
         res.status(500).json({ message: "Eroare la server!" });
     }

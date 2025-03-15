@@ -12,7 +12,7 @@ function DetaliiCarte() {
     const [recenzie, setRecenzie] = useState({ rating: "", comentariu: "" });
     const [mesaj, setMesaj] = useState("");
     const [esteFavorita, setEsteFavorita] = useState(false);
-    const utilizator_id = 1; // TODO: Înlocuiește cu ID-ul real al utilizatorului logat
+    const utilizator_id = localStorage.getItem('utilizator_id');
 
     // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const fetchData = async () => {

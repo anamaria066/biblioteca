@@ -4,7 +4,7 @@ import "./style.css";
 
 function Favorite() {
     const [favorite, setFavorite] = useState([]);
-    const utilizator_id = 1; // TODO: Schimbă cu ID-ul real al utilizatorului logat
+    const utilizator_id = localStorage.getItem('utilizator_id');
     const navigate = useNavigate();
 
     // Fetch pentru cărțile favorite
@@ -47,7 +47,7 @@ function Favorite() {
 
             <div className="book-grid">
                 {favorite.length === 0 ? (
-                    <p>Nu ai cărți favorite încă!</p>
+                    <p className="lipsaFavorite">Nu ai cărți favorite încă!</p>
                 ) : (
                     favorite.map(carte => (
                         <div 

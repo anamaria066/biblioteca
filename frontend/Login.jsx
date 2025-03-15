@@ -16,38 +16,41 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (!form.email || !form.password) {
             setError('Te rugăm să completezi toate câmpurile!');
             return;
         }
-
+    
         try {
             const response = await fetch('http://localhost:3000/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: form.email,
                     parola: form.password
                 }),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
-                setError('');  // Clear error message on successful login
-                // Redirecționare în funcție de tipul de utilizator
+                setError('');  // Șterge mesajul de eroare dacă login-ul reușește
+                
+                // ✅ Salvăm ID-ul utilizatorului și token-ul în localStorage
+                localStorage.setItem("utilizator_id", data.id);
+                localStorage.setItem("token", data.token);
+
+                // ✅ Redirecționare în funcție de tipul utilizatorului
                 setTimeout(() => {
                     if (data.tip === 'client') {
                         navigate('/client');
                     } else if (data.tip === 'administrator') {
                         navigate('/admin');
                     }
-                }, 1000); // Optional, for slight delay before navigation
+                }, 300);
             } else {
-                setError(data.message); // Set error message if response is not OK
+                setError(data.message); // Setează mesajul de eroare primit de la backend
             }
         } catch (err) {
             setError('Eroare de rețea!');
