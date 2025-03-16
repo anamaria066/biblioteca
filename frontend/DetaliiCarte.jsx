@@ -149,7 +149,6 @@ function DetaliiCarte() {
                     <p><strong>An publicare:</strong> {carte.an_publicatie}</p>
                     <p><strong>Gen:</strong> {carte.gen}</p>
                     <p><strong>Preț:</strong> {carte.pret} RON</p>
-                    <p><strong>Stare:</strong> {carte.stoc > 0 ? "Disponibil" : "Indisponibil"}</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
                     <p><strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}/5)</p>
 

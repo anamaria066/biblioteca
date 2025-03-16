@@ -9,6 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const SECRET_KEY = "biblioteca_secret_key";
+const ACCESS_KEYS = ["ADMIN123", "ADMIN456"]; // Lista de chei de acces valide
 
 
 // Creează conexiunea fără să specifici baza de date
@@ -57,12 +58,48 @@ const Carte = sequelize.define('Carte', {
     pret: {
         type: DataTypes.FLOAT
     },
-    stoc: {
-        type: DataTypes.INTEGER
-    },
     imagine: {
         type: DataTypes.STRING,  // Stocăm URL-ul imaginii
         allowNull: true
+    }
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
+
+// Definirea tabelei "ExemplarCarte"
+const ExemplarCarte = sequelize.define('ExemplarCarte', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    carte_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Carte,
+            key: 'id'
+        },
+        onDelete: 'CASCADE' // Dacă se șterge cartea, se șterg și exemplarele
+    },
+    stare: {
+        type: DataTypes.ENUM('bună', 'deteriorată', 'necesită înlocuire'),
+        allowNull: false,
+        defaultValue: 'bună'
+    },
+    data_achizitie: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    cost_achizitie: { 
+        type: DataTypes.FLOAT, 
+        allowNull: false 
+    }, 
+    status_disponibilitate: {
+        type: DataTypes.ENUM('disponibil', 'împrumutat'),
+        defaultValue: 'disponibil'
     }
 }, {
     timestamps: false,
@@ -100,6 +137,10 @@ const Utilizator = sequelize.define('Utilizator', {
     },
     cheie_administrativa: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    poza_profil: {
+        type: DataTypes.STRING,  // Stocăm URL-ul imaginii
         allowNull: true
     }
 }, {
@@ -282,6 +323,9 @@ Utilizator.hasMany(Favorite, { foreignKey: 'utilizator_id' });
 Carte.hasMany(Favorite, { foreignKey: 'carte_id' });
 Favorite.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
 Favorite.belongsTo(Carte, { foreignKey: 'carte_id' });
+// Relația 1-N între Carte și ExemplarCarte (o carte poate avea mai multe exemplare)
+Carte.hasMany(ExemplarCarte, { foreignKey: 'carte_id' });
+ExemplarCarte.belongsTo(Carte, { foreignKey: 'carte_id' });
 
 
 // Sincronizarea bazei de date (crearea tabelei, dacă nu există)
@@ -319,7 +363,6 @@ const verificaToken = (req, res, next) => {
 
 
 
-
 //endpoints
 //vizualizare tabele - http://localhost:3000/tabele
 app.get('/tabele', async (req, res) => {
@@ -333,7 +376,6 @@ app.get('/tabele', async (req, res) => {
 });
 
 
-const ACCESS_KEYS = ["ADMIN123", "ADMIN456"]; // Lista de chei de acces valide
 //creare cont - http://localhost:3000/sign-up
 app.post('/sign-up', async (req, res) => {
     try {
@@ -437,16 +479,16 @@ app.post('/login', async (req, res) => {
 
 
 
-//adaugare carte - http://localhost:3000/adauga-carte
-
+//adaugare carte in tabela Carte - http://localhost:3000/adauga-carte
 app.post('/adauga-carte', async (req, res) => {
     try {
-        const { titlu, autor, an_publicatie, gen, pret, stoc, disponibil, rating, imagine } = req.body;
+        const { titlu, autor, an_publicatie, descriere, gen, pret, imagine } = req.body;
 
-        if (!titlu || !autor) {
-            return res.status(400).json({ message: "Titlul și autorul sunt obligatorii!" });
+        if (!titlu || !autor || !pret) {
+            return res.status(400).json({ message: "Titlul, autorul și prețul sunt obligatorii!" });
         }
 
+        // ✅ 1. Creăm cartea în baza de date
         const carteNoua = await Carte.create({
             titlu,
             autor,
@@ -454,15 +496,25 @@ app.post('/adauga-carte', async (req, res) => {
             descriere,
             gen,
             pret,
-            stoc,
-            disponibil,
-            rating,
             imagine
         });
 
-        res.status(201).json({ message: "Carte adăugată cu succes!", carte: carteNoua });
+        // ✅ 2. Creăm automat un exemplar pentru această carte
+        const exemplarNou = await ExemplarCarte.create({
+            carte_id: carteNoua.id,
+            stare: 'bună',  // Implicit, exemplarul este în stare bună
+            data_achizitie: new Date(),
+            cost_achizitie: pret,  // Costul de achiziție este același cu prețul cărții
+            status_disponibilitate: 'disponibil'
+        });
+
+        res.status(201).json({
+            message: "Carte și exemplar adăugate cu succes!",
+            carte: carteNoua,
+            exemplar: exemplarNou
+        });
     } catch (error) {
-        console.error("Eroare la adăugarea cărții:", error);
+        console.error("Eroare la adăugarea cărții și exemplarului:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
@@ -476,11 +528,24 @@ app.post('/adauga-carti', async (req, res) => {
             return res.status(400).json({ message: "Trebuie să furnizați un vector de cărți!" });
         }
 
-        const cartiAdaugate = await Carte.bulkCreate(carti);
+        // ✅ 1. Inserăm cărțile în tabela Carte
+        const cartiAdaugate = await Carte.bulkCreate(carti, { returning: true });
 
-        res.status(201).json({ message: "Cărți adăugate cu succes!", carti: cartiAdaugate });
+        // ✅ 2. Creăm câte un exemplar pentru fiecare carte adăugată
+        const exemplare = cartiAdaugate.map(carte => ({
+            carte_id: carte.id,  // Asociem exemplarul cu cartea nou adăugată
+            stare: 'bună',  // Implicit, toate exemplarele sunt în stare bună
+            data_achizitie: new Date(),
+            cost_achizitie: carte.pret,  // Costul de achiziție este prețul cărții
+            status_disponibilitate: 'disponibil'
+        }));
+
+        // ✅ 3. Inserăm exemplarele în `ExemplarCarte`
+        await ExemplarCarte.bulkCreate(exemplare);
+
+        res.status(201).json({ message: "Cărți și exemplare adăugate cu succes!", carti: cartiAdaugate });
     } catch (error) {
-        console.error("Eroare la adăugarea cărților:", error);
+        console.error("Eroare la adăugarea cărților și exemplarelor:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
@@ -491,16 +556,38 @@ app.post('/adauga-carti', async (req, res) => {
 app.get('/carti', async (req, res) => {
     try {
         const carti = await Carte.findAll({
-            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'descriere','gen', 'pret', 'stoc', 'imagine']
+            attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'descriere', 'gen', 'pret', 'imagine'],
+            include: [{
+                model: ExemplarCarte,
+                attributes: ['id', 'stare', 'status_disponibilitate'] // Preluăm starea și disponibilitatea
+            }]
         });
 
-        // Determinăm automat dacă fiecare carte este disponibilă
-        const cartiCuDisponibilitate = carti.map(carte => ({
-            ...carte.toJSON(),
-            disponibil: carte.stoc > 0  // Dacă stocul > 0, e disponibilă
-        }));
+        // ✅ Procesăm cărțile și calculăm stocul corect
+        const cartiCuStoc = carti.map(carte => {
+            const exemplare = carte.ExemplarCartes; // Sequelize returnează acest array automat
 
-        res.status(200).json(cartiCuDisponibilitate);
+            // 🔹 Stocul este numărul total de exemplare ale cărții
+            const stoc = exemplare.length;
+
+            // 🔹 Disponibilitatea = există cel puțin un exemplar care este „disponibil”
+            const disponibil = exemplare.some(ex => ex.status_disponibilitate === 'disponibil');
+
+            return {
+                id: carte.id,
+                titlu: carte.titlu,
+                autor: carte.autor,
+                an_publicatie: carte.an_publicatie,
+                descriere: carte.descriere,
+                gen: carte.gen,
+                pret: carte.pret,
+                imagine: carte.imagine,
+                stoc, // 🔹 Stoc calculat corect
+                disponibil // 🔹 True/False bazat pe status_disponibilitate
+            };
+        });
+
+        res.status(200).json(cartiCuStoc);
     } catch (error) {
         console.error("Eroare la obținerea cărților:", error);
         res.status(500).json({ message: "Eroare la server!" });
@@ -514,14 +601,30 @@ app.delete('/sterge-carte/:id', async (req, res) => {
 
     try {
         // Verificăm dacă există cartea în baza de date
-        const carte = await Carte.findByPk(id);
+        const carte = await Carte.findByPk(id, {
+            include: [{ model: ExemplarCarte }]
+        });
+
         if (!carte) {
             return res.status(404).json({ message: "Cartea nu a fost găsită!" });
         }
 
+        // Verificăm dacă există exemplare împrumutate
+        const exemplareImprumutate = await ExemplarCarte.findOne({
+            where: { carte_id: id, status_disponibilitate: 'împrumutat' }
+        });
+
+        if (exemplareImprumutate) {
+            return res.status(400).json({ message: "Nu poți șterge această carte deoarece are exemplare împrumutate!" });
+        }
+
+        // Ștergem mai întâi exemplarele cărții
+        await ExemplarCarte.destroy({ where: { carte_id: id } });
+
         // Ștergem cartea
         await carte.destroy();
-        res.status(200).json({ message: `Cartea cu ID-ul ${id} a fost ștearsă cu succes!` });
+
+        res.status(200).json({ message: `Cartea cu ID-ul ${id} și toate exemplarele sale au fost șterse cu succes!` });
 
     } catch (error) {
         console.error("Eroare la ștergerea cărții:", error);
@@ -562,21 +665,33 @@ app.post('/adauga-recenzie', async (req, res) => {
 });
 
 
-//iau toate cărțile cu rating calculat din recenzii - //localhost:3000/carti-cu-rating
+//iau toate cărțile cu rating calculat din recenzii - http://localhost:3000/carti-cu-rating
 app.get('/carti-cu-rating', async (req, res) => {
     try {
         const carti = await Carte.findAll({
-            include: [{
-                model: Recenzie,
-                attributes: ['rating']
-            }]
+            attributes: [
+                'id',
+                'titlu',
+                'autor',
+                'an_publicatie',
+                'gen',
+                'pret',
+                'imagine'
+            ],
+            include: [
+                {
+                    model: Recenzie,
+                    attributes: ['rating']
+                }
+            ]
         });
 
+        // Procesăm datele pentru a calcula rating-ul mediu
         const cartiCuRating = carti.map(carte => {
-            const recenzii = carte.Recenzies; // Obținem recenziile pentru carte
+            const recenzii = carte.Recenzies || []; // Verificăm dacă are recenzii
             const ratingMediu = recenzii.length
                 ? recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length
-                : 0;
+                : 0; // Dacă nu are recenzii, setăm ratingul la 0
 
             return {
                 id: carte.id,
@@ -585,8 +700,6 @@ app.get('/carti-cu-rating', async (req, res) => {
                 an_publicatie: carte.an_publicatie,
                 gen: carte.gen,
                 pret: carte.pret,
-                stoc: carte.stoc,
-                disponibil: carte.disponibil,
                 imagine: carte.imagine,
                 rating: ratingMediu.toFixed(1) // Rotunjim la 1 zecimală
             };
@@ -594,7 +707,7 @@ app.get('/carti-cu-rating', async (req, res) => {
 
         res.status(200).json(cartiCuRating);
     } catch (error) {
-        console.error("Eroare la obținerea cărților:", error);
+        console.error("Eroare la obținerea cărților cu rating:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
@@ -761,6 +874,110 @@ app.get('/favorite/:utilizator_id', async (req, res) => {
         res.status(200).json(favoriteCuRating);
     } catch (error) {
         console.error("Eroare la obținerea cărților favorite:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+//adauga un exemplar de carte - http://localhost:3000/adauga-exemplar
+app.post('/adauga-exemplar', async (req, res) => {
+    try {
+        const { carte_id, stare, cost_achizitie } = req.body;
+
+        // ✅ Verificăm dacă toate câmpurile necesare sunt furnizate
+        if (!carte_id || !stare || !cost_achizitie) {
+            return res.status(400).json({ message: "ID carte, starea și costul de achiziție sunt necesare!" });
+        }
+
+        // ✅ Creăm un nou exemplar
+        const exemplar = await ExemplarCarte.create({
+            carte_id,
+            stare,
+            cost_achizitie,
+            data_achizitie: new Date(),
+            status_disponibilitate: 'disponibil' // Setăm implicit ca fiind disponibil
+        });
+
+        res.status(201).json({ message: "Exemplar adăugat cu succes!", exemplar });
+    } catch (error) {
+        console.error("Eroare la adăugarea exemplarului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//vizualizarea tuturor exemplarelor unei cărți, inclusiv starea lor - http://localhost:3000/exemplare/:carte_id
+app.get('/exemplare/:carte_id', async (req, res) => {
+    try {
+        const { carte_id } = req.params;
+
+        // ✅ Preluăm toate exemplarele pentru cartea specificată
+        const exemplare = await ExemplarCarte.findAll({
+            where: { carte_id },
+            attributes: ['id', 'stare', 'data_achizitie', 'cost_achizitie', 'status_disponibilitate']
+        });
+
+        res.status(200).json(exemplare);
+    } catch (error) {
+        console.error("Eroare la obținerea exemplarelor:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//pentru a actualiza starea unui exemplar (de exemplu, dacă a fost deteriorat) - http://localhost:3000/modifica-exemplar/:id
+app.put('/modifica-exemplar/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { stare, cost_achizitie, status_disponibilitate } = req.body;
+
+        // Verificăm dacă cel puțin un câmp este furnizat pentru actualizare
+        if (!stare && !cost_achizitie && !status_disponibilitate) {
+            return res.status(400).json({ message: "Trebuie furnizat cel puțin un atribut pentru actualizare!" });
+        }
+
+        // Căutăm exemplarul
+        const exemplar = await ExemplarCarte.findByPk(id);
+        if (!exemplar) {
+            return res.status(404).json({ message: "Exemplarul nu a fost găsit!" });
+        }
+
+        // ✅ Modificăm doar câmpurile transmise în request
+        if (stare) exemplar.stare = stare;
+        if (cost_achizitie !== undefined) exemplar.cost_achizitie = cost_achizitie;
+        if (status_disponibilitate) exemplar.status_disponibilitate = status_disponibilitate;
+
+        await exemplar.save();
+
+        res.status(200).json({ message: "Exemplar modificat cu succes!", exemplar });
+    } catch (error) {
+        console.error("Eroare la modificarea exemplarului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//pentru a elimina un exemplar din baza de date (de exemplu, dacă a fost pierdut) - http://localhost:3000/sterge-exemplar/:id
+app.delete('/sterge-exemplar/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Căutăm exemplarul în baza de date
+        const exemplar = await ExemplarCarte.findByPk(id);
+        if (!exemplar) {
+            return res.status(404).json({ message: "Exemplarul nu a fost găsit!" });
+        }
+
+        // ❌ Nu permitem ștergerea unui exemplar împrumutat
+        if (exemplar.status_disponibilitate === "împrumutat") {
+            return res.status(400).json({ message: "Exemplarul este împrumutat și nu poate fi șters!" });
+        }
+
+        // Ștergem exemplarul dacă este disponibil
+        await exemplar.destroy();
+        res.status(200).json({ message: "Exemplarul a fost șters cu succes!" });
+
+    } catch (error) {
+        console.error("Eroare la ștergerea exemplarului:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
