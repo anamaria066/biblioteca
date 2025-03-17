@@ -3,6 +3,7 @@ import cors from 'cors';
 import { Sequelize, DataTypes } from 'sequelize';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
+import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli } from './Statistici.js';
 
 const app = express();
 app.use(cors());
@@ -31,7 +32,7 @@ const sequelize = new Sequelize('bibliotecadb', 'root', 'ana', {
 });
 
 // Definirea tabelei "Carte"
-const Carte = sequelize.define('Carte', {
+export const Carte = sequelize.define('Carte', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -69,7 +70,7 @@ const Carte = sequelize.define('Carte', {
 
 
 // Definirea tabelei "ExemplarCarte"
-const ExemplarCarte = sequelize.define('ExemplarCarte', {
+export const ExemplarCarte = sequelize.define('ExemplarCarte', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -108,7 +109,7 @@ const ExemplarCarte = sequelize.define('ExemplarCarte', {
 
 
 // Definirea tabelei "Utilizator"
-const Utilizator = sequelize.define('Utilizator', {
+export const Utilizator = sequelize.define('Utilizator', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -150,7 +151,7 @@ const Utilizator = sequelize.define('Utilizator', {
 
 
 // Definirea tabelei "Recenzie"
-const Recenzie = sequelize.define('Recenzie', {
+export const Recenzie = sequelize.define('Recenzie', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -193,7 +194,7 @@ const Recenzie = sequelize.define('Recenzie', {
 });
 
 // Definirea tabelei "Imprumut"
-const Imprumut = sequelize.define('Imprumut', {
+export const Imprumut = sequelize.define('Imprumut', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -236,7 +237,7 @@ const Imprumut = sequelize.define('Imprumut', {
 
 
 // Definirea tabelei "Cheltuiala"
-const Cheltuiala = sequelize.define('Cheltuiala', {
+export const Cheltuiala = sequelize.define('Cheltuiala', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -278,7 +279,7 @@ const Cheltuiala = sequelize.define('Cheltuiala', {
 
 
 //Definirea tabelei Favorite
-const Favorite = sequelize.define('Favorite', {
+export const Favorite = sequelize.define('Favorite', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -979,6 +980,30 @@ app.delete('/sterge-exemplar/:id', async (req, res) => {
     } catch (error) {
         console.error("Eroare la ștergerea exemplarului:", error);
         res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+//returnează datele pentru grafice
+app.get('/statistici', async (req, res) => {
+    try {
+        // Apelăm funcțiile care returnează datele statistice
+        const cheltuieli = await getCheltuieliLunare();
+        const genuri = await getGenuriPopularitate();
+        const imprumuturi = await getImprumuturiLunare();
+        const utilizatori = await getUtilizatoriNoi();
+        const tipCheltuieli = await getTipuriCheltuieli();
+
+        // ✅ Verifică dacă sunt undefined
+        if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli) {
+            console.error("❌ Una dintre funcțiile statistice a returnat undefined!");
+        }
+
+        // ✅ Trimite datele doar dacă sunt valide
+        res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli });
+    } catch (error) {
+        console.error("❌ Eroare API statistici:", error);
+        res.status(500).json({ message: "Eroare la server!", error: error.message });
     }
 });
 
