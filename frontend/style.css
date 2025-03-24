@@ -663,6 +663,10 @@ html, body {
     background-color: rgb(255, 209, 220);
 }
 
+.user-info {
+    color: rgb(62, 45, 36);
+}
+
 /* Grid cu grafice */
 .dashboard-grid {
     display: grid;

@@ -40,6 +40,8 @@ function Login() {
                 // ✅ Salvăm ID-ul utilizatorului și token-ul în localStorage
                 localStorage.setItem("utilizator_id", data.id);
                 localStorage.setItem("token", data.token);
+                localStorage.setItem("nume", data.nume); // Salvează numele
+                localStorage.setItem("prenume", data.prenume); // Salvează prenumele
 
                 // ✅ Redirecționare în funcție de tipul utilizatorului
                 setTimeout(() => {

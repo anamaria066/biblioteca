@@ -31,6 +31,10 @@ function MainPageAdmin() {
     const [utilizatori, setUtilizatori] = useState([]);
     const [tipCheltuieli, setTipCheltuieli] = useState([]);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [user, setUser] = useState({
+        nume: "",
+        prenume: ""
+    });
 
     // Fetch date pentru statistici
     useEffect(() => {
@@ -44,6 +48,11 @@ function MainPageAdmin() {
                 setTipCheltuieli(data.tipCheltuieli);
             })
             .catch(error => console.error("Eroare la încărcarea statisticilor:", error));
+
+        // Setează numele și prenumele utilizatorului din localStorage
+        const nume = localStorage.getItem("nume");
+        const prenume = localStorage.getItem("prenume");
+        setUser({ nume, prenume });
     }, []);
 
     return (
@@ -66,6 +75,7 @@ function MainPageAdmin() {
                     </div>
                 </div>
                 <div className="right-buttons">
+                    <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <button className="icon-button">👤</button>
                 </div>
             </header>

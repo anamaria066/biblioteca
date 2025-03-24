@@ -425,6 +425,8 @@ app.get('/conturi', async (req, res) => {
 });
 
 
+
+
 //stergerea unui cont - http://localhost:3000/sterge-cont/:id
 app.delete('/sterge-cont/:id', async (req, res) => {
     const { id } = req.params;
@@ -471,7 +473,9 @@ app.post('/login', async (req, res) => {
             message: "Autentificare reușită!",
             token,
             id: utilizator.id, // ✅ Trimitem și ID-ul utilizatorului
-            tip: utilizator.tip
+            tip: utilizator.tip,
+            nume: utilizator.nume, 
+            prenume: utilizator.prenume
         });
     } catch (error) {
         res.status(500).json({ message: "Eroare la server!" });
