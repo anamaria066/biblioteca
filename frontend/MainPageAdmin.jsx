@@ -76,7 +76,12 @@ function MainPageAdmin() {
                 </div>
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
-                    <button className="icon-button">👤</button>
+                    <img
+                        src={user.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
+                        alt="Poza de profil"
+                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
+                        onClick={() => navigate("/profil-admin")}
+                    />
                 </div>
             </header>
 

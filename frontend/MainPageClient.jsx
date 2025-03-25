@@ -7,14 +7,28 @@ function MainPageClient() {
     const [search, setSearch] = useState("");
     const [paginaCurenta, setPaginaCurenta] = useState(1);
     const cartiPerPagina = 12; // 2 rânduri x 6 coloane
+    const [userData, setUserData] = useState({ pozaProfil: "" }); // Adaugă userData aici
     const navigate = useNavigate(); // Inițializează navigarea
+    const [user, setUser] = useState({
+            nume: "",
+            prenume: ""
+        });
 
-    // Fetch cărțile din backend
+    // Fetch date pentru cărți și utilizator
     useEffect(() => {
+        // Obține cărțile
         fetch("http://localhost:3000/carti-cu-rating")
             .then((response) => response.json())
             .then((data) => setCarti(data))
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
+
+        // Obține informațiile utilizatorului din localStorage sau altă sursă
+        const pozaProfil = localStorage.getItem("pozaProfil") || "/images/default-avatar.jpg"; // Setează o valoare implicită
+        setUserData({ pozaProfil });
+        // Setează numele și prenumele utilizatorului din localStorage
+        const nume = localStorage.getItem("nume");
+        const prenume = localStorage.getItem("prenume");
+        setUser({ nume, prenume });
     }, []);
 
     // Funcție pentru generarea stelelor colorate în funcție de rating
@@ -75,8 +89,14 @@ function MainPageClient() {
                 </div>
 
                 <div className="right-buttons">
-                <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
-                    <button className="icon-button">👤</button>
+                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
+                    <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
+                    <img
+                        src={userData.pozaProfil && userData.pozaProfil !== "" ? userData.pozaProfil : "/images/default-avatar.jpg"} // Folosim o imagine implicită dacă poza nu există
+                        alt="Poza de profil"
+                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
+                        onClick={() => navigate("/profil-client")}
+                    />
                 </div>
             </header>
 

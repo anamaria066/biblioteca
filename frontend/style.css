@@ -681,3 +681,239 @@ html, body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
+
+/* PROFIL ADMIN */
+/* Stiluri generale pentru pagina de profil */
+.profil-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+  }
+  
+  .header-profil {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+
+  
+  .profil-content {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profil-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 20px;
+  }
+  
+  .profile-img-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    border: 3px solid #ddd;
+  }
+  
+  .profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .profil-header-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .profil-header-text h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+  
+  .profil-header-text p {
+    margin: 5px 0;
+    color: #777;
+    font-size: 14px;
+  }
+  
+  .reviews-info {
+    margin-bottom: 20px;
+    color: #444;
+  }
+  
+  .buttons-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  
+  button.cancel {
+    background-color: #f44336;
+  }
+  
+  button.cancel:hover {
+    background-color: #e53935;
+  }
+  
+  .dropdown-container {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    width: 200px;
+    display: none;
+  }
+  
+  .dropdown-container:hover .dropdown-menu {
+    display: block;
+  }
+  
+  .dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Stiluri pentru pop-up-ul de schimbare parolă */
+  .password-popup,
+  .edit-profile-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+  }
+  
+  .popup-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .popup-content button {
+    width: 48%;
+  }
+  
+  .popup-content button.cancel {
+    background-color: #f44336;
+  }
+  
+  .popup-content button.confirm {
+    background-color: #4CAF50;
+  }
+  
+  
+  .popup-content button.cancel:hover {
+    background-color: #e53935;
+  }
+
+  /* Pop-up overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Fundal semi-transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asigură-te că este deasupra altor elemente */
+}
+
+/* Pop-up content */
+.popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Butoane din pop-up */
+.popup button {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Buton de anulare */
+.popup button:hover {
+    background-color: #0056b3;
+}
+
+/* Mesaj de eroare */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+.profile-img-small {
+    width: 40px; /* Lățimea pozei mici */
+    height: 40px; /* Înălțimea pozei mici */
+    border-radius: 50%; /* Face poza rotundă */
+    object-fit: cover; /* Asigură-te că poza nu se distorsionează */
+    cursor: pointer; /* Arată că este un element pe care se poate da click */
+    margin-top: 8px;
+    margin-left: 5px;
+}

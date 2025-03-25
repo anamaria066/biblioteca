@@ -145,7 +145,7 @@ export const Utilizator = sequelize.define('Utilizator', {
         allowNull: true
     }
 }, {
-    timestamps: false,
+    timestamps: true,
     freezeTableName: true
 });
 
@@ -1008,6 +1008,44 @@ app.get('/statistici', async (req, res) => {
     } catch (error) {
         console.error("❌ Eroare API statistici:", error);
         res.status(500).json({ message: "Eroare la server!", error: error.message });
+    }
+});
+
+
+//endpoint pentru a obține informațiile utilizatorului
+app.get('/profil/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Obținem utilizatorul pe baza ID-ului
+        const utilizator = await Utilizator.findByPk(id, {
+            include: [{
+                model: Recenzie,
+                attributes: ['id'],  // Numărul de recenzii
+            }]
+        });
+
+        if (!utilizator) {
+            return res.status(404).json({ message: "Utilizatorul nu a fost găsit!" });
+        }
+
+        // Calculăm numărul de recenzii
+        const numarRecenzii = utilizator.Recenzies.length;
+
+        // Formatează data creării corect
+        const dataCreare = utilizator.createdAt ? utilizator.createdAt.toISOString() : null;
+        
+        res.status(200).json({
+            nume: utilizator.nume,
+            prenume: utilizator.prenume,
+            email: utilizator.email,
+            dataCreare,  // Trimitem data corect formatată
+            numarRecenzii,  // Numărul de recenzii
+            pozaProfil: utilizator.poza_profil
+        });
+    } catch (error) {
+        console.error("Eroare la obținerea profilului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
     }
 });
 
