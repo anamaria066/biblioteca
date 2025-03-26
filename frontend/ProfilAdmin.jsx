@@ -156,59 +156,51 @@ function ProfilAdmin() {
 
             {/* ======= CONȚINUT PROFIIL ======= */}
             <div className="profil-content">
-                <div className="profile-info">
-                    <div className="profile-picture">
+                {/* Poza de profil pe partea stângă */}
+                <div className="profile-picture">
                     <img
-                        src={userData.pozaProfil && userData.pozaProfil !== "" ? userData.pozaProfil : "/images/default-avatar.jpg"}
+                        src={userData.pozaProfil || "/images/default-avatar.jpg"}
                         alt="Poza profil"
-                        className="profile-img"
                         onClick={() => alert("Schimbă sau șterge poza")}
                     />
-                        <div className="dropdown-menu">
-                            {userData.pozaProfil !== "/images/default-avatar.jpg" ? (
-                                <>
-                                    <button onClick={handleDeletePicture}>Șterge poza</button>
-                                    <button onClick={handlePictureChange}>Schimbă poza</button>
-                                </>
-                            ) : (
-                                <button onClick={handlePictureChange}>Adaugă poză</button>
-                            )}
-                        </div>
-                    </div>
-                    <div className="profile-details">
-                        <h2>{userData.nume} {userData.prenume}</h2>
-                        <p>{userData.numarRecenzii} recenzii</p>
-                        <p>{userData.email}</p>
-                        <p>Cont creat la: {userData.dataCreare}</p>
-                        {isEditing ? (
-                            <>
-                                <input
-                                    type="text"
-                                    value={newName}
-                                    onChange={e => setNewName(e.target.value)}
-                                    placeholder="Nume"
-                                />
-                                <input
-                                    type="text"
-                                    value={newPrenume}
-                                    onChange={e => setNewPrenume(e.target.value)}
-                                    placeholder="Prenume"
-                                />
-                                <input
-                                    type="email"
-                                    value={newEmail}
-                                    onChange={e => setNewEmail(e.target.value)}
-                                    placeholder="Email"
-                                />
-                                <button onClick={handleSaveProfileChanges}>Salvează modificările</button>
-                            </>
-                        ) : (
-                            <>
-                                <button onClick={handleEditProfile}>Editează profilul</button>
-                                <button onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
-                            </>
-                        )}
-                    </div>
+                </div>
+
+                {/* Detalii profil pe partea dreaptă */}
+                <div className="profile-details">
+                    <h2>{userData.nume} {userData.prenume}</h2>
+                    <p>{userData.numarRecenzii} recenzii</p>
+                    <p>{userData.email}</p>
+                    <p>Cont creat la: {userData.dataCreare}</p>
+
+                    {/* Dacă profilul este în modul de editare, afișăm câmpurile de editare */}
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={e => setNewName(e.target.value)}
+                                placeholder="Nume"
+                            />
+                            <input
+                                type="text"
+                                value={newPrenume}
+                                onChange={e => setNewPrenume(e.target.value)}
+                                placeholder="Prenume"
+                            />
+                            <input
+                                type="email"
+                                value={newEmail}
+                                onChange={e => setNewEmail(e.target.value)}
+                                placeholder="Email"
+                            />
+                            <button id="btnsalveazaModificarile" onClick={handleSaveProfileChanges}>Salvează modificările</button>
+                        </>
+                    ) : (
+                        <>
+                            <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
+                            <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
+                        </>
+                    )}
                 </div>
             </div>
 
