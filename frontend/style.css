@@ -693,8 +693,8 @@ html, body {
     width: 800px;
     height: 450px;
     max-width: 1000px; /* Poți ajusta dimensiunea pentru a fi mai mare pe ecran */
-    background-color: #f4f4f9;
-    border-radius: 10px;
+    background-color: rgb(251, 249, 245);
+    border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex; /* Folosim flexbox pentru alinierea pe orizontală */
@@ -844,6 +844,7 @@ html, body {
     border-radius: 50%; /* Face poza rotundă */
     overflow: hidden;
     margin-right: 20px; /* Spațiu între poză și informațiile de profil */
+    margin-left: 40px;
 }
 
 .profile-picture img {
@@ -852,8 +853,13 @@ html, body {
     object-fit: cover;
 }
 
+.informatii-basic {
+    margin-right: 100px;
+    margin-bottom: 20px;
+}
+
 .profile-details {
-    margin-left: 100px;
+    margin-left: 80px;
     flex-direction: column;
 }
 

@@ -167,11 +167,12 @@ function ProfilAdmin() {
 
                 {/* Detalii profil pe partea dreaptă */}
                 <div className="profile-details">
-                    <h2>{userData.nume} {userData.prenume}</h2>
-                    <p>{userData.numarRecenzii} recenzii</p>
-                    <p>{userData.email}</p>
-                    <p>Cont creat la: {userData.dataCreare}</p>
-
+                    <div className="informatii-basic">
+                        <h2>{userData.nume} {userData.prenume}</h2>
+                        <p>{userData.numarRecenzii} recenzii</p>
+                        <p>{userData.email}</p>
+                        <p>Cont creat la: {userData.dataCreare}</p>
+                    </div>
                     {/* Dacă profilul este în modul de editare, afișăm câmpurile de editare */}
                     {isEditing ? (
                         <>
