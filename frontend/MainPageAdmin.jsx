@@ -60,16 +60,22 @@ function MainPageAdmin() {
             {/* ======= HEADER ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    <button className="nav-button" onClick={() => navigate("/")}>Pagina Principală</button>
+                    {/* Butoane de navigare */}
+                    <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
                     <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
                     <div className="dropdown">
-                        <button className="nav-button" onClick={() => setMenuOpen(!menuOpen)}>Adaugă...</button>
+                        {/* Meniul dropdown */}
+                        <button className="nav-button" onClick={() => {
+                            setMenuOpen(!menuOpen); 
+                        }}>
+                            Adaugă...
+                        </button>
                         {menuOpen && (
-                            <div className="dropdown-menu">
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-cheltuiala")}>Cheltuială</button>
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                            <div className="dropdown-menu show">
+                                <button className="dropdown-item">Cheltuială</button>
+                                <button className="dropdown-item">Carte</button>
                             </div>
                         )}
                     </div>

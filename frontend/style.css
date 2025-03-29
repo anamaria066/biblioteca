@@ -648,6 +648,7 @@ html, body {
     display: flex;
     flex-direction: column;
     border-radius: 10px;
+    margin-left: 80px;
 }
 
 .dropdown-item {
@@ -662,6 +663,25 @@ html, body {
 .dropdown-item:hover {
     background-color: rgb(255, 209, 220);
 }
+
+  
+  
+.dropdown-container {
+    position: relative;
+  }
+  
+  
+  .dropdown-container:hover .dropdown-menu {
+    display: block;
+  }
+  
+
+
+/* Dacă menuOpen este true, adaugă clasa 'show' pentru a-l face vizibil */
+.dropdown-menu.show {
+    display: block;
+}
+
 
 .user-info {
     color: rgb(62, 45, 36);
@@ -702,37 +722,7 @@ html, body {
   }
 
  
-  
-  
-  .dropdown-container {
-    position: relative;
-  }
-  
-  .dropdown-menu {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 10px;
-    width: 200px;
-    display: none;
-  }
-  
-  .dropdown-container:hover .dropdown-menu {
-    display: block;
-  }
-  
-  .dropdown-item {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .dropdown-item:hover {
-    background-color: #f1f1f1;
-  }
+
   
   /* Stiluri pentru pop-up-ul de schimbare parolă */
   .password-popup, .edit-profile-popup {
@@ -877,35 +867,8 @@ html, body {
 
 
 
-.dropdown-container {
-    position: relative;
-}
 
-.dropdown-menu {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 10px;
-    width: 200px;
-    display: none;
-}
 
-.dropdown-container:hover .dropdown-menu {
-    display: block;
-}
-
-.dropdown-item {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #ddd;
-}
-
-.dropdown-item:hover {
-    background-color: #f1f1f1;
-}
 
 .popup-overlay {
     position: fixed;
@@ -930,3 +893,110 @@ html, body {
 }
 
 
+
+/* UTILIZATORI.JSX */
+/* Stiluri pentru tabelul cu utilizatori */
+.user-table-container {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-table th,
+.user-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.user-table th {
+    background-color: #f4f4f4;
+}
+
+.user-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.user-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.delete-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
+}
+
+.istoric-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.istoric-button:hover {
+    background-color: #388e3c;
+}
+
+
+/* Stiluri pentru modalul de confirmare */
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+}
+
+.confirm-button,
+.cancel-button {
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm-button {
+    background-color: #4caf50;
+    color: white;
+}
+
+.cancel-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.confirm-button:hover {
+    background-color: #45a049;
+}
+
+.cancel-button:hover {
+    background-color: #e53935;
+}

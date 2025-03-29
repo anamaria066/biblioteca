@@ -9,6 +9,8 @@ import DetaliiCarte from './DetaliiCarte';
 import Favorite from './Favorite';
 import ProfilAdmin from './ProfilAdmin';
 import ProfilClient from './ProfilClient';
+import CartiAdmin from './CartiAdmin';
+import Utilizatori from './Utilizatori';
 
 const App = () => {
   return (
@@ -23,6 +25,8 @@ const App = () => {
         <Route path='/favorite' element={<Favorite/>}/>
         <Route path='/profil-admin' element={<ProfilAdmin/>}/>
         <Route path='/profil-client' element={<ProfilClient/>}/>
+        <Route path='/carti' element={<CartiAdmin/>}/>
+        <Route path='/utilizatori' element={<Utilizatori/>}/>
       </Routes>
     </BrowserRouter>
   );
