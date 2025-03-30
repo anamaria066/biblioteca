@@ -670,6 +670,32 @@ app.post('/adauga-recenzie', async (req, res) => {
 });
 
 
+// Endpoint pentru obținerea tuturor recenziilor - http://localhost:3000/recenzii
+app.get('/recenzii', async (req, res) => {
+    try {
+        // Obținem toate recenziile din baza de date
+        const recenzii = await Recenzie.findAll({
+            include: [
+                {
+                    model: Utilizator,
+                    attributes: ['nume', 'prenume'] // Adăugăm informațiile despre utilizatorul care a lăsat recenzia
+                },
+                {
+                    model: Carte,
+                    attributes: ['titlu', 'autor'] // Adăugăm informațiile despre cartea evaluată
+                }
+            ]
+        });
+
+        // Trimitem recenziile în răspuns
+        res.status(200).json(recenzii);
+    } catch (error) {
+        console.error("Eroare la obținerea recenziilor:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
 //iau toate cărțile cu rating calculat din recenzii - http://localhost:3000/carti-cu-rating
 app.get('/carti-cu-rating', async (req, res) => {
     try {
@@ -905,6 +931,30 @@ app.post('/adauga-exemplar', async (req, res) => {
         res.status(201).json({ message: "Exemplar adăugat cu succes!", exemplar });
     } catch (error) {
         console.error("Eroare la adăugarea exemplarului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+// Endpoint pentru obținerea tuturor exemplarelor de la toate cărțile - http://localhost:3000/exemplare
+app.get('/exemplare', async (req, res) => {
+    try {
+        const exemplare = await ExemplarCarte.findAll({
+            include: [
+                {
+                    model: Carte,
+                    attributes: ['id', 'titlu', 'autor']  // Include titlul și autorul cărții
+                }
+            ]
+        });
+
+        if (!exemplare || exemplare.length === 0) {
+            return res.status(404).json({ message: "Nu există exemplare disponibile!" });
+        }
+
+        res.status(200).json(exemplare);
+    } catch (error) {
+        console.error("Eroare la obținerea exemplarelor:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });

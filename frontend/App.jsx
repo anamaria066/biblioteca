@@ -11,6 +11,8 @@ import ProfilAdmin from './ProfilAdmin';
 import ProfilClient from './ProfilClient';
 import CartiAdmin from './CartiAdmin';
 import Utilizatori from './Utilizatori';
+import DetaliiCarteAdmin from './DetaliiCarteAdmin';
+import Exemplare from './Exemplare';
 
 const App = () => {
   return (
@@ -27,6 +29,9 @@ const App = () => {
         <Route path='/profil-client' element={<ProfilClient/>}/>
         <Route path='/carti' element={<CartiAdmin/>}/>
         <Route path='/utilizatori' element={<Utilizatori/>}/>
+        <Route path='/detalii-admin/:id' element={<DetaliiCarteAdmin/>}/>
+        <Route path='/exemplare/:id' element={<Exemplare/>}/>
+
       </Routes>
     </BrowserRouter>
   );

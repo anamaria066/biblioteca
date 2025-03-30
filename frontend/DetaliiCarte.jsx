@@ -13,6 +13,10 @@ function DetaliiCarte() {
     const [mesaj, setMesaj] = useState("");
     const [esteFavorita, setEsteFavorita] = useState(false);
     const utilizator_id = localStorage.getItem('utilizator_id');
+    const [user, setUser] = useState({
+                nume: "",
+                prenume: ""
+            });
 
     // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const fetchData = async () => {
@@ -28,6 +32,11 @@ function DetaliiCarte() {
             const favoriteRes = await fetch(`http://localhost:3000/favorite/${utilizator_id}`);
             const favoriteData = await favoriteRes.json();
             setEsteFavorita(favoriteData.some(fav => fav.id === parseInt(id)));
+
+            // Setează numele și prenumele utilizatorului din localStorage
+        const nume = localStorage.getItem("nume");
+        const prenume = localStorage.getItem("prenume");
+        setUser({ nume, prenume });
         } catch (error) {
             console.error("Eroare la încărcarea datelor:", error);
         }
@@ -129,6 +138,7 @@ function DetaliiCarte() {
 
     return (
         <div className="detalii-container">
+            {/* ======= Header fixat sus ======= */}
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button">Explorează</button>
@@ -136,9 +146,16 @@ function DetaliiCarte() {
                     <button className="nav-button">Cărțile mele</button>
                     <button className="nav-button">Istoric</button>
                 </div>
+
                 <div className="right-buttons">
+                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
-                    <button className="icon-button">👤</button>
+                    <img
+                        src={user.pozaProfil && user.pozaProfil !== "" ? user.pozaProfil : "/images/default-avatar.jpg"} // Folosim o imagine implicită dacă poza nu există
+                        alt="Poza de profil"
+                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
+                        onClick={() => navigate("/profil-client")}
+                    />
                 </div>
             </header>
 

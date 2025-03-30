@@ -72,7 +72,7 @@ function CartiAdmin() {
 
     // ✅ Funcție care redirecționează către pagina de detalii când se face click pe o carte
     const handleClick = (id) => {
-        navigate(`/detalii/${id}`);
+        navigate(`/detalii-admin/${id}`);
     };
 
     const spatiiGoale = cartiPerPagina - cartiAfisate.length;

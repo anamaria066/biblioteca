@@ -72,7 +72,7 @@ body {
 }
 
 .welcome-box {
-    margin-top: 280px;
+    margin-top: 200px;
 }
 
 .signup-form, .login-form {
@@ -467,7 +467,7 @@ html, body {
 
 /* Stiluri pentru pop-up pentru recenzie */
 /* Buton pentru a lăsa o recenzie */
-.btn-recenzie, .btn-favorite {
+.btn-recenzie, .btn-favorite, .btnDelete, .btnEdit, .btnExemplare, .btnAdaugaExemplar {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     border: none;
@@ -484,8 +484,16 @@ html, body {
     margin-left: 20px;
 }
 
-.btn-recenzie:hover, .btn-favorite:hover {
+.btn-recenzie:hover, .btn-favorite:hover, .btnDelete:hover, .btnEdit:hover, .btnExemplare:hover, .btnAdaugaExemplar:hover {
     background-color: rgb(255, 180, 200);
+}
+
+.btnEdit {
+    margin-left: 20px;
+}
+
+.btnExemplare {
+    margin-left: 20px;
 }
 
 
@@ -629,7 +637,7 @@ html, body {
 .admin-container {
     width: 100%;
     min-height: 100vh;
-    background-color: #f5f5f5;
+    /* background-color: #f5f5f5; */
     padding: 20px;
 }
 
@@ -898,7 +906,7 @@ html, body {
 /* Stiluri pentru tabelul cu utilizatori */
 .user-table-container {
     padding: 20px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .user-table {
@@ -915,19 +923,23 @@ html, body {
 }
 
 .user-table th {
-    background-color: #f4f4f4;
+    background-color: #5a9a6e;
 }
 
 .user-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
+.user-table tr:nth-child(odd) {
+    background-color: #f1eee4;
+}
+
 .user-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e4e4e4;
 }
 
 .delete-button {
-    background-color: #f44336;
+    background-color: #923131;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -936,11 +948,11 @@ html, body {
 }
 
 .delete-button:hover {
-    background-color: #d32f2f;
+    background-color: rgb(120, 41, 41);
 }
 
 .istoric-button {
-    background-color: #4caf50;
+    background-color: #527e53;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -949,7 +961,7 @@ html, body {
 }
 
 .istoric-button:hover {
-    background-color: #388e3c;
+    background-color: rgb(42, 105, 46);
 }
 
 
@@ -984,19 +996,109 @@ html, body {
 }
 
 .confirm-button {
-    background-color: #4caf50;
+    background-color: #527e53;
     color: white;
 }
 
 .cancel-button {
-    background-color: #f44336;
+    background-color: #923131;
     color: white;
 }
 
 .confirm-button:hover {
-    background-color: #45a049;
+    background-color: rgb(42, 105, 46);
 }
 
 .cancel-button:hover {
-    background-color: #e53935;
+    background-color: rgb(120, 41, 41);
+}
+
+
+.pagination {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin-bottom: 10px; /* spațiu față de partea de jos */
+    width: 100%; /* pentru a ocupa întreaga lățime */
+    padding: 10px 0; /* margine superioară și inferioară pentru butoane */
+}
+
+.pagination button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.pagination button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    margin: 0 10px;
+    font-size: 16px;
+}
+
+
+
+/* Exemplare.jsx */
+/* Titlu */
+.exemplare-content h2 {
+    font-size: 24px;
+    color: #333;
+    margin-top: -270px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Tabelul cu Exemplare */
+.exemplare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.exemplare-table th,
+.exemplare-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.exemplare-table th {
+    background-color: #5a9a6e;
+    color: white;
+    font-size: 18px;
+}
+
+.exemplare-table td {
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+
+.exemplare-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.exemplare-table tr:nth-child(odd) {
+    background-color: #f1eee4;
+}
+
+.exemplare-table tr:hover {
+    background-color: #e4e4e4;
+}
+
+
+/* Empty message for no exemplare */
+.exemplare-table td[colspan="4"] {
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }

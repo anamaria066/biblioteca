@@ -12,6 +12,8 @@ function Utilizatori() {
     });
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null); // pentru a păstra ID-ul utilizatorului de șters
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 10;
 
     // Fetch utilizatori din baza de date
     useEffect(() => {
@@ -57,6 +59,24 @@ function Utilizatori() {
     const cancelDelete = () => {
         setShowConfirmModal(false);
         setUserToDelete(null);
+    };
+
+    // Calculul utilizatorilor de afișat pe baza paginii curente
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = utilizatori.slice(indexOfFirstUser, indexOfLastUser);
+
+    // Funcții de navigare între pagini
+    const nextPage = () => {
+        if (currentPage < Math.ceil(utilizatori.length / usersPerPage)) {
+            setCurrentPage(prevPage => prevPage + 1);
+        }
+    };
+
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prevPage => prevPage - 1);
+        }
     };
 
     return (
@@ -109,7 +129,7 @@ function Utilizatori() {
                         </tr>
                     </thead>
                     <tbody>
-                        {utilizatori.map((utilizator) => (
+                        {currentUsers.map((utilizator) => (
                             <tr key={utilizator.id}>
                                 <td>{utilizator.nume}</td>
                                 <td>{utilizator.prenume}</td>
@@ -148,6 +168,19 @@ function Utilizatori() {
                     </div>
                 </div>
             )}
+
+            {/* Butoane de navigare pentru pagini */}
+            <div className="pagination">
+                <button onClick={prevPage} disabled={currentPage === 1}>
+                    ◀
+                </button>
+                <span>
+                    Pagina {currentPage} din {Math.ceil(utilizatori.length / usersPerPage)}
+                </span>
+                <button onClick={nextPage} disabled={currentPage === Math.ceil(utilizatori.length / usersPerPage)}>
+                    ▶
+                </button>
+            </div>
         </div>
     );
 }
