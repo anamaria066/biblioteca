@@ -1100,6 +1100,39 @@ app.get('/profil/:id', async (req, res) => {
 });
 
 
+//pentru a vedea toate imprumuturile - http://localhost:3000/imprumuturi
+app.get('/imprumuturi', async (req, res) => {
+    try {
+      const imprumuturi = await Imprumut.findAll({
+        where: { status: 'activ' },
+        include: [
+          {
+            model: Utilizator,
+            attributes: ['nume', 'prenume']
+          },
+          {
+            model: Carte,
+            attributes: ['titlu']
+          }
+        ]
+      });
+  
+      const rezultat = imprumuturi.map((imp) => ({
+        id: imp.id,
+        numeUtilizator: `${imp.Utilizator.nume} ${imp.Utilizator.prenume}`,
+        titluCarte: imp.Carte.titlu,
+        dataImprumut: imp.data_imprumut,
+        dataReturnare: imp.data_returnare
+      }));
+  
+      res.json(rezultat);
+    } catch (error) {
+      console.error("Eroare la obținerea împrumuturilor:", error);
+      res.status(500).json({ mesaj: "Eroare server" });
+    }
+  });
+
+
 
 // Pornire server
 const PORT = 3000;

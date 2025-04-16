@@ -200,6 +200,7 @@ function ProfilAdmin() {
                         <>
                             <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
                             <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
+                            <button id="btnDelogare" onClick={() => navigate("/")}>Deloghează-te</button>
                         </>
                     )}
                 </div>

@@ -13,6 +13,7 @@ import CartiAdmin from './CartiAdmin';
 import Utilizatori from './Utilizatori';
 import DetaliiCarteAdmin from './DetaliiCarteAdmin';
 import Exemplare from './Exemplare';
+import Imprumuturi from './Imprumuturi';
 
 const App = () => {
   return (
@@ -31,7 +32,7 @@ const App = () => {
         <Route path='/utilizatori' element={<Utilizatori/>}/>
         <Route path='/detalii-admin/:id' element={<DetaliiCarteAdmin/>}/>
         <Route path='/exemplare/:id' element={<Exemplare/>}/>
-
+        <Route path='/imprumuturi' element={<Imprumuturi/>}/>
       </Routes>
     </BrowserRouter>
   );

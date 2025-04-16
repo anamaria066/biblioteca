@@ -149,7 +149,6 @@ function ProfilAdmin() {
 
             {/* ======= CONȚINUT PROFIIL ======= */}
             <div className="profil-content">
-                <div className="profile-info">
                     <div className="profile-picture">
                     <img
                         src={userData.pozaProfil && userData.pozaProfil !== "" ? userData.pozaProfil : "/images/default-avatar.jpg"}
@@ -157,22 +156,14 @@ function ProfilAdmin() {
                         className="profile-img"
                         onClick={() => alert("Schimbă sau șterge poza")}
                     />
-                        <div className="dropdown-menu">
-                            {userData.pozaProfil !== "/images/default-avatar.jpg" ? (
-                                <>
-                                    <button onClick={handleDeletePicture}>Șterge poza</button>
-                                    <button onClick={handlePictureChange}>Schimbă poza</button>
-                                </>
-                            ) : (
-                                <button onClick={handlePictureChange}>Adaugă poză</button>
-                            )}
-                        </div>
                     </div>
                     <div className="profile-details">
+                    <div className="informatii-basic">
                         <h2>{userData.nume} {userData.prenume}</h2>
                         <p>{userData.numarRecenzii} recenzii</p>
                         <p>{userData.email}</p>
                         <p>Cont creat la: {userData.dataCreare}</p>
+                    </div>
                         {isEditing ? (
                             <>
                                 <input
@@ -197,12 +188,19 @@ function ProfilAdmin() {
                             </>
                         ) : (
                             <>
-                                <button onClick={handleEditProfile}>Editează profilul</button>
-                                <button onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
+                                <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
+                                <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
+                                {userData.pozaProfil !== "/images/default-avatar.jpg" ? (
+                                <>
+                                    <button id="btnStergePoza" onClick={handleDeletePicture}>Șterge poza</button>
+                                    <button id="btnSchimbaPoza" onClick={handlePictureChange}>Schimbă poza</button>
+                                </>
+                            ) : (
+                                <button id="btnAdaugaPoza" onClick={handlePictureChange}>Adaugă poză</button>
+                            )}
                             </>
                         )}
                     </div>
-                </div>
             </div>
 
             {/* ======= POPUP REAL pentru schimbarea parolei (fereastra flotantă) ======= */}

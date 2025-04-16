@@ -87,7 +87,7 @@ function CartiAdmin() {
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Împrumuturi</button>
                     <div className="dropdown">
                         {/* Meniul dropdown */}
                         <button className="nav-button" onClick={() => {
