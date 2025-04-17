@@ -22,13 +22,12 @@ function MainPageClient() {
             .then((data) => setCarti(data))
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
 
-        // Obține informațiile utilizatorului din localStorage sau altă sursă
-        const pozaProfil = localStorage.getItem("pozaProfil") || "/images/default-avatar.jpg"; // Setează o valoare implicită
-        setUserData({ pozaProfil });
+        
         // Setează numele și prenumele utilizatorului din localStorage
         const nume = localStorage.getItem("nume");
         const prenume = localStorage.getItem("prenume");
-        setUser({ nume, prenume });
+        const pozaProfil = localStorage.getItem("pozaProfil");
+        setUser({ nume, prenume, pozaProfil });
     }, []);
 
     // Funcție pentru generarea stelelor colorate în funcție de rating
@@ -92,10 +91,16 @@ function MainPageClient() {
                      <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
                     <img
-                        src={userData.pozaProfil && userData.pozaProfil !== "" ? userData.pozaProfil : "/images/default-avatar.jpg"} // Folosim o imagine implicită dacă poza nu există
-                        alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
-                        onClick={() => navigate("/profil-client")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

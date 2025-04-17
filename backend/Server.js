@@ -399,6 +399,19 @@ const storage = multer.diskStorage({
       res.status(500).json({ error: "Eroare la salvarea pozei." });
     }
   });
+
+  // Endpoint pentru stergere poză
+  app.post("/sterge-poza/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        await Utilizator.update({ poza_profil: null }, { where: { id: userId } });
+        res.json({ message: "Poza a fost ștearsă din baza de date." });
+    } catch (err) {
+        console.error("Eroare la ștergerea pozei:", err);
+        res.status(500).json({ error: "Eroare la ștergerea pozei din baza de date." });
+    }
+});
   
   // Expune folderul uploads public
   app.use("/uploads", express.static("uploads"));

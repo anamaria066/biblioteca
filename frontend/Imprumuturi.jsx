@@ -42,6 +42,17 @@ function Imprumuturi() {
         }
     };
 
+    //sa se inchida meniul dropdown din cadrul header-ului
+          useEffect(() => {
+            const handleClickOutsideDropdown = (e) => {
+                if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                    setMenuOpen(false);
+                }
+            };
+            document.addEventListener("mousedown", handleClickOutsideDropdown);
+            return () => document.removeEventListener("mousedown", handleClickOutsideDropdown);
+        }, []);
+
     return (
         <div className="admin-container">
             {/* ======= HEADER ======= */}

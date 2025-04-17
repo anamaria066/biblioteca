@@ -26,6 +26,9 @@ function ProfilAdmin() {
     const [newPassword, setNewPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
+    const [pozaMareDropdownDeschis, setPozaMareDropdownDeschis] = useState(false);
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
 
     const userId = localStorage.getItem("utilizator_id");
 
@@ -53,12 +56,27 @@ function ProfilAdmin() {
             });
     }, [userId]);
 
-    //temporar
-    // useEffect(() => {
-    //     if (previewPoza) {
-    //         console.log("✅ previewPoza actualizat:", previewPoza);
-    //     }
-    // }, [previewPoza]);
+    //sa se inchida meniul dropdown din cadrul pozei de profil
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+          if (!e.target.closest('.profile-img') && !e.target.closest('.dropdown-poza-mare')) {
+            setPozaMareDropdownDeschis(false);
+          }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+      }, []);
+
+    //sa se inchida meniul dropdown din cadrul header-ului
+      useEffect(() => {
+        const handleClickOutsideDropdown = (e) => {
+            if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutsideDropdown);
+        return () => document.removeEventListener("mousedown", handleClickOutsideDropdown);
+    }, []);
 
     const handleEditProfile = () => {
         setIsEditing(true);
@@ -144,11 +162,26 @@ function ProfilAdmin() {
 
     const handleDeletePicture = () => {
         localStorage.removeItem("pozaProfil");
-        setUserData(prev => ({
-            ...prev,
-            pozaProfil: "/images/default-avatar.jpg"
-        }));
-        alert("Poza a fost ștearsă!");
+    
+        setPreviewPoza(null);
+        setPozaSelectata(null);
+    
+        fetch(`http://localhost:3000/sterge-poza/${userId}`, {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(() => {
+            setUserData(prev => ({
+                ...prev,
+                pozaProfil: ""
+            }));
+            setPozaMareDropdownDeschis(false);
+            setSuccessMessage("Poza de profil a fost ștearsă cu succes!");
+            setShowSuccessPopup(true);
+        })
+        .catch(err => {
+            console.error("Eroare la ștergerea pozei din backend:", err);
+        });
     };
 
     const handleCloseChangePassword = () => {
@@ -172,7 +205,7 @@ function ProfilAdmin() {
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Înregistrează Împrumut</button>
                     <div className="dropdown">
                         <button className="nav-button" onClick={() => setMenuOpen(!menuOpen)}>Adaugă...</button>
                         {menuOpen && (
@@ -201,7 +234,19 @@ function ProfilAdmin() {
                         src={pozaAfisata}
                         alt="Poza profil"
                         className="profile-img"
+                        onClick={() => {
+                            if (userData.pozaProfil !== "/images/default-avatar.jpg") {
+                              setPozaMareDropdownDeschis(prev => !prev);
+                            } 
+                          }}
                     />
+                    
+                    {pozaMareDropdownDeschis && userData.pozaProfil !== "/images/default-avatar.jpg" && (
+                    <div className="dropdown-poza-mare">
+                        <button onClick={handleSelectPoza}>Schimbă poza</button>
+                        <button onClick={handleDeletePicture}>Șterge poza</button>
+                    </div>
+                    )}
                 </div>
 
                 {previewPoza && (
@@ -247,18 +292,19 @@ function ProfilAdmin() {
                         <>
                             <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
                             <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
-                            <button id={userData.pozaProfil !== "/images/default-avatar.jpg" ? "btnSchimbaPoza" : "btnAdaugaPoza"} onClick={handleSelectPoza}>
-                                {userData.pozaProfil !== "/images/default-avatar.jpg" ? "Schimbă poza" : "Adaugă poză"}
-                            </button>
-                            {userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                                <button id="btnStergePoza" onClick={handleDeletePicture}>Șterge poza</button>
-                            )}
                             <button id="btnDelogare" onClick={() => {
                                 localStorage.clear();
                                 navigate("/", { replace: true });
                             }}>
                                 Deloghează-te
                             </button>
+                            {/* nou */}
+                            {pozaAfisata.includes("/images/default-avatar.jpg") && !previewPoza && (
+                                <button id="btnAdaugaPoza" onClick={handleSelectPoza}>
+                                    Adaugă poză
+                                </button>
+                            )}
+                            {/*  */}
                         </>
                     )}
 
@@ -291,6 +337,15 @@ function ProfilAdmin() {
                         <button onClick={handleChangePassword}>Confirmă schimbarea</button>
                         <button onClick={handleCloseChangePassword}>Anulează</button>
                         {errorMessage && <p className="error-message">{errorMessage}</p>}
+                    </div>
+                </div>
+            )}
+
+            {showSuccessPopup && (
+                <div className="popup-overlay">
+                    <div className="popup">
+                        <p>{successMessage}</p>
+                        <button id="confirmStergerePfp" onClick={() => setShowSuccessPopup(false)}>OK</button>
                     </div>
                 </div>
             )}

@@ -31,6 +31,18 @@ function Utilizatori() {
         setUser({ nume, prenume, pozaProfil });
     }, []);
 
+
+    //sa se inchida meniul dropdown din cadrul header-ului
+          useEffect(() => {
+            const handleClickOutsideDropdown = (e) => {
+                if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                    setMenuOpen(false);
+                }
+            };
+            document.addEventListener("mousedown", handleClickOutsideDropdown);
+            return () => document.removeEventListener("mousedown", handleClickOutsideDropdown);
+        }, []);
+
     // Funcție pentru ștergerea utilizatorului
     const handleDelete = (id) => {
         fetch(`http://localhost:3000/sterge-cont/${id}`, {
