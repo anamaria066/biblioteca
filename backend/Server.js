@@ -4,10 +4,20 @@ import { Sequelize, DataTypes } from 'sequelize';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli } from './Statistici.js';
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
+// Dacă folosești ESModules (cu `import` în loc de `require`):
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Asta face fișierele din /uploads accesibile public:
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const SECRET_KEY = "biblioteca_secret_key";
 const ACCESS_KEYS = ["ADMIN123", "ADMIN456"]; // Lista de chei de acces valide
@@ -362,9 +372,38 @@ const verificaToken = (req, res, next) => {
 };
 
 
+// Configurare folder de upload
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "./uploads/");
+    },
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname);
+      const name = `profil_${Date.now()}${ext}`;
+      cb(null, name);
+    },
+  });
+  
+  const upload = multer({ storage });
+  
+  // Endpoint pentru upload poză
+  app.post("/upload-poza/:id", upload.single("poza"), async (req, res) => {
+    const userId = req.params.id;
+    const imagePath = `/uploads/${req.file.filename}`;
+  
+    try {
+      await Utilizator.update({ poza_profil: imagePath }, { where: { id: userId } });
+      res.json({ message: "Poză încărcată cu succes!", pozaProfil: imagePath });
+    } catch (err) {
+      console.error("Eroare la salvarea pozei:", err);
+      res.status(500).json({ error: "Eroare la salvarea pozei." });
+    }
+  });
+  
+  // Expune folderul uploads public
+  app.use("/uploads", express.static("uploads"));
 
 
-//endpoints
 //vizualizare tabele - http://localhost:3000/tabele
 app.get('/tabele', async (req, res) => {
     try {

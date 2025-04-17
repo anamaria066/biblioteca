@@ -66,10 +66,16 @@ function Imprumuturi() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={user.pozaProfil || "/images/default-avatar.jpg"}
-                        alt="Poza de profil"
-                        className="profile-img-small"
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

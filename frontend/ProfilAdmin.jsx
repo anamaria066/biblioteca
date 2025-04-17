@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 
 function ProfilAdmin() {
     const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+
     const [userData, setUserData] = useState({
         nume: "",
         prenume: "",
@@ -12,6 +14,9 @@ function ProfilAdmin() {
         pozaProfil: "",
         numarRecenzii: 0
     });
+
+    const [pozaSelectata, setPozaSelectata] = useState(null);
+    const [previewPoza, setPreviewPoza] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState("");
     const [newPrenume, setNewPrenume] = useState("");
@@ -20,45 +25,25 @@ function ProfilAdmin() {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [menuOpen, setMenuOpen] = useState(false); // Adăugat useState pentru a gestiona meniul dropdown
-    const userId = localStorage.getItem("utilizator_id"); // ID-ul utilizatorului
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const userId = localStorage.getItem("utilizator_id");
 
     useEffect(() => {
-        // Preluăm informațiile utilizatorului din API
         fetch(`http://localhost:3000/profil/${userId}`)
             .then(res => res.json())
             .then(data => {
-                // Log pentru a vedea exact ce returnează serverul
-                console.log("Răspuns de la server:", data);
-    
-                // Verificăm ce conținem în dataCreare
-                const dataCreare = data.dataCreare;
-    
-                let formattedDataCreare = "Data necunoscută";
-    
-                if (dataCreare) {
-                    // Log pentru a verifica formatul datei
-                    console.log("Data creării:", dataCreare);
-    
-                    // Verificăm dacă data este într-un format valid (de obicei: "2025-03-25T08:00:00Z")
-                    const dateParts = dataCreare.split("T")[0].split("-"); // Obținem doar partea de dată (YYYY-MM-DD)
-                    
-                    if (dateParts.length === 3) {
-                        // Extragem ziua, luna și anul
-                        const [year, month, day] = dateParts;
-    
-                        // Formatăm data în DD/MM/YYYY
-                        formattedDataCreare = `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
-                    }
-                }
-    
+                const dateParts = data.dataCreare?.split("T")[0].split("-");
+                const formattedDataCreare = dateParts?.length === 3
+                    ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
+                    : "Data necunoscută";
+
                 setUserData({
                     nume: data.nume,
                     prenume: data.prenume,
                     email: data.email,
-                    dataCreare: formattedDataCreare, // Data formatată
+                    dataCreare: formattedDataCreare,
                     numarRecenzii: data.numarRecenzii,
-                    // Setează imaginea de profil doar dacă există, altfel folosește una implicită
                     pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
                 });
             })
@@ -67,6 +52,13 @@ function ProfilAdmin() {
                 setErrorMessage("Eroare la încărcarea datelor utilizatorului.");
             });
     }, [userId]);
+
+    //temporar
+    // useEffect(() => {
+    //     if (previewPoza) {
+    //         console.log("✅ previewPoza actualizat:", previewPoza);
+    //     }
+    // }, [previewPoza]);
 
     const handleEditProfile = () => {
         setIsEditing(true);
@@ -77,14 +69,13 @@ function ProfilAdmin() {
 
     const handleSaveProfileChanges = () => {
         if (newName && newPrenume && newEmail) {
-            setUserData(prevData => ({
-                ...prevData,
+            setUserData(prev => ({
+                ...prev,
                 nume: newName,
                 prenume: newPrenume,
                 email: newEmail
             }));
             setIsEditing(false);
-            // Poți salva în backend sau în localStorage modificările
             localStorage.setItem("nume", newName);
             localStorage.setItem("prenume", newPrenume);
             localStorage.setItem("email", newEmail);
@@ -94,9 +85,8 @@ function ProfilAdmin() {
     };
 
     const handleChangePassword = () => {
-        if (oldPassword === "parolaVeche") { // Verifică parola veche (de exemplu, cu backend-ul)
-            // Actualizează parola în backend sau localStorage
-            localStorage.setItem("parola", newPassword); // Ex: actualizează parola
+        if (oldPassword === "parolaVeche") {
+            localStorage.setItem("parola", newPassword);
             setIsChangingPassword(false);
             setErrorMessage("");
             alert("Parola a fost schimbată cu succes!");
@@ -105,32 +95,81 @@ function ProfilAdmin() {
         }
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // console.log("Fișier selectat:", file.name);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewPoza(reader.result);
+                setPozaSelectata(file);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSelectPoza = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleConfirmPoza = () => {
+        const formData = new FormData();
+        formData.append("poza", pozaSelectata);
+
+        fetch(`http://localhost:3000/upload-poza/${userId}`, {
+            method: "POST",
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.pozaProfil) {
+                    setUserData(prev => ({
+                        ...prev,
+                        pozaProfil: data.pozaProfil
+                    }));
+                    localStorage.setItem("pozaProfil", data.pozaProfil);
+                }
+                setPreviewPoza(null);
+                setPozaSelectata(null);
+            })
+            .catch(err => console.error("Eroare la upload poză:", err));
+    };
+
+    const handleCancelPoza = () => {
+        setPreviewPoza(null);
+        setPozaSelectata(null);
+    };
+
+    const handleDeletePicture = () => {
+        localStorage.removeItem("pozaProfil");
+        setUserData(prev => ({
+            ...prev,
+            pozaProfil: "/images/default-avatar.jpg"
+        }));
+        alert("Poza a fost ștearsă!");
+    };
+
     const handleCloseChangePassword = () => {
         setIsChangingPassword(false);
         setErrorMessage("");
     };
 
-    const handlePictureChange = () => {
-        // Logica pentru a adăuga/șterge poza dintr-un folder local
-        alert("Poza a fost schimbată!");
-    };
-
-    const handleDeletePicture = () => {
-        // Logica pentru a șterge poza de profil
-        localStorage.removeItem("pozaProfil");
-        setUserData(prevData => ({
-            ...prevData,
-            pozaProfil: "/images/default-avatar.jpg" // Poza va fi resetată la una implicită
-        }));
-        alert("Poza a fost ștearsă!");
-    };
+    const pozaAfisata = previewPoza
+    ? previewPoza
+    : userData.pozaProfil && userData.pozaProfil !== ""
+        ? userData.pozaProfil.startsWith("/uploads")
+            ? `http://localhost:3000${userData.pozaProfil}`
+            : userData.pozaProfil
+        : "/images/default-avatar.jpg";
 
     return (
         <div className="profil-container">
             {/* ======= HEADER ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    <button className="nav-button" onClick={() => navigate("/")}>Pagina Principală</button>
+                    <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
                     <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
@@ -147,25 +186,31 @@ function ProfilAdmin() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {userData.nume} {userData.prenume}!</p>
                     <img
-                        src={userData.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
+                        src={pozaAfisata}
                         alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
+                        className="profile-img-small"
+                        onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>
 
-            {/* ======= CONȚINUT PROFIIL ======= */}
             <div className="profil-content">
-                {/* Poza de profil pe partea stângă */}
+            <div className="poza-cu-butoane">
                 <div className="profile-picture">
                     <img
-                        src={userData.pozaProfil || "/images/default-avatar.jpg"}
+                        src={pozaAfisata}
                         alt="Poza profil"
-                        onClick={() => alert("Schimbă sau șterge poza")}
+                        className="profile-img"
                     />
                 </div>
 
-                {/* Detalii profil pe partea dreaptă */}
+                {previewPoza && (
+                    <div className="butoane-previzualizare">
+                        <button id="btnConfirmaPoza" onClick={handleConfirmPoza}>Confirmă poza</button>
+                        <button id="btnAnuleazaPoza" onClick={handleCancelPoza}>Anulează</button>
+                    </div>
+                )}
+            </div>
                 <div className="profile-details">
                     <div className="informatii-basic">
                         <h2>{userData.nume} {userData.prenume}</h2>
@@ -173,7 +218,7 @@ function ProfilAdmin() {
                         <p>{userData.email}</p>
                         <p>Cont creat la: {userData.dataCreare}</p>
                     </div>
-                    {/* Dacă profilul este în modul de editare, afișăm câmpurile de editare */}
+
                     {isEditing ? (
                         <>
                             <input
@@ -194,19 +239,39 @@ function ProfilAdmin() {
                                 onChange={e => setNewEmail(e.target.value)}
                                 placeholder="Email"
                             />
-                            <button id="btnsalveazaModificarile" onClick={handleSaveProfileChanges}>Salvează modificările</button>
+                            <button id="btnsalveazaModificarile" onClick={handleSaveProfileChanges}>
+                                Salvează modificările
+                            </button>
                         </>
                     ) : (
                         <>
                             <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
                             <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
-                            <button id="btnDelogare" onClick={() => navigate("/")}>Deloghează-te</button>
+                            <button id={userData.pozaProfil !== "/images/default-avatar.jpg" ? "btnSchimbaPoza" : "btnAdaugaPoza"} onClick={handleSelectPoza}>
+                                {userData.pozaProfil !== "/images/default-avatar.jpg" ? "Schimbă poza" : "Adaugă poză"}
+                            </button>
+                            {userData.pozaProfil !== "/images/default-avatar.jpg" && (
+                                <button id="btnStergePoza" onClick={handleDeletePicture}>Șterge poza</button>
+                            )}
+                            <button id="btnDelogare" onClick={() => {
+                                localStorage.clear();
+                                navigate("/", { replace: true });
+                            }}>
+                                Deloghează-te
+                            </button>
                         </>
                     )}
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        onChange={handleFileChange}
+                    />
                 </div>
             </div>
 
-            {/* ======= POPUP REAL pentru schimbarea parolei (fereastra flotantă) ======= */}
             {isChangingPassword && (
                 <div className="popup-overlay">
                     <div className="popup">

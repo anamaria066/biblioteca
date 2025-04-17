@@ -27,7 +27,8 @@ function Utilizatori() {
         // Setează numele și prenumele utilizatorului din localStorage
         const nume = localStorage.getItem("nume");
         const prenume = localStorage.getItem("prenume");
-        setUser({ nume, prenume });
+        const pozaProfil = localStorage.getItem("pozaProfil");
+        setUser({ nume, prenume, pozaProfil });
     }, []);
 
     // Funcție pentru ștergerea utilizatorului
@@ -38,15 +39,28 @@ function Utilizatori() {
             .then(res => res.json())
             .then(data => {
                 if (data.message === 'Cont șters cu succes!') {
-                    // Reîncarcă utilizatorii
-                    setUtilizatori(prevUtilizatori => prevUtilizatori.filter(utilizator => utilizator.id !== id));
-                    setShowConfirmModal(false); // Închide pop-up-ul după ștergere
+                    const loggedInUserId = localStorage.getItem("utilizator_id");
+    
+                    // Dacă utilizatorul șters este cel logat
+                    if (String(id) === loggedInUserId) {
+                        localStorage.clear(); // curăță toate datele
+                        navigate("/", { replace: true }); // redirect către pagina de start
+                        return;
+                    }
+    
+                    // Dacă e alt utilizator, actualizează lista
+                    setUtilizatori(prevUtilizatori =>
+                        prevUtilizatori.filter(utilizator => utilizator.id !== id)
+                    );
+                    setShowConfirmModal(false);
                 } else {
                     alert("Eroare la ștergerea utilizatorului!");
-                    setShowConfirmModal(false); // Închide pop-up-ul dacă există o eroare
+                    setShowConfirmModal(false);
                 }
             })
-            .catch(error => console.error("Eroare la ștergerea utilizatorului:", error));
+            .catch(error => {
+                console.error("Eroare la ștergerea utilizatorului:", error);
+            });
     };
 
     // Funcție pentru confirmarea ștergerii
@@ -107,10 +121,16 @@ function Utilizatori() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={user.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
-                        alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

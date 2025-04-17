@@ -195,9 +195,10 @@ function ProfilAdmin() {
                                     <button id="btnStergePoza" onClick={handleDeletePicture}>Șterge poza</button>
                                     <button id="btnSchimbaPoza" onClick={handlePictureChange}>Schimbă poza</button>
                                 </>
-                            ) : (
-                                <button id="btnAdaugaPoza" onClick={handlePictureChange}>Adaugă poză</button>
-                            )}
+                                ) : (
+                                    <button id="btnAdaugaPoza" onClick={handlePictureChange}>Adaugă poză</button>
+                                )}
+                                <button id="btnDelogare" onClick={() => navigate("/")}>Deloghează-te</button>
                             </>
                         )}
                     </div>

@@ -52,8 +52,10 @@ function MainPageAdmin() {
         // Setează numele și prenumele utilizatorului din localStorage
         const nume = localStorage.getItem("nume");
         const prenume = localStorage.getItem("prenume");
-        setUser({ nume, prenume });
+        const pozaProfil = localStorage.getItem("pozaProfil");
+        setUser({ nume, prenume, pozaProfil });
     }, []);
+
 
     return (
         <div className="admin-container">
@@ -83,10 +85,16 @@ function MainPageAdmin() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={user.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
-                        alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

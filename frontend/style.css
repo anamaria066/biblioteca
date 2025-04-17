@@ -35,7 +35,7 @@ body {
 }
 
 /* Efect hover - schimbă culoarea și adaugă umbră */
-#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover {
+#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover, #btnConfirmaPoza:hover, #btnAnuleazaPoza:hover {
     background-color: rgb(255, 209, 220);
     box-shadow: 0px 4px 10px rgb(62, 45, 36); /* Adaugă o umbra */
     transform: translateY(-2px); /* efect de ridicare */
@@ -879,10 +879,6 @@ html, body {
 }
 
 
-
-
-
-
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -903,6 +899,33 @@ html, body {
     width: 400px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+}
+
+
+/* previzualizare poza */
+.butoane-previzualizare {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#btnConfirmaPoza, #btnAnuleazaPoza {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    margin-right: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+
+
+.butoane-previzualizare button:hover {
+    opacity: 0.9;
 }
 
 
