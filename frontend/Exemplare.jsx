@@ -15,6 +15,10 @@ function Exemplare() {
         nume: "",
         prenume: ""
     });
+    const [editExemplarId, setEditExemplarId] = useState(null);
+    const [newStare, setNewStare] = useState("");
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+    const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
 
     // Funcție pentru a încărca exemplarele și datele cărții
     const fetchData = async () => {
@@ -42,7 +46,8 @@ function Exemplare() {
         // Setează numele și prenumele utilizatorului din localStorage
         const nume = localStorage.getItem("nume");
         const prenume = localStorage.getItem("prenume");
-        setUser({ nume, prenume });
+        const pozaProfil = localStorage.getItem("pozaProfil");
+        setUser({ nume, prenume, pozaProfil });
     }, [selectedCarteId]);
 
 
@@ -51,6 +56,48 @@ function Exemplare() {
     if (loading) {
         return <p>Se încarcă...</p>;
     }
+
+    const handleEditClick = (exemplar) => {
+        setEditExemplarId(exemplar.id);
+        setNewStare(exemplar.stare);
+    };
+    
+    const handleConfirmEdit = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:3000/modifica-exemplar/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ stare: newStare }),
+            });
+    
+            if (response.ok) {
+                const updated = exemplare.map(ex => 
+                    ex.id === id ? { ...ex, stare: newStare } : ex
+                );
+                setExemplare(updated);
+                setEditExemplarId(null);
+            }
+        } catch (error) {
+            console.error("Eroare la actualizarea exemplarului:", error);
+        }
+    };
+
+    const handleDeleteExemplar = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:3000/sterge-exemplar/${id}`, {
+                method: "DELETE"
+            });
+    
+            if (res.ok) {
+                setExemplare(prev => prev.filter(ex => ex.id !== id));
+                setShowDeleteSuccess(true);
+                setConfirmDeleteId(null);
+                setTimeout(() => setShowDeleteSuccess(false), 3000);
+            }
+        } catch (error) {
+            console.error("Eroare la ștergere exemplar:", error);
+        }
+    };
 
     return (
         <div className="exemplare-container">
@@ -80,10 +127,16 @@ function Exemplare() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={user.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
-                        alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>
@@ -99,26 +152,80 @@ function Exemplare() {
                             <th>ID Exemplar</th>
                             <th>Stare</th>
                             <th>Cost Achiziție</th>
-                            <th>Status Disponibilitate</th>
+                            <th>Disponibilitate</th>
+                            <th>Editare</th>
+                            <th>Ștergere</th>
                         </tr>
                     </thead>
                     <tbody>
                         {exemplare.length === 0 ? (
                             <tr>
-                                <td colSpan="4">Nu există exemplare pentru această carte.</td>
+                                <td colSpan="6">Nu există exemplare pentru această carte.</td>
                             </tr>
                         ) : (
                             exemplare.map((exemplar) => (
                                 <tr key={exemplar.id}>
                                     <td>{exemplar.id}</td>
-                                    <td>{exemplar.stare}</td>
+                                    <td>
+                                        {editExemplarId === exemplar.id ? (
+                                            <select
+                                                value={newStare}
+                                                onChange={(e) => setNewStare(e.target.value)}
+                                                className="select-stare"
+                                            >
+                                                <option value="bună">bună</option>
+                                                <option value="deteriorată">deteriorată</option>
+                                                <option value="necesită înlocuire">necesită înlocuire</option>
+                                            </select>
+                                        ) : (
+                                            exemplar.stare
+                                        )}
+                                    </td>
                                     <td>{exemplar.cost_achizitie} RON</td>
                                     <td>{exemplar.status_disponibilitate}</td>
+                                    <td>
+                                        {editExemplarId === exemplar.id ? (
+                                            <button id="btnConfirmaEditExemplar" onClick={() => handleConfirmEdit(exemplar.id)}>Confirmă</button>
+                                        ) : (
+                                            <button id="btnEditExemplar" onClick={() => handleEditClick(exemplar)}>Editează</button>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {exemplar.status_disponibilitate === "împrumutat" ? (
+                                            <button
+                                            disabled
+                                            title="Exemplarul este împrumutat și nu poate fi șters"
+                                            style={{ opacity: 0.5, cursor: "not-allowed" }}
+                                        >
+                                            Nu se poate șterge
+                                        </button>
+                                        ) : (
+                                            <button id="btnStergeExemplar" onClick={() => setConfirmDeleteId(exemplar.id)}>Șterge exemplar</button>
+                                        )}
+                                    </td>
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+
+                {confirmDeleteId && (
+                    <div className="confirm-modal">
+                        <div className="modal-content">
+                            <h3>Doriți ștergerea exemplarului?</h3>
+                            <div className="popup-buttons">
+                                <button id="btnDa" onClick={() => handleDeleteExemplar(confirmDeleteId)}>Da</button>
+                                <button id="btnNu" onClick={() => setConfirmDeleteId(null)}>Nu</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showDeleteSuccess && (
+                    <div className="floating-success">
+                        Exemplarul a fost șters!
+                    </div>
+                )}
             </div>
         </div>
     );

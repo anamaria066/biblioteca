@@ -690,6 +690,22 @@ app.delete('/sterge-carte/:id', async (req, res) => {
 });
 
 
+// Endpoint pentru ștergerea tuturor cartilor - http://localhost:3000/sterge-toate-cartile
+app.delete('/sterge-toate-cartile', async (req, res) => {
+    try {
+        // Șterge toate cărțile din baza de date (vor declanșa cascade automat pentru exemplare & recenzii)
+        const numarCartiSterse = await Carte.destroy({ where: {} });
+
+        res.status(200).json({
+            message: `Toate cele ${numarCartiSterse} cărți au fost șterse cu succes (inclusiv exemplarele și recenziile asociate).`
+        });
+    } catch (error) {
+        console.error("Eroare la ștergerea cărților:", error);
+        res.status(500).json({ message: "Eroare la server." });
+    }
+});
+
+
 //adauga recenzie - http://localhost:3000/adauga-recenzie
 app.post('/adauga-recenzie', async (req, res) => {
     try {

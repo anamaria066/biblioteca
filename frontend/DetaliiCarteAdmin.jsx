@@ -10,10 +10,16 @@ function DetaliiCarteAdmin() {
     const [showPopup, setShowPopup] = useState(false);
     const [mesaj, setMesaj] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
-        const [user, setUser] = useState({
-                nume: "",
-                prenume: ""
-            });
+    const [user, setUser] = useState({
+            nume: "",
+            prenume: ""
+        });
+
+    const [showAddExemplarPopup, setShowAddExemplarPopup] = useState(false);
+    const [stareExemplar, setStareExemplar] = useState("bună");
+    const [costAchizitie, setCostAchizitie] = useState("");
+    const [dataAchizitie, setDataAchizitie] = useState(new Date().toISOString().split("T")[0]); // format YYYY-MM-DD
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     // Funcție pentru a încărca cartea și recenziile
     const fetchData = async () => {
@@ -36,7 +42,8 @@ function DetaliiCarteAdmin() {
          // Setează numele și prenumele utilizatorului din localStorage
          const nume = localStorage.getItem("nume");
          const prenume = localStorage.getItem("prenume");
-         setUser({ nume, prenume });
+         const pozaProfil = localStorage.getItem("pozaProfil");
+        setUser({ nume, prenume, pozaProfil });
     }, [id]);
 
     // Șterge cartea
@@ -80,6 +87,39 @@ function DetaliiCarteAdmin() {
         return <p>Se încarcă...</p>;
     }
 
+    const handleAddExemplar = async () => {
+        const cost = parseFloat(costAchizitie) || 0;
+    
+        try {
+            const exemplarNou = {
+                carte_id: id,
+                stare: stareExemplar,
+                cost_achizitie: cost,
+                data_achizitie: new Date(dataAchizitie)
+            };
+    
+            const response = await fetch("http://localhost:3000/adauga-exemplar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(exemplarNou)
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                setShowAddExemplarPopup(false);
+                setCostAchizitie("");
+                setShowSuccessMessage(true);
+                setTimeout(() => setShowSuccessMessage(false), 3000);
+            } else {
+                alert(data.message || "Eroare la adăugarea exemplarului.");
+            }
+        } catch (error) {
+            console.error("Eroare la adăugare exemplar:", error);
+            alert("Eroare de rețea!");
+        }
+    };
+
     return (
         <div className="detalii-container">
             {/* ======= HEADER ======= */}
@@ -108,10 +148,16 @@ function DetaliiCarteAdmin() {
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={user.pozaProfil || "/images/default-avatar.jpg"}  // Dacă nu există poza de profil, se va folosi una implicită
-                        alt="Poza de profil"
-                        className="profile-img-small" // Aplicăm stilul pentru poza mică și rotundă
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>
@@ -129,7 +175,7 @@ function DetaliiCarteAdmin() {
                     <button className="btnDelete" onClick={confirmDelete}>Șterge cartea</button>
                     <button className="btnEdit" onClick={handleEdit}>Editează</button>
                     <button className="btnExemplare" onClick={handleViewExemplare}>Vezi exemplare</button>
-                    <button className="btnAdaugaExemplar">Adaugă exemplar</button>
+                    <button className="btnAdaugaExemplar" onClick={() => setShowAddExemplarPopup(true)}>Adaugă exemplar</button>
                 </div>
                 <div className="detalii-imagine">
                     <img src={carte.imagine} alt={carte.titlu} className="coperta-mare" />
@@ -165,6 +211,49 @@ function DetaliiCarteAdmin() {
                     </div>
                 )}
             </div>
+
+
+            {/*  */}
+            {showAddExemplarPopup && (
+                <div className="popup-overlay">
+                    <div className="popup">
+                        <h3>Adaugă exemplar</h3>
+
+                        <label>Stare:</label>
+                        <select value={stareExemplar} onChange={(e) => setStareExemplar(e.target.value)}>
+                            <option value="bună">bună</option>
+                            <option value="deteriorată">deteriorată</option>
+                            <option value="necesită înlocuire">necesită înlocuire</option>
+                        </select>
+
+                        <label>Cost achiziție:</label>
+                        <input
+                            type="number"
+                            value={costAchizitie}
+                            onChange={(e) => setCostAchizitie(e.target.value)}
+                            placeholder="Ex: 45.00"
+                        />
+                        <label>Data achiziției:</label>
+                        <input
+                            type="date"
+                            value={dataAchizitie}
+                            onChange={(e) => setDataAchizitie(e.target.value)}
+                        />
+
+                        <div className="popup-buttons">
+                            <button id="btnConfirmaExemplar" onClick={handleAddExemplar}>Confirmă</button>
+                            <button id="btnAnuleazaExemplar" onClick={() => setShowAddExemplarPopup(false)}>Anulează</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/*  */}
+            {showSuccessMessage && (
+                <div className="floating-success">
+                    Exemplarul a fost adăugat cu succes!
+                </div>
+            )}
+
         </div>
     );
 }

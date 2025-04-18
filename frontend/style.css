@@ -469,6 +469,91 @@ html, body {
     transform: scale(1.05);
 }
 
+/* stiluri pentru adaugare exemplar */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.popup {
+    background-color: white;
+    color: rgb(62, 45, 36);
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.popup input,
+.popup select, .select-stare {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f1ece5;
+    font-size: 1rem;
+    color: rgb(62, 45, 36);
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popup input:focus,
+.popup select:focus, .select-stare:focus {
+    border-color: #e4d8c6;
+    box-shadow: 0 0 5px rgba(167, 148, 170, 0.4);
+    outline: none;
+}
+
+#btnConfirmaExemplar, #btnAnuleazaExemplar {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+#btnConfirmaExemplar:hover, #btnAnuleazaExemplar:hover {
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36); /* Adaugă o umbra */
+    transform: translateY(-2px);
+}
+
+.floating-success {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
 
 
 /* Stiluri pentru pop-up pentru recenzie */
@@ -482,8 +567,8 @@ html, body {
     cursor: pointer;
     font-size: 16px;
     margin-top: 15px;
-    transition: background 0.3s ease-in-out;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
 }
 
 .btn-favorite {
@@ -491,7 +576,9 @@ html, body {
 }
 
 .btn-recenzie:hover, .btn-favorite:hover, .btnDelete:hover, .btnEdit:hover, .btnExemplare:hover, .btnAdaugaExemplar:hover {
-    background-color: rgb(255, 180, 200);
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36); 
+    transform: translateY(-2px);
 }
 
 .btnEdit {
@@ -1206,3 +1293,29 @@ html, body {
     color: rgb(62, 45, 36);
     background-color: rgb(255, 209, 220);
 }
+
+
+/* editare si stergere exemplar */
+
+#btnStergeExemplar, #btnEditExemplar, #btnConfirmaEditExemplar, #btnDa, #btnNu {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+#btnStergeExemplar:hover, #btnEditExemplar:hover, #btnConfirmaEditExemplar:hover, #btnDa:hover, #btnNu:hover {
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36); 
+    transform: translateY(-2px);
+}
+
+.modal-content {
+    color: rgb(62, 45, 36);
+}
+
+
