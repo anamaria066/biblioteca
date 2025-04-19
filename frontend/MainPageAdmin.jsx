@@ -88,7 +88,7 @@ function MainPageAdmin() {
                         {menuOpen && (
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item">Carte</button>
+                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
                             </div>
                         )}
                     </div>

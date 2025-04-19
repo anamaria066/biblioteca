@@ -412,6 +412,44 @@ const storage = multer.diskStorage({
         res.status(500).json({ error: "Eroare la ștergerea pozei din baza de date." });
     }
 });
+
+// pentru adaugarea unei carti de catre admin
+app.post("/adauga-carte-cu-upload", upload.single("imagine"), async (req, res) => {
+    try {
+        const { titlu, autor, an_publicatie, descriere, gen, pret } = req.body;
+        const imagine = req.file ? `/uploads/${req.file.filename}` : null;
+
+        if (!titlu || !autor || !pret) {
+            return res.status(400).json({ message: "Titlul, autorul și prețul sunt obligatorii!" });
+        }
+
+        const carteNoua = await Carte.create({
+            titlu,
+            autor,
+            an_publicatie,
+            descriere,
+            gen,
+            pret,
+            imagine
+        });
+
+        await ExemplarCarte.create({
+            carte_id: carteNoua.id,
+            stare: 'bună',
+            data_achizitie: new Date(),
+            cost_achizitie: pret,
+            status_disponibilitate: 'disponibil'
+        });
+
+        res.status(201).json({ message: "Carte și exemplar adăugate cu succes!", carte: carteNoua });
+    } catch (err) {
+        console.error("Eroare la adăugare carte:", err);
+        res.status(500).json({ message: "Eroare server." });
+    }
+});
+
+
+
   
   // Expune folderul uploads public
   app.use("/uploads", express.static("uploads"));
@@ -501,6 +539,61 @@ app.delete('/sterge-cont/:id', async (req, res) => {
     }
 });
 
+
+// Update datele unui utilizator - http://localhost:3000/modifica-profil/:id
+app.put("/modifica-profil/:id", async (req, res) => {
+    const { id } = req.params;
+    const { nume, prenume, email } = req.body;
+
+    try {
+        // Verificăm dacă utilizatorul există
+        const utilizator = await Utilizator.findByPk(id);
+        if (!utilizator) {
+            return res.status(404).json({ message: "Utilizatorul nu a fost găsit!" });
+        }
+
+        // Actualizăm datele doar dacă sunt furnizate
+        if (nume) utilizator.nume = nume;
+        if (prenume) utilizator.prenume = prenume;
+        if (email) utilizator.email = email;
+
+        await utilizator.save();
+
+        res.status(200).json({ message: "Profil actualizat cu succes!" });
+    } catch (err) {
+        console.error("Eroare la actualizarea profilului:", err);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+// Update parola unui utilizator - http://localhost:3000/schimba-parola/:id
+app.put("/schimba-parola/:id", async (req, res) => {
+    const { id } = req.params;
+    const { parolaVeche, parolaNoua } = req.body;
+
+    try {
+        const utilizator = await Utilizator.findByPk(id);
+
+        if (!utilizator) {
+            return res.status(404).json({ message: "Utilizatorul nu a fost găsit!" });
+        }
+
+        // Comparăm parola veche
+        if (utilizator.parola !== parolaVeche) {
+            return res.status(401).json({ message: "Parola veche este greșită!" });
+        }
+
+        // Setăm noua parolă
+        utilizator.parola = parolaNoua;
+        await utilizator.save();
+
+        return res.status(200).json({ message: "Parola a fost schimbată cu succes!" });
+    } catch (error) {
+        console.error("Eroare la schimbarea parolei:", error);
+        return res.status(500).json({ message: "Eroare internă la server!" });
+    }
+});
 
 
 // Endpoint pentru login

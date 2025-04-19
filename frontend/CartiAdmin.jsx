@@ -136,7 +136,15 @@ function CartiAdmin() {
                     >
                         {carte && (
                             <>
-                                <img src={carte.imagine} alt={carte.titlu} className="book-image" />
+                                <img
+                                    src={
+                                        carte.imagine?.startsWith("/uploads")
+                                        ? `http://localhost:3000${carte.imagine}`
+                                        : carte.imagine
+                                    }
+                                    alt={carte.titlu}
+                                    className="book-image"
+                                />
                                 <p className="book-title">{carte.titlu} - {carte.autor}</p>
                                 <p className="book-rating">{renderStars(carte.rating)}</p>
                             </>

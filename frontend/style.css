@@ -9,7 +9,7 @@ body {
 }
 
 
-#btnAuth, #btnCreareCont, #btnCreazaCont, #btnLogin, #btnEditProfil, #btnSchimbaParola, #btnsalveazaModificarile, #btnDelogare, #btnAdaugaPoza, #btnSchimbaPoza, #btnStergePoza {
+#btnAuth, #btnCreareCont, #btnCreazaCont, #btnLogin, #btnEditProfil, #btnSchimbaParola, #btnDelogare, #btnAdaugaPoza, #btnSchimbaPoza, #btnStergePoza, #btnAnuleazaModificarile {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     margin-right: 80px;
@@ -25,6 +25,20 @@ body {
     margin-top: 30px;
 }
 
+#btnsalveazaModificarile {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    margin-left: -100px;
+    margin-right: 100px;
+    margin-top: 30px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
 
 
 .forgot-password-link a {
@@ -37,7 +51,7 @@ body {
 }
 
 /* Efect hover - schimbă culoarea și adaugă umbră */
-#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover, #btnConfirmaPoza:hover, #btnAnuleazaPoza:hover {
+#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover, #btnConfirmaPoza:hover, #btnAnuleazaPoza:hover, #btnAnuleazaModificarile:hover {
     background-color: rgb(255, 209, 220);
     box-shadow: 0px 4px 10px rgb(62, 45, 36); /* Adaugă o umbra */
     transform: translateY(-2px); /* efect de ridicare */
@@ -538,6 +552,20 @@ html, body {
     bottom: 30px;
     right: 30px;
     background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.floating-error {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #e20303;
     color: white;
     padding: 15px 25px;
     border-radius: 8px;
@@ -1297,7 +1325,7 @@ html, body {
 
 /* editare si stergere exemplar */
 
-#btnStergeExemplar, #btnEditExemplar, #btnConfirmaEditExemplar, #btnDa, #btnNu {
+#btnStergeExemplar, #btnEditExemplar, #btnConfirmaEditExemplar, #btnDa, #btnNu, #btnConfirmaCarte, #btnAnuleazaCarte, #btnConfirmaSchimbParola, #btnAnuleazaSchimbParola {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     padding: 10px 15px;
@@ -1308,7 +1336,7 @@ html, body {
     box-shadow: 0px 2px 6px;
 }
 
-#btnStergeExemplar:hover, #btnEditExemplar:hover, #btnConfirmaEditExemplar:hover, #btnDa:hover, #btnNu:hover {
+#btnStergeExemplar:hover, #btnEditExemplar:hover, #btnConfirmaEditExemplar:hover, #btnDa:hover, #btnNu:hover, #btnConfirmaCarte:hover, #btnAnuleazaCarte:hover, #btnConfirmaSchimbParola:hover, #btnAnuleazaSchimbParola:hover {
     background-color: rgb(255, 209, 220);
     box-shadow: 0px 4px 10px rgb(62, 45, 36); 
     transform: translateY(-2px);
@@ -1319,3 +1347,120 @@ html, body {
 }
 
 
+/* AdaugaCarte.jsx */
+.adauga-carte-content {
+    width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.adauga-carte-content h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: rgb(62, 45, 36);
+}
+
+.form-preview-wrapper {
+    display: flex;
+    gap: 70px;
+    align-items: flex-start;
+}
+
+.formular {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.formular input,
+.formular textarea,
+.formular select {
+    padding: 10px;
+    background-color: #f8efde;
+    color: rgb(62, 45, 36);
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    resize: none;
+}
+
+.preview-section {
+    width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    min-height: 300px;
+    background-color: #fff;
+}
+
+.preview-image-full {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.preview-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 250px;
+}
+
+.remove-preview-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    color: #333;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    line-height: 1;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.remove-preview-btn:hover {
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+}
+
+
+#inputNume, #inputPrenume {
+    color: rgb(62, 45, 36);
+    background-color: transparent;
+    font-size: 22px;
+    width: 120px;
+    border-radius: 8px;
+    margin-right: 30px;
+    border: 1.5px solid rgb(62, 45, 36);
+    margin-bottom: 10px;
+}
+
+#inputMail {
+    color: rgb(62, 45, 36);
+    background-color: transparent;
+    font-size: 17px;
+    width: 250px;
+    height: 27px;
+    border-radius: 8px;
+    margin-right: 30px;
+    border: 1.5px solid rgb(62, 45, 36);
+}

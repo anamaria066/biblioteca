@@ -175,7 +175,17 @@ function DetaliiCarte() {
                     </button>
                 </div>
                 <div className="detalii-imagine">
-                    <img src={carte.imagine} alt={carte.titlu} className="coperta-mare" />
+                    <img
+                    src={
+                        carte.imagine
+                        ? (carte.imagine.startsWith("/uploads")
+                            ? `http://localhost:3000${carte.imagine}`
+                            : carte.imagine)
+                        : "/images/default-book.png"
+                    }
+                    alt={carte.titlu}
+                    className="coperta-mare"
+                    />
                 </div>
             </div>
 

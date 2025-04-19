@@ -28,6 +28,9 @@ function ProfilClient() {
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [pozaMareDropdownDeschis, setPozaMareDropdownDeschis] = useState(false);
+    const [showFloatingMessage, setShowFloatingMessage] = useState(false);
+    const [showFloatingError, setShowFloatingError] = useState(false);
+    const [floatingErrorMessage, setFloatingErrorMessage] = useState("");
 
     const userId = localStorage.getItem("utilizator_id");
 
@@ -72,37 +75,84 @@ function ProfilClient() {
         setNewEmail(userData.email);
     };
 
-    const handleSaveProfileChanges = () => {
+    const handleSaveProfileChanges = async () => {
         if (newName && newPrenume && newEmail) {
-            setUserData(prev => ({
-                ...prev,
-                nume: newName,
-                prenume: newPrenume,
-                email: newEmail
-            }));
-            setIsEditing(false);
-            localStorage.setItem("nume", newName);
-            localStorage.setItem("prenume", newPrenume);
-            localStorage.setItem("email", newEmail);
+            try {
+                const res = await fetch(`http://localhost:3000/modifica-profil/${userId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        nume: newName,
+                        prenume: newPrenume,
+                        email: newEmail
+                    })
+                });
+    
+                if (res.ok) {
+                    setUserData(prev => ({
+                        ...prev,
+                        nume: newName,
+                        prenume: newPrenume,
+                        email: newEmail
+                    }));
+                    localStorage.setItem("nume", newName);
+                    localStorage.setItem("prenume", newPrenume);
+                    localStorage.setItem("email", newEmail);
+                    setIsEditing(false);
+                    setShowFloatingMessage(true);
+                    setTimeout(() => setShowFloatingMessage(false), 3000);
+                } else {
+                    const data = await res.json();
+                    alert(data.message || "Eroare la actualizare.");
+                }
+            } catch (err) {
+                alert("Eroare de rețea.");
+            }
         } else {
             setErrorMessage("Toate câmpurile trebuie completate!");
         }
     };
 
-    const handleChangePassword = () => {
-        if (oldPassword === "parolaVeche") {
-            localStorage.setItem("parola", newPassword);
-            setIsChangingPassword(false);
-            setErrorMessage("");
-            alert("Parola a fost schimbată cu succes!");
-        } else {
-            setErrorMessage("Parola veche este greșită.");
+    const handleChangePassword = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/schimba-parola/${userId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    parolaVeche: oldPassword,
+                    parolaNoua: newPassword
+                })
+            });
+    
+            const data = await res.json();
+    
+            if (res.ok) {
+                setIsChangingPassword(false);
+                setOldPassword("");
+                setNewPassword("");
+                setShowFloatingMessage(true);
+                setTimeout(() => setShowFloatingMessage(false), 3000);
+            } else {
+                setOldPassword("");
+                setNewPassword("");
+                setShowFloatingError(true);
+                setFloatingErrorMessage(data.message || "Eroare la schimbarea parolei");
+                setTimeout(() => setShowFloatingError(false), 3000);
+            }
+        } catch (err) {
+            setFloatingErrorMessage("Eroare de rețea!");
+            setShowFloatingError(true);
+            setTimeout(() => setShowFloatingError(false), 3000);
         }
     };
 
     const handleCloseChangePassword = () => {
         setIsChangingPassword(false);
         setErrorMessage("");
+        setOldPassword("");
+        setNewPassword("");
     };
 
     const handleFileChange = (e) => {
@@ -226,19 +276,54 @@ function ProfilClient() {
 
                 <div className="profile-details">
                     <div className="informatii-basic">
-                        <h2>{userData.nume} {userData.prenume}</h2>
-                        <p>{userData.numarRecenzii} recenzii</p>
-                        <p>{userData.email}</p>
-                        <p>Cont creat la: {userData.dataCreare}</p>
+                    {isEditing ? (
+                        <>
+                            <input
+                                id="inputNume"
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                placeholder="Nume"
+                                className="input-edit"
+                            />
+                            <input
+                                id="inputPrenume"
+                                type="text"
+                                value={newPrenume}
+                                onChange={(e) => setNewPrenume(e.target.value)}
+                                placeholder="Prenume"
+                                className="input-edit"
+                            />
+                            <input
+                                id="inputMail"
+                                type="email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                placeholder="Email"
+                                className="input-edit"
+                            />
+                            <p>{userData.numarRecenzii} recenzii</p>
+                            <p>Cont creat la: {userData.dataCreare}</p>
+                        </>
+                    ) : (
+                        <>
+                            <h2>{userData.nume} {userData.prenume}</h2>
+                            <p>{userData.numarRecenzii} recenzii</p>
+                            <p>{userData.email}</p>
+                            <p>Cont creat la: {userData.dataCreare}</p>
+                        </>
+                    )}
                     </div>
 
                     {isEditing ? (
                         <>
-                            <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nume" />
-                            <input type="text" value={newPrenume} onChange={e => setNewPrenume(e.target.value)} placeholder="Prenume" />
-                            <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="Email" />
-                            <button onClick={handleSaveProfileChanges}>Salvează modificările</button>
-                        </>
+                        <button id="btnsalveazaModificarile" onClick={handleSaveProfileChanges}>
+                            Salvează modificările
+                        </button>
+                        <button id="btnAnuleazaModificarile" onClick={() => setIsEditing(false)}>
+                            Anulează
+                        </button>
+                    </>
                     ) : (
                         <>
                             <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
@@ -265,8 +350,8 @@ function ProfilClient() {
                         <h3>Schimbă parola</h3>
                         <input type="password" placeholder="Parola veche" value={oldPassword} onChange={e => setOldPassword(e.target.value)} />
                         <input type="password" placeholder="Parola nouă" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
-                        <button onClick={handleChangePassword}>Confirmă schimbarea</button>
-                        <button onClick={handleCloseChangePassword}>Anulează</button>
+                        <button id="btnConfirmaSchimbParola" onClick={handleChangePassword}>Confirmă schimbarea</button>
+                        <button id="btnAnuleazaSchimbParola" onClick={handleCloseChangePassword}>Anulează</button>
                         {errorMessage && <p className="error-message">{errorMessage}</p>}
                     </div>
                 </div>
@@ -279,6 +364,13 @@ function ProfilClient() {
                         <button id="confirmStergerePfp" onClick={() => setShowSuccessPopup(false)}>OK</button>
                     </div>
                 </div>
+            )}
+
+            {showFloatingMessage && (
+                <div className="floating-success">Modificări salvate!</div>
+            )}
+            {showFloatingError && (
+                <div className="floating-error">{floatingErrorMessage}</div>
             )}
         </div>
     );

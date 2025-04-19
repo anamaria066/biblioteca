@@ -100,7 +100,7 @@ function MainPageClient() {
                     }
                     alt="Poza de profil"
                     className="profile-img-small"
-                    onClick={() => navigate("/profil-admin")}
+                    onClick={() => navigate("/profil-client")}
                     />
                 </div>
             </header>
@@ -123,7 +123,15 @@ function MainPageClient() {
                     >
                         {carte && (
                             <>
-                                <img src={carte.imagine} alt={carte.titlu} className="book-image" />
+                                <img
+                                    src={
+                                        carte.imagine?.startsWith("/uploads")
+                                        ? `http://localhost:3000${carte.imagine}`
+                                        : carte.imagine
+                                    }
+                                    alt={carte.titlu}
+                                    className="book-image"
+                                />
                                 <p className="book-title">{carte.titlu} - {carte.autor}</p>
                                 <p className="book-rating">{renderStars(carte.rating)}</p>
                             </>

@@ -153,6 +153,7 @@ function Utilizatori() {
                 <table className="user-table">
                     <thead>
                         <tr>
+                            <th>Tip</th>
                             <th>Nume</th>
                             <th>Prenume</th>
                             <th>Adresă e-mail</th>
@@ -163,6 +164,7 @@ function Utilizatori() {
                     <tbody>
                         {currentUsers.map((utilizator) => (
                             <tr key={utilizator.id}>
+                                <td>{utilizator.tip === "administrator" ? "Admin" : "Client"}</td>
                                 <td>{utilizator.nume}</td>
                                 <td>{utilizator.prenume}</td>
                                 <td>{utilizator.email}</td>

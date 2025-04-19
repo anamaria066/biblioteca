@@ -14,6 +14,7 @@ import Utilizatori from './Utilizatori';
 import DetaliiCarteAdmin from './DetaliiCarteAdmin';
 import Exemplare from './Exemplare';
 import Imprumuturi from './Imprumuturi';
+import AdaugaCarte from './AdaugaCarte';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
         <Route path='/detalii-admin/:id' element={<DetaliiCarteAdmin/>}/>
         <Route path='/exemplare/:id' element={<Exemplare/>}/>
         <Route path='/imprumuturi' element={<Imprumuturi/>}/>
+        <Route path='/adauga-carte' element={<AdaugaCarte/>}/>
       </Routes>
     </BrowserRouter>
   );
