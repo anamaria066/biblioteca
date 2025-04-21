@@ -15,6 +15,9 @@ import DetaliiCarteAdmin from './DetaliiCarteAdmin';
 import Exemplare from './Exemplare';
 import Imprumuturi from './Imprumuturi';
 import AdaugaCarte from './AdaugaCarte';
+import EditeazaCarte from './EditeazaCarte';
+import ImprumuturiActive from './ImprumuturiActive';
+import Istoric from './Istoric';
 
 const App = () => {
   return (
@@ -35,6 +38,9 @@ const App = () => {
         <Route path='/exemplare/:id' element={<Exemplare/>}/>
         <Route path='/imprumuturi' element={<Imprumuturi/>}/>
         <Route path='/adauga-carte' element={<AdaugaCarte/>}/>
+        <Route path='/editeaza-carte/:id' element={<EditeazaCarte/>}/>
+        <Route path='/imprumuturi-active' element={<ImprumuturiActive/>}/>
+        <Route path="/istoric" element={<Istoric />} />
       </Routes>
     </BrowserRouter>
   );

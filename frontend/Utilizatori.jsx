@@ -24,11 +24,22 @@ function Utilizatori() {
             })
             .catch(error => console.error("Eroare la încărcarea utilizatorilor:", error));
 
-        // Setează numele și prenumele utilizatorului din localStorage
-        const nume = localStorage.getItem("nume");
-        const prenume = localStorage.getItem("prenume");
-        const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
+        // Setează datele utilizatorului
+        const userId = localStorage.getItem("utilizator_id");
+        if (userId) {
+            fetch(`http://localhost:3000/profil/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setUser({
+                        nume: data.nume,
+                        prenume: data.prenume,
+                        pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
+                    });
+                })
+                .catch(err => {
+                    console.error("Eroare la obținerea datelor utilizatorului:", err);
+                });
+        }
     }, []);
 
 
@@ -125,7 +136,7 @@ function Utilizatori() {
                         {menuOpen && (
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item">Carte</button>
+                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
                             </div>
                         )}
                     </div>

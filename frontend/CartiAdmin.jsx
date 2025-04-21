@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Importă pentru navigare
 import "./style.css";
+import { useLocation } from "react-router-dom";
 
 function CartiAdmin() {
     const [carti, setCarti] = useState([]);
@@ -10,6 +11,8 @@ function CartiAdmin() {
     const [userData, setUserData] = useState({ pozaProfil: "" }); // Adaugă userData aici
     const navigate = useNavigate(); // Inițializează navigarea
     const [menuOpen, setMenuOpen] = useState(false);
+    const location = useLocation();
+    const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
     const [user, setUser] = useState({
             nume: "",
             prenume: ""
@@ -23,12 +26,31 @@ function CartiAdmin() {
             .then((data) => setCarti(data))
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
 
-        //setez numele și prenumele si pfp a utilizatorului din localStorage
-        const nume = localStorage.getItem("nume");
-        const prenume = localStorage.getItem("prenume");
-        const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
+        //setez datele utilizatorului 
+        const userId = localStorage.getItem("utilizator_id");
+        if (userId) {
+            fetch(`http://localhost:3000/profil/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setUser({
+                        nume: data.nume,
+                        prenume: data.prenume,
+                        pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
+                    });
+                })
+                .catch(err => {
+                    console.error("Eroare la obținerea datelor utilizatorului:", err);
+                });
+        }
     }, []);
+
+    useEffect(() => {
+        if (location.state?.showDeleteSuccess) {
+            setShowDeleteSuccess(true);
+            const timeout = setTimeout(() => setShowDeleteSuccess(false), 3000);
+            return () => clearTimeout(timeout);
+        }
+    }, [location.state]);
 
     // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
@@ -96,7 +118,7 @@ function CartiAdmin() {
                         {menuOpen && (
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item">Carte</button>
+                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
                             </div>
                         )}
                     </div>
@@ -163,6 +185,10 @@ function CartiAdmin() {
                     ▶
                 </button>
             </div>
+
+            {showDeleteSuccess && (
+                <div className="floating-success">Cartea a fost ștearsă cu succes!</div>
+            )}
         </div>
     );
 }

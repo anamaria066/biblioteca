@@ -195,7 +195,7 @@ function ProfilAdmin() {
                         ...prev,
                         pozaProfil: data.pozaProfil
                     }));
-                    localStorage.setItem("pozaProfil", data.pozaProfil);
+                    
                 }
                 setPreviewPoza(null);
                 setPozaSelectata(null);

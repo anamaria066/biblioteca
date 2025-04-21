@@ -186,7 +186,7 @@ function ProfilClient() {
                     ...prev,
                     pozaProfil: data.pozaProfil
                 }));
-                localStorage.setItem("pozaProfil", data.pozaProfil);
+                
             }
             setPreviewPoza(null);
             setPozaSelectata(null);
@@ -195,7 +195,7 @@ function ProfilClient() {
     };
 
     const handleDeletePicture = () => {
-        localStorage.removeItem("pozaProfil");
+        
 
         setPreviewPoza(null);
         setPozaSelectata(null);
@@ -217,12 +217,12 @@ function ProfilClient() {
     };
 
     const pozaAfisata = previewPoza
-        ? previewPoza
-        : userData.pozaProfil && userData.pozaProfil !== ""
-            ? userData.pozaProfil.startsWith("/uploads")
-                ? `http://localhost:3000${userData.pozaProfil}`
-                : userData.pozaProfil
-            : "/images/default-avatar.jpg";
+    ? previewPoza
+    : userData.pozaProfil && userData.pozaProfil !== ""
+        ? userData.pozaProfil.startsWith("/uploads")
+            ? `http://localhost:3000${userData.pozaProfil}`
+            : userData.pozaProfil
+        : null;
 
     return (
         <div className="profil-container">
@@ -230,17 +230,24 @@ function ProfilClient() {
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
                     <button className="nav-button">Recomandate</button>
-                    <button className="nav-button">Cărțile mele</button>
-                    <button className="nav-button">Istoric</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi-active")}>Împrumuturi active</button>
+                    <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
+
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {userData.nume} {userData.prenume}!</p>
                     <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
                     <img
-                        src={pozaAfisata}
-                        alt="Poza de profil"
-                        className="profile-img-small"
-                        onClick={() => navigate("/profil-client")}
+                    src={
+                        userData.pozaProfil
+                        ? userData.pozaProfil.startsWith("/uploads")
+                            ? `http://localhost:3000${userData.pozaProfil}`
+                            : userData.pozaProfil
+                        : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-client")}
                     />
                 </div>
             </header>
@@ -328,7 +335,7 @@ function ProfilClient() {
                         <>
                             <button id="btnEditProfil" onClick={handleEditProfile}>Editează profilul</button>
                             <button id="btnSchimbaParola" onClick={() => setIsChangingPassword(true)}>Schimbă parola</button>
-                            {pozaAfisata.includes("/images/default-avatar.jpg") && !previewPoza && (
+                            {pozaAfisata && pozaAfisata.includes("/images/default-avatar.jpg") && !previewPoza && (
                                 <button id="btnAdaugaPoza" onClick={handleSelectPoza}>Adaugă poză</button>
                             )}
                             <button id="btnDelogare" onClick={() => { localStorage.clear(); navigate("/"); }}>Deloghează-te</button>

@@ -1,8 +1,9 @@
+// EditeazaCarte.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./style.css";
 
-function AdaugaCarte() {
+function EditeazaCarte() {
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -14,18 +15,12 @@ function AdaugaCarte() {
     const [pret, setPret] = useState("");
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(false);
+    const [user, setUser] = useState({ nume: "", prenume: "", pozaProfil: "" });
     const [menuOpen, setMenuOpen] = useState(false);
-
-    const [user, setUser] = useState({
-        nume: "",
-        prenume: "",
-        pozaProfil: ""
-    });
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     useEffect(() => {
         const userId = localStorage.getItem("utilizator_id");
-    
         if (userId) {
             fetch(`http://localhost:3000/profil/${userId}`)
                 .then(res => res.json())
@@ -35,10 +30,24 @@ function AdaugaCarte() {
                         prenume: data.prenume,
                         pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
                     });
-                })
-                .catch(err => console.error("Eroare la încărcarea datelor utilizatorului:", err));
+                });
         }
-    }, []);
+
+        // Load carte
+        fetch(`http://localhost:3000/carte/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                setTitlu(data.titlu);
+                setAutor(data.autor);
+                setAnPublicatie(data.an_publicatie);
+                setDescriere(data.descriere);
+                setGen(data.gen);
+                setPret(data.pret);
+                if (data.imagine) {
+                    setPreview(data.imagine.startsWith("/uploads") ? `http://localhost:3000${data.imagine}` : data.imagine);
+                }
+            });
+    }, [id]);
 
     const handleImageChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -61,20 +70,18 @@ function AdaugaCarte() {
         }
 
         try {
-            const res = await fetch("http://localhost:3000/adauga-carte-cu-upload", {
-                method: "POST",
+            const res = await fetch(`http://localhost:3000/editeaza-carte/${id}`, {
+                method: "PUT",
                 body: formData
             });
 
             if (res.ok) {
-                setSuccessMessage(true);
-                setTimeout(() => {
-                    setSuccessMessage(false);
-                    navigate("/admin");
-                }, 3000);
+                navigate(`/detalii-admin/${id}`, {
+                    state: { showSuccessMessage: true }
+                });
             } else {
                 const data = await res.json();
-                alert(data.message || "Eroare la adăugare.");
+                alert(data.message || "Eroare la actualizare.");
             }
         } catch (error) {
             console.error("Eroare:", error);
@@ -83,12 +90,11 @@ function AdaugaCarte() {
     };
 
     const handleCancel = () => {
-        navigate("/admin");
+        navigate(`/detalii-admin/${id}`);
     };
 
     return (
         <div className="adauga-carte-container">
-            {/* ======= HEADER ======= */}
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
@@ -122,38 +128,25 @@ function AdaugaCarte() {
                 </div>
             </header>
 
-            {/* ======= FORMULAR ADĂUGARE ======= */}
             <div className="adauga-carte-content">
-                <h2>Adaugă o carte nouă</h2>
+                <h2>Editează cartea</h2>
                 <div className="form-preview-wrapper">
-                    {/* FORMULAR */}
                     <div className="formular">
                         <input type="text" placeholder="Titlu" value={titlu} onChange={e => setTitlu(e.target.value)} />
                         <input type="text" placeholder="Autor" value={autor} onChange={e => setAutor(e.target.value)} />
                         <input type="number" placeholder="An publicare" value={anPublicatie} onChange={e => setAnPublicatie(e.target.value)} />
                         <textarea placeholder="Descriere" value={descriere} onChange={e => setDescriere(e.target.value)} />
                         <select value={gen} onChange={e => setGen(e.target.value)}>
+                            {/* toate opțiunile ca în AdaugaCarte */}
                             <option value="Ficțiune">Ficțiune</option>
                             <option value="Non-ficțiune">Non-ficțiune</option>
-                            <option value="Poezie">Poezie</option>
-                            <option value="Dezvoltare personală">Dezvoltare personală</option>
-                            <option value="Copii">Copii</option>
-                            <option value="Crimă">Crimă</option>
-                            <option value="Mister">Mister</option>
-                            <option value="Distopie">Distopie</option>
-                            <option value="Aventură">Aventură</option>
-                            <option value="Fantasy">Fantasy</option>
-                            <option value="Psihologic">Psihologic</option>
-                            <option value="Filosofie">Filosofie</option>
-                            <option value="Economie">Economie</option>
+                            {/* ... */}
                         </select>
                         <input type="number" placeholder="Preț (RON)" value={pret} onChange={e => setPret(e.target.value)} />
-
-                        <label>Alege imagine:</label>
+                        <label>Alege imagine nouă (opțional):</label>
                         <input type="file" accept="image/*" onChange={handleImageChange} />
                     </div>
 
-                    {/* PREVIEW IMAGINE */}
                     <div className="preview-section">
                         <div className="preview-wrapper">
                             <img
@@ -177,18 +170,16 @@ function AdaugaCarte() {
                     </div>
                 </div>
 
-                {/* BUTOANE */}
                 <div className="form-buttons">
-                    <button id="btnConfirmaCarte" onClick={handleConfirm}>Confirmă adăugare</button>
+                    <button id="btnConfirmaCarte" onClick={handleConfirm}>Confirmă modificările</button>
                     <button id="btnAnuleazaCarte" onClick={handleCancel}>Anulează</button>
                 </div>
             </div>
-
-            {successMessage && (
-                <div className="floating-success">Carte adăugată cu succes!</div>
+            {showSuccessMessage && (
+                <div className="floating-success">Modificări salvate!</div>
             )}
         </div>
     );
 }
 
-export default AdaugaCarte;
+export default EditeazaCarte;

@@ -21,13 +21,21 @@ function MainPageClient() {
             .then((response) => response.json())
             .then((data) => setCarti(data))
             .catch((error) => console.error("Eroare la obținerea cărților:", error));
-
-        
-        // Setează numele și prenumele utilizatorului din localStorage
-        const nume = localStorage.getItem("nume");
-        const prenume = localStorage.getItem("prenume");
-        const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
+    
+        // Obține datele utilizatorului din baza de date
+        const userId = localStorage.getItem("utilizator_id");
+        if (userId) {
+            fetch(`http://localhost:3000/profil/${userId}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setUser({
+                        nume: data.nume,
+                        prenume: data.prenume,
+                        pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
+                    });
+                })
+                .catch((err) => console.error("Eroare la obținerea profilului:", err));
+        }
     }, []);
 
     // Funcție pentru generarea stelelor colorate în funcție de rating
@@ -81,10 +89,10 @@ function MainPageClient() {
             {/* ======= Header fixat sus ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    <button className="nav-button">Explorează</button>
+                    <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
                     <button className="nav-button">Recomandate</button>
-                    <button className="nav-button">Cărțile mele</button>
-                    <button className="nav-button">Istoric</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi-active")}>Împrumuturi active</button>
+                    <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
 
                 <div className="right-buttons">

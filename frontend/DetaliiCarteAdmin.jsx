@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./style.css";
+import { useLocation } from "react-router-dom";
 
 function DetaliiCarteAdmin() {
     const { id } = useParams();
@@ -19,7 +20,16 @@ function DetaliiCarteAdmin() {
     const [stareExemplar, setStareExemplar] = useState("bună");
     const [costAchizitie, setCostAchizitie] = useState("");
     const [dataAchizitie, setDataAchizitie] = useState(new Date().toISOString().split("T")[0]); // format YYYY-MM-DD
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [showExemplarSuccess, setShowExemplarSuccess] = useState(false);
+    const [showEditSuccess, setShowEditSuccess] = useState(false);
+    const location = useLocation();
+    useEffect(() => {
+        if (location.state?.showSuccessMessage) {
+            setShowEditSuccess(true);
+            const timer = setTimeout(() => setShowEditSuccess(false), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
 
     // Funcție pentru a încărca cartea și recenziile
     const fetchData = async () => {
@@ -39,11 +49,22 @@ function DetaliiCarteAdmin() {
     useEffect(() => {
         fetchData();
 
-         // Setează numele și prenumele utilizatorului din localStorage
-         const nume = localStorage.getItem("nume");
-         const prenume = localStorage.getItem("prenume");
-         const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
+         // Setează datele utilizatorului 
+         const userId = localStorage.getItem("utilizator_id");
+        if (userId) {
+            fetch(`http://localhost:3000/profil/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setUser({
+                        nume: data.nume,
+                        prenume: data.prenume,
+                        pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
+                    });
+                })
+                .catch(err => {
+                    console.error("Eroare la obținerea datelor utilizatorului:", err);
+                });
+        }
     }, [id]);
 
     // Șterge cartea
@@ -54,8 +75,9 @@ function DetaliiCarteAdmin() {
             });
             const data = await response.json();
             if (response.ok) {
-                alert("Cartea a fost ștearsă cu succes!");
-                navigate("/carti"); // După ștergere, navighează înapoi la lista de cărți
+                navigate("/carti", {
+                    state: { showDeleteSuccess: true }
+                });
             } else {
                 setMesaj(data.message || "Eroare la ștergerea cărții!");
             }
@@ -65,10 +87,6 @@ function DetaliiCarteAdmin() {
         }
     };
 
-    // Editează cartea
-    const handleEdit = () => {
-        navigate(`/editare-carte/${id}`); // Navighează la o pagină de editare a cărții
-    };
 
     // Vezi exemplare
     const handleViewExemplare = () => {
@@ -109,8 +127,8 @@ function DetaliiCarteAdmin() {
             if (response.ok) {
                 setShowAddExemplarPopup(false);
                 setCostAchizitie("");
-                setShowSuccessMessage(true);
-                setTimeout(() => setShowSuccessMessage(false), 3000);
+                setShowExemplarSuccess(true);
+                setTimeout(() => setShowExemplarSuccess(false), 3000);
             } else {
                 alert(data.message || "Eroare la adăugarea exemplarului.");
             }
@@ -140,7 +158,7 @@ function DetaliiCarteAdmin() {
                         {menuOpen && (
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item">Carte</button>
+                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
                             </div>
                         )}
                     </div>
@@ -173,7 +191,7 @@ function DetaliiCarteAdmin() {
 
                     {/* Butoane de gestionare */}
                     <button className="btnDelete" onClick={confirmDelete}>Șterge cartea</button>
-                    <button className="btnEdit" onClick={handleEdit}>Editează</button>
+                    <button className="btnEdit" onClick={() => navigate(`/editeaza-carte/${id}`)}>Editează</button>
                     <button className="btnExemplare" onClick={handleViewExemplare}>Vezi exemplare</button>
                     <button className="btnAdaugaExemplar" onClick={() => setShowAddExemplarPopup(true)}>Adaugă exemplar</button>
                 </div>
@@ -258,10 +276,13 @@ function DetaliiCarteAdmin() {
                 </div>
             )}
             {/*  */}
-            {showSuccessMessage && (
-                <div className="floating-success">
-                    Exemplarul a fost adăugat cu succes!
-                </div>
+            
+            {showExemplarSuccess && (
+                <div className="floating-success">Exemplarul a fost adăugat cu succes!</div>
+            )}
+
+            {showEditSuccess && (
+                <div className="floating-success">Modificări salvate!</div>
             )}
 
         </div>

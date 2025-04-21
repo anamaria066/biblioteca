@@ -219,15 +219,15 @@ export const Imprumut = sequelize.define('Imprumut', {
         },
         onDelete: 'CASCADE'
     },
-    carte_id: {
+    exemplar_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Carte,
-            key: 'id'
+          model: ExemplarCarte,
+          key: 'id'
         },
         onDelete: 'CASCADE'
-    },
+      },
     data_imprumut: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -325,9 +325,7 @@ Carte.hasMany(Recenzie, { foreignKey: 'carte_id' });//O carte poate avea mai mul
 Recenzie.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//O recenzie aparține unui singur utilizator
 Recenzie.belongsTo(Carte, { foreignKey: 'carte_id' });//O recenzie aparține unei singure cărți
 Utilizator.hasMany(Imprumut, { foreignKey: 'utilizator_id' });//Un utilizator poate împrumuta mai multe cărți
-Carte.hasMany(Imprumut, { foreignKey: 'carte_id' });//O carte poate fi împrumutată de mai mulți utilizatori
 Imprumut.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//Un împrumut aparține unui singur utilizator
-Imprumut.belongsTo(Carte, { foreignKey: 'carte_id' });//Un împrumut aparține unei singure cărți
 Carte.hasMany(Cheltuiala, { foreignKey: 'carte_id' });//O carte poate avea mai multe cheltuieli asociate (ex: reparații, înlocuire)
 Cheltuiala.belongsTo(Carte, { foreignKey: 'carte_id' });//O cheltuială este legată de o singură carte
 Utilizator.hasMany(Favorite, { foreignKey: 'utilizator_id' });
@@ -337,6 +335,8 @@ Favorite.belongsTo(Carte, { foreignKey: 'carte_id' });
 // Relația 1-N între Carte și ExemplarCarte (o carte poate avea mai multe exemplare)
 Carte.hasMany(ExemplarCarte, { foreignKey: 'carte_id' });
 ExemplarCarte.belongsTo(Carte, { foreignKey: 'carte_id' });
+Imprumut.belongsTo(ExemplarCarte, { foreignKey: 'exemplar_id' });
+ExemplarCarte.hasMany(Imprumut, { foreignKey: 'exemplar_id' });
 
 
 // Sincronizarea bazei de date (crearea tabelei, dacă nu există)
@@ -779,6 +779,39 @@ app.delete('/sterge-carte/:id', async (req, res) => {
     } catch (error) {
         console.error("Eroare la ștergerea cărții:", error);
         res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+// Endpoint pentru ștergerea unei cărți după ID - http://localhost:3000/editeaza-carte/:id
+app.put('/editeaza-carte/:id', upload.single('imagine'), async (req, res) => {
+    try {
+        const { titlu, autor, an_publicatie, descriere, gen, pret } = req.body;
+        const { id } = req.params;
+
+        const carte = await Carte.findByPk(id);
+        if (!carte) {
+            return res.status(404).json({ message: "Cartea nu a fost găsită" });
+        }
+
+        let imagine = carte.imagine; // imaginea veche
+        if (req.file) {
+            imagine = `/uploads/${req.file.filename}`;
+        }
+
+        await carte.update({
+            titlu,
+            autor,
+            an_publicatie,
+            descriere,
+            gen,
+            pret,
+            imagine
+        });
+
+        res.json({ message: "Cartea a fost actualizată cu succes", carte });
+    } catch (error) {
+        console.error("Eroare la editare:", error);
+        res.status(500).json({ message: "Eroare la actualizarea cărții" });
     }
 });
 
@@ -1267,21 +1300,23 @@ app.get('/imprumuturi', async (req, res) => {
       const imprumuturi = await Imprumut.findAll({
         where: { status: 'activ' },
         include: [
-          {
-            model: Utilizator,
-            attributes: ['nume', 'prenume']
-          },
-          {
-            model: Carte,
-            attributes: ['titlu']
-          }
-        ]
+            {
+              model: ExemplarCarte,
+              include: [
+                { model: Carte, attributes: ['titlu'] }
+              ]
+            },
+            {
+              model: Utilizator,
+              attributes: ['nume', 'prenume']
+            }
+          ]
       });
   
       const rezultat = imprumuturi.map((imp) => ({
         id: imp.id,
         numeUtilizator: `${imp.Utilizator.nume} ${imp.Utilizator.prenume}`,
-        titluCarte: imp.Carte.titlu,
+        titluCarte: imp.ExemplarCarte?.Carte?.titlu,
         dataImprumut: imp.data_imprumut,
         dataReturnare: imp.data_returnare
       }));
@@ -1292,6 +1327,73 @@ app.get('/imprumuturi', async (req, res) => {
       res.status(500).json({ mesaj: "Eroare server" });
     }
   });
+
+  // Endpoint pentru a vedea imprumuturile active - http://localhost:3000/imprumuturi-curente-utilizator/:id
+app.get('/imprumuturi-curente-utilizator/:id', async (req, res) => {
+    const utilizatorId = req.params.id;
+
+    try {
+        const imprumuturi = await Imprumut.findAll({
+            where: {
+                utilizator_id: utilizatorId,
+                status: 'activ'
+            },
+            include: [
+                {
+                    model: ExemplarCarte,
+                    include: [Carte]
+                }
+            ]
+        });
+
+        const rezultat = imprumuturi.map(imprumut => ({
+            id: imprumut.id,
+            exemplarId: imprumut.ExemplarCarte?.id,
+            titlu: imprumut.ExemplarCarte?.Carte?.titlu,
+            autor: imprumut.ExemplarCarte?.Carte?.autor,
+            dataImprumut: imprumut.data_imprumut,
+            dataReturnare: imprumut.data_returnare
+        }));
+
+        res.json(rezultat);
+    } catch (error) {
+        console.error("Eroare la obținerea împrumuturilor active:", error);
+        res.status(500).json({ message: "Eroare la obținerea împrumuturilor active" });
+    }
+});
+
+//Endpoint pentru a vedea imprumuturile vechi - http://localhost:3000/imprumuturi-utilizator/:id
+app.get('/imprumuturi-utilizator/:id', async (req, res) => {
+    const utilizatorId = req.params.id;
+
+    try {
+        const imprumuturi = await Imprumut.findAll({
+            where: {
+                utilizator_id: utilizatorId,
+                status: 'returnat' // doar împrumuturile încheiate
+            },
+            include: [
+                {
+                    model: ExemplarCarte,
+                    include: [Carte]
+                }
+            ]
+        });
+
+        const rezultat = imprumuturi.map(imprumut => ({
+            id: imprumut.id,
+            titlu: imprumut.ExemplarCarte?.Carte?.titlu,
+            autor: imprumut.ExemplarCarte?.Carte?.autor,
+            dataImprumut: imprumut.data_imprumut,
+            dataReturnare: imprumut.data_returnare
+        }));
+
+        res.json(rezultat);
+    } catch (error) {
+        console.error("Eroare la obținerea împrumuturilor încheiate:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
 
 
 

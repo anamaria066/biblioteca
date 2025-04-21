@@ -49,11 +49,22 @@ function MainPageAdmin() {
             })
             .catch(error => console.error("Eroare la încărcarea statisticilor:", error));
 
-        // Setează numele și prenumele utilizatorului din localStorage
-        const nume = localStorage.getItem("nume");
-        const prenume = localStorage.getItem("prenume");
-        const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
+        // Setează datele utilizatorului
+        const userId = localStorage.getItem("utilizator_id");
+        if (userId) {
+            fetch(`http://localhost:3000/profil/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setUser({
+                        nume: data.nume,
+                        prenume: data.prenume,
+                        pozaProfil: data.pozaProfil || "/images/default-avatar.jpg"
+                    });
+                })
+                .catch(err => {
+                    console.error("Eroare la obținerea datelor utilizatorului:", err);
+                });
+        }
     }, []);
 
     //sa se inchida meniul dropdown din cadrul header-ului
