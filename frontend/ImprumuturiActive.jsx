@@ -68,7 +68,12 @@ function ImprumuturiActive() {
 
                 <div className="right-buttons">
                      <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
-                    <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
+                     <img
+                        src="/images/favorite.png"
+                        alt="Favorite"
+                        className="icon-button favorite-icon"
+                        onClick={() => navigate("/favorite")}
+                    />
                     <img
                     src={
                         user.pozaProfil

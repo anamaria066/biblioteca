@@ -18,6 +18,8 @@ function DetaliiCarte() {
         prenume: "",
         pozaProfil: ""
     });
+    const [mesajFavorit, setMesajFavorit] = useState("");
+    const [afiseazaMesajFavorit, setAfiseazaMesajFavorit] = useState(false);
 
     // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const userId = localStorage.getItem("utilizator_id");
@@ -62,37 +64,39 @@ const fetchData = async () => {
 
     // ✅ Generare stele corecte (inclusiv jumătăți)
     const renderStars = (rating) => {
-    const maxStars = 5;
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.3 && rating % 1 <= 0.7;
-    const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
-
-    return (
-        <span className="rating-stars">
-            {"★".repeat(fullStars)}
-            {hasHalfStar && <span className="half-star">★</span>}
-            {"★".repeat(emptyStars)}
-        </span>
-    );
-};
+        const maxStars = 5;
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.3 && rating % 1 <= 0.7;
+        const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
+    
+        return (
+            <span className="rating-stars">
+                {"★".repeat(fullStars)}
+                {hasHalfStar && <span className="half-star">★</span>}
+                {"☆".repeat(emptyStars)}
+            </span>
+        );
+    };
 
     // ✅ Adăugare/ștergere carte din favorite
     const handleFavorite = async () => {
         const url = esteFavorita ? "/sterge-favorite" : "/adauga-favorite";
         const method = esteFavorita ? "DELETE" : "POST";
-
+    
         try {
             const response = await fetch(`http://localhost:3000${url}`, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ utilizator_id, carte_id: id })
             });
-
+    
             const data = await response.json();
             if (response.ok) {
                 setEsteFavorita(!esteFavorita);
+                setMesajFavorit(data.message || (esteFavorita ? "Carte eliminată din favorite!" : "Carte adăugată la favorite!"));
+                setAfiseazaMesajFavorit(true);
+                setTimeout(() => setAfiseazaMesajFavorit(false), 3000);
             }
-            alert(data.message);
         } catch (error) {
             console.error("Eroare:", error);
         }
@@ -148,15 +152,20 @@ const fetchData = async () => {
             {/* ======= Header fixat sus ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    <button className="nav-button">Explorează</button>
+                    <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
                     <button className="nav-button">Recomandate</button>
-                    <button className="nav-button">Cărțile mele</button>
-                    <button className="nav-button">Istoric</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi-active")}>Împrumuturi active</button>
+                    <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
 
                 <div className="right-buttons">
                      <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
-                    <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
+                     <img
+                        src="/images/favorite.png"
+                        alt="Favorite"
+                        className="icon-button favorite-icon"
+                        onClick={() => navigate("/favorite")}
+                    />
                     <img
                     src={
                         user.pozaProfil
@@ -168,24 +177,27 @@ const fetchData = async () => {
                     alt="Poza de profil"
                     className="profile-img-small"
                     onClick={() => navigate("/profil-client")}
-                />
+                    />
                 </div>
             </header>
 
             <div className="detalii-carte">
+                <img
+                    src={esteFavorita ? "/images/full_heart.png" : "/images/empy_heart.png"}
+                    alt="Favorite"
+                    className="icon-favorite"
+                    onClick={handleFavorite}
+                />
                 <div className="detalii-text">
                     <h2>{carte.titlu}</h2>
                     <p><strong>Autor:</strong> {carte.autor}</p>
                     <p><strong>An publicare:</strong> {carte.an_publicatie}</p>
                     <p><strong>Gen:</strong> {carte.gen}</p>
-                    <p><strong>Preț:</strong> {carte.pret} RON</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
                     <p><strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}/5)</p>
 
                     <button className="btn-recenzie" onClick={() => setShowPopup(true)}>Lasă o recenzie</button>
-                    <button className={`btn-favorite ${esteFavorita ? "favorita" : ""}`} onClick={handleFavorite}>
-                        {esteFavorita ? "💖 Favorită" : "🤍 Adaugă la favorite"}
-                    </button>
+                    
                 </div>
                 <div className="detalii-imagine">
                     <img
@@ -220,6 +232,12 @@ const fetchData = async () => {
                     </div>
                 )}
             </div>
+
+            {afiseazaMesajFavorit && (
+                <div className="floating-success">
+                    {mesajFavorit}
+                </div>
+            )}
         </div>
     );
 }

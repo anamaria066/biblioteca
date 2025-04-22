@@ -285,6 +285,20 @@ html, body {
     pointer-events: none; /* Evită ca div-urile goale să blocheze clicurile */
 }
 
+.favorite-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-top: 15px;
+    transition: transform 0.2s ease;
+}
+
+.favorite-icon:hover {
+    transform: scale(1.1);
+}
+
 
 /* Card pentru fiecare carte */
 .book-card {
@@ -749,7 +763,33 @@ html, body {
 
 /* Favorite */
 .titluFavorite {
-    margin-top: -130px;
+    position: fixed;
+    top: 70px; /* ajustează înălțimea în funcție de cât de înalt e header-ul */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 28px;
+    z-index: 10;
+}
+
+.lipsaFavorite {
+    font-style: italic;
+    white-space: nowrap; /* nu permite wrap pe mai multe linii */
+    margin-left: 575px;
+    font-size: 18px;
+}
+
+.icon-favorite {
+    position: absolute;
+    
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.icon-favorite:hover {
+    transform: scale(1.1);
 }
 
 
@@ -1464,3 +1504,65 @@ html, body {
     margin-right: 30px;
     border: 1.5px solid rgb(62, 45, 36);
 }
+
+
+
+/* filtrare */
+.filter-icon {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+}
+
+.filter-icon:hover {
+    transform: scale(1.1);
+}
+
+.popup-filtru {
+    position: absolute;
+    top: 110px;
+    right: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 200px;
+}
+
+.popup-filtru select {
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.butoane-filtru {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.butoane-filtru button {
+    flex: 1;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    background-color: #eb7d7d;
+    color: white;
+    cursor: pointer;
+}
+
+.butoane-filtru button:hover {
+    background-color: #d16262;
+}
+
+.input-an {
+    margin-bottom: 8px;
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }

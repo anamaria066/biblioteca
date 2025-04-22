@@ -236,7 +236,12 @@ function ProfilClient() {
 
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {userData.nume} {userData.prenume}!</p>
-                    <button className="icon-button" onClick={() => navigate("/favorite")}>⭐</button>
+                    <img
+                        src="/images/favorite.png"
+                        alt="Favorite"
+                        className="icon-button favorite-icon"
+                        onClick={() => navigate("/favorite")}
+                    />
                     <img
                     src={
                         userData.pozaProfil

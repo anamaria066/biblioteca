@@ -186,7 +186,6 @@ function DetaliiCarteAdmin() {
                     <p><strong>Autor:</strong> {carte.autor}</p>
                     <p><strong>An publicare:</strong> {carte.an_publicatie}</p>
                     <p><strong>Gen:</strong> {carte.gen}</p>
-                    <p><strong>Preț:</strong> {carte.pret} RON</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
 
                     {/* Butoane de gestionare */}
