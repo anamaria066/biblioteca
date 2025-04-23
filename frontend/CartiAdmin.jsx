@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // Importă pentru navigare
 import "./style.css";
 import { useLocation } from "react-router-dom";
@@ -17,6 +17,13 @@ function CartiAdmin() {
             nume: "",
             prenume: ""
         });
+    const [showFilterPopup, setShowFilterPopup] = useState(false);
+    const [genSelectat, setGenSelectat] = useState("");
+    const [anManual, setAnManual] = useState("");
+    const [intervalSelectat, setIntervalSelectat] = useState("");
+    const [filtruGen, setFiltruGen] = useState("");
+    const [filtruAn, setFiltruAn] = useState("");
+    const popupRef = useRef(null);
 
     // Fetch date pentru cărți și utilizator
     useEffect(() => {
@@ -44,6 +51,23 @@ function CartiAdmin() {
         }
     }, []);
 
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (popupRef.current && !popupRef.current.contains(event.target)) {
+                setShowFilterPopup(false);
+            }
+        };
+    
+        if (showFilterPopup) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+    
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showFilterPopup]);
+
     useEffect(() => {
         if (location.state?.showDeleteSuccess) {
             setShowDeleteSuccess(true);
@@ -69,11 +93,32 @@ function CartiAdmin() {
     };
 
     // Filtrare cărți după titlu sau autor
-    const filteredBooks = carti.filter((carte) =>
-        carte.titlu.toLowerCase().includes(search.toLowerCase()) ||
-        carte.autor.toLowerCase().includes(search.toLowerCase())
-    );
-
+    const filteredBooks = carti.filter((carte) => {
+        const matchesSearch =
+            carte.titlu.toLowerCase().includes(search.toLowerCase()) ||
+            carte.autor.toLowerCase().includes(search.toLowerCase());
+    
+        const matchesGen = filtruGen ? carte.gen === filtruGen : true;
+    
+        let matchesAn = true;
+        const an = carte.an_publicatie;
+    
+        if (filtruAn?.type === "exact") {
+            matchesAn = an === parseInt(filtruAn.value);
+        } else if (filtruAn?.type === "interval") {
+            switch (filtruAn.value) {
+                case "lt1800": matchesAn = an < 1800; break;
+                case "1800-1850": matchesAn = an >= 1800 && an <= 1850; break;
+                case "1850-1900": matchesAn = an >= 1850 && an <= 1900; break;
+                case "1900-1950": matchesAn = an >= 1900 && an <= 1950; break;
+                case "1950-2000": matchesAn = an >= 1950 && an <= 2000; break;
+                case "gt2000": matchesAn = an > 2000; break;
+                default: matchesAn = true;
+            }
+        }
+    
+        return matchesSearch && matchesGen && matchesAn;
+    });
     // Calculăm numărul total de pagini
     const numarTotalPagini = Math.ceil(filteredBooks.length / cartiPerPagina);
 
@@ -140,12 +185,84 @@ function CartiAdmin() {
                 </div>
             </header>
 
+            {showFilterPopup && (
+            <div className="popup-filtru" ref={popupRef}>
+                <h4>Filtrează cărțile</h4>
+                <select value={genSelectat} onChange={(e) => setGenSelectat(e.target.value)}>
+                    <option value="">Toate genurile</option>
+                    <option value="Ficțiune">Ficțiune</option>
+                    <option value="Non-ficțiune">Non-ficțiune</option>
+                    <option value="Poezie">Poezie</option>
+                    <option value="Dezvoltare personală">Dezvoltare personală</option>
+                    <option value="Copii">Copii</option>
+                    <option value="Crimă">Crimă</option>
+                    <option value="Mister">Mister</option>
+                    <option value="Distopie">Distopie</option>
+                    <option value="Aventură">Aventură</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Psihologic">Psihologic</option>
+                    <option value="Filosofie">Filosofie</option>
+                    <option value="Economie">Economie</option>
+                </select>
+
+                <label>An exact:</label>
+                <input
+                    type="number"
+                    placeholder="Ex: 1999"
+                    value={anManual}
+                    onChange={(e) => setAnManual(e.target.value)}
+                    className="input-an"
+                />
+
+                <label>Interval:</label>
+                <select value={intervalSelectat} onChange={(e) => setIntervalSelectat(e.target.value)}>
+                    <option value="">Selectează</option>
+                    <option value="lt1800">&lt; 1800</option>
+                    <option value="1800-1850">1800 - 1850</option>
+                    <option value="1850-1900">1850 - 1900</option>
+                    <option value="1900-1950">1900 - 1950</option>
+                    <option value="1950-2000">1950 - 2000</option>
+                    <option value="gt2000">&gt; 2000</option>
+                </select>
+
+                <div className="butoane-filtru">
+                    <button onClick={() => {
+                        setFiltruGen(genSelectat);
+                        if (anManual) {
+                            setFiltruAn({ type: "exact", value: anManual });
+                        } else if (intervalSelectat) {
+                            setFiltruAn({ type: "interval", value: intervalSelectat });
+                        } else {
+                            setFiltruAn(null);
+                        }
+                        setPaginaCurenta(1);
+                        setShowFilterPopup(false);
+                    }}>Aplică</button>
+
+                    <button onClick={() => {
+                        setGenSelectat("");
+                        setFiltruGen("");
+                        setAnManual("");
+                        setIntervalSelectat("");
+                        setFiltruAn("");
+                        setPaginaCurenta(1);
+                        setShowFilterPopup(false);
+                    }}>Șterge</button>
+                </div>
+            </div>
+            )}
+
             {/* ======= Căutare ======= */}
             <div className="search-container">
                 <input className="search-bar" type="text" placeholder="🔍 Căutare"
                     value={search} onChange={(e) => setSearch(e.target.value)}
                 />
-                <button className="filter-button">🔽</button>
+                <img
+                    src="/images/filter.png"
+                    alt="Filtru"
+                    className="filter-icon"
+                    onClick={() => setShowFilterPopup(prev => !prev)}
+                />
             </div>
 
             {/* ======= Afișarea cărților ======= */}
