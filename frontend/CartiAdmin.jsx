@@ -24,6 +24,12 @@ function CartiAdmin() {
     const [filtruGen, setFiltruGen] = useState("");
     const [filtruAn, setFiltruAn] = useState("");
     const popupRef = useRef(null);
+    const [showPopupCod, setShowPopupCod] = useState(false);
+    const [codImprumut, setCodImprumut] = useState("");
+    const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
+    const [mesajEroareCod, setMesajEroareCod] = useState("");
+    const [detaliiImprumut, setDetaliiImprumut] = useState(null);
+    const dropdownRef = useRef(null);
 
     // Fetch date pentru cărți și utilizator
     useEffect(() => {
@@ -75,6 +81,19 @@ function CartiAdmin() {
             return () => clearTimeout(timeout);
         }
     }, [location.state]);
+
+    useEffect(() => {
+        const handleClickOutsideDropdown = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setMenuOpen(false);
+            }
+        };
+    
+        document.addEventListener("mousedown", handleClickOutsideDropdown);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutsideDropdown);
+        };
+    }, []);
 
     // Funcție pentru generarea stelelor colorate în funcție de rating
     const renderStars = (rating) => {
@@ -143,6 +162,45 @@ function CartiAdmin() {
     const spatiiGoale = cartiPerPagina - cartiAfisate.length;
     const cartiComplete = [...cartiAfisate, ...Array(spatiiGoale).fill(null)];
 
+
+    const verificaCod = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/verifica-cod/${codImprumut}`);
+            const data = await res.json();
+    
+            if (res.ok) {
+                setDetaliiImprumut(data); // conține titlu, exemplar_id etc.
+                setShowPopupCod(false);
+                setShowPopupConfirmare(true);
+            } else {
+                setMesajEroareCod("Cod invalid!");
+                setTimeout(() => setMesajEroareCod(""), 3000);
+            }
+        } catch (err) {
+            console.error("Eroare verificare cod:", err);
+            setMesajEroareCod("Eroare de rețea!");
+            setTimeout(() => setMesajEroareCod(""), 3000);
+        }
+    };
+
+    const finalizeazaImprumut = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/finalizeaza-imprumut/${codImprumut}`, {
+                method: "PUT"
+            });
+    
+            if (res.ok) {
+                setShowPopupConfirmare(false);
+                setCodImprumut("");
+                setDetaliiImprumut(null);
+            } else {
+                alert("Eroare la activarea împrumutului!");
+            }
+        } catch (err) {
+            console.error("Eroare activare:", err);
+        }
+    };
+
     return (
         <div className="main-container">
              {/* ======= HEADER ======= */}
@@ -153,7 +211,7 @@ function CartiAdmin() {
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
                     <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Împrumuturi</button>
-                    <div className="dropdown">
+                    <div className="dropdown" ref={dropdownRef}>
                         {/* Meniul dropdown */}
                         <button className="nav-button" onClick={() => {
                             setMenuOpen(!menuOpen); 
@@ -164,6 +222,7 @@ function CartiAdmin() {
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
                                 <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                                <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
                             </div>
                         )}
                     </div>
@@ -306,8 +365,48 @@ function CartiAdmin() {
             {showDeleteSuccess && (
                 <div className="floating-success">Cartea a fost ștearsă cu succes!</div>
             )}
-        </div>
-    );
-}
+
+
+            {/* ====== POPUP COD ÎMPRUMUT ====== */}
+            {showPopupCod && (
+                <div className="popup-overlay-cod">
+                    <div className="popup-content">
+                        <p>Introduceți cod împrumut:</p>
+                        <input
+                            id="inputCod"
+                            type="text"
+                            value={codImprumut}
+                            onChange={(e) => setCodImprumut(e.target.value)}
+                            maxLength={6}
+                        />
+                        <div className="popup-buttons">
+                            <button id="btnOkCod" onClick={verificaCod}>OK</button>
+                            <button id="btnAnuleazaCod" onClick={() => setShowPopupCod(false)}>Anulează</button>
+                        </div>
+                    </div>
+                    {mesajEroareCod && (
+                        <div className="floating-error">
+                            {mesajEroareCod}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ====== POPUP CONFIRMARE IMPRUMUT ====== */}
+            {showPopupConfirmare && detaliiImprumut && (
+                <div className="popup-overlay-confirmare">
+                    <div className="popup-content">
+                        <p><strong>Cod corect!</strong></p>
+                        <p>A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>, exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong></p>
+                        <div className="popup-buttons">
+                            <button id="btnEfectuat" onClick={finalizeazaImprumut}>Efectuat</button>
+                            <button id="btnAnuleaza" onClick={() => setShowPopupConfirmare(false)}>Anulează</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+                    </div>
+                );
+            }
 
 export default CartiAdmin;

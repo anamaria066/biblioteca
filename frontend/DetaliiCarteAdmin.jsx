@@ -159,6 +159,7 @@ function DetaliiCarteAdmin() {
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
                                 <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                                <button className="dropdown-item">Împrumut</button>
                             </div>
                         )}
                     </div>

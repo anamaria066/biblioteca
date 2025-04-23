@@ -7,7 +7,8 @@ import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUt
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-// Dacă folosești ESModules (cu `import` în loc de `require`):
+import nodemailer from 'nodemailer';
+// pt ca folosesc ESModules (cu `import` în loc de `require`):
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -109,7 +110,7 @@ export const ExemplarCarte = sequelize.define('ExemplarCarte', {
         allowNull: false 
     }, 
     status_disponibilitate: {
-        type: DataTypes.ENUM('disponibil', 'împrumutat'),
+        type: DataTypes.ENUM('disponibil', 'in asteptare', 'împrumutat'),
         defaultValue: 'disponibil'
     }
 }, {
@@ -239,6 +240,11 @@ export const Imprumut = sequelize.define('Imprumut', {
     status: {
         type: DataTypes.ENUM('în așteptare', 'activ', 'returnat', 'expirat'),
         defaultValue: 'activ'
+    },
+    cod_confirmare: {
+        type: DataTypes.STRING(6),
+        allowNull: true, //va fi completat doar la creare
+        unique: true
     }
 }, {
     timestamps: false,
@@ -1308,7 +1314,7 @@ app.get('/imprumuturi', async (req, res) => {
             },
             {
               model: Utilizator,
-              attributes: ['nume', 'prenume']
+              attributes: ['nume', 'prenume', 'email']
             }
           ]
       });
@@ -1316,6 +1322,7 @@ app.get('/imprumuturi', async (req, res) => {
       const rezultat = imprumuturi.map((imp) => ({
         id: imp.id,
         numeUtilizator: `${imp.Utilizator.nume} ${imp.Utilizator.prenume}`,
+        emailUtilizator: imp.Utilizator.email,
         titluCarte: imp.ExemplarCarte?.Carte?.titlu,
         dataImprumut: imp.data_imprumut,
         dataReturnare: imp.data_returnare
@@ -1336,7 +1343,7 @@ app.get('/imprumuturi-curente-utilizator/:id', async (req, res) => {
         const imprumuturi = await Imprumut.findAll({
             where: {
                 utilizator_id: utilizatorId,
-                status: 'activ'
+                status: ['activ', 'în așteptare'] 
             },
             include: [
                 {
@@ -1352,7 +1359,8 @@ app.get('/imprumuturi-curente-utilizator/:id', async (req, res) => {
             titlu: imprumut.ExemplarCarte?.Carte?.titlu,
             autor: imprumut.ExemplarCarte?.Carte?.autor,
             dataImprumut: imprumut.data_imprumut,
-            dataReturnare: imprumut.data_returnare
+            dataReturnare: imprumut.data_returnare,
+            status: imprumut.status
         }));
 
         res.json(rezultat);
@@ -1395,6 +1403,208 @@ app.get('/imprumuturi-utilizator/:id', async (req, res) => {
     }
 });
 
+
+// Imprumut
+// http://localhost:3000/intervale-imprumut/:carte_id
+app.get('/intervale-imprumut/:carte_id', async (req, res) => {
+    const { carte_id } = req.params;
+
+    try {
+        const exemplare = await ExemplarCarte.findAll({
+            where: { carte_id }
+        });
+
+        const exemplareIds = exemplare.map(ex => ex.id);
+
+        const imprumuturi = await Imprumut.findAll({
+            where: {
+                exemplar_id: exemplareIds,
+                status: ['activ', 'în așteptare']
+            },
+            attributes: ['exemplar_id', 'data_imprumut', 'data_returnare']
+        });
+
+        res.json(imprumuturi);
+    } catch (error) {
+        console.error("Eroare la preluarea intervalelor:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+
+app.post('/creeaza-imprumut', async (req, res) => {
+    const { utilizator_id, carte_id, dataStart, dataEnd } = req.body;
+    console.log(`📬 Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);//de sters
+
+    try {
+        const exemplare = await ExemplarCarte.findAll({
+            where: {
+                carte_id,
+                status_disponibilitate: 'disponibil'
+            }
+        });
+
+        for (const exemplar of exemplare) {
+            const suprapuneri = await Imprumut.findOne({
+                where: {
+                    exemplar_id: exemplar.id,
+                    status: ['activ', 'în așteptare'],
+                    [Sequelize.Op.or]: [
+                        {
+                            data_imprumut: { [Sequelize.Op.between]: [dataStart, dataEnd] }
+                        },
+                        {
+                            data_returnare: { [Sequelize.Op.between]: [dataStart, dataEnd] }
+                        },
+                        {
+                            data_imprumut: { [Sequelize.Op.lte]: dataStart },
+                            data_returnare: { [Sequelize.Op.gte]: dataEnd }
+                        }
+                    ]
+                }
+            });
+
+            if (!suprapuneri) {
+                // Cod random
+                const cod = Math.floor(100000 + Math.random() * 900000);
+
+                // Creează împrumutul
+                await Imprumut.create({
+                    utilizator_id,
+                    exemplar_id: exemplar.id,
+                    data_imprumut: dataStart,
+                    data_returnare: dataEnd,
+                    status: 'în așteptare',
+                    cod_confirmare: cod.toString()
+                });
+
+                await exemplar.update({ status_disponibilitate: 'in asteptare' });
+
+                // Trimite email
+                const user = await Utilizator.findByPk(utilizator_id);
+
+                let transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: 'bibliotecaonlinesystem@gmail.com', // contul tău
+                        pass: 'uiai mhpi gdlx zyde' // generează din Google
+                    }
+                });
+
+                const mailOptions = {
+                    from: 'bibliotecaonlinesystem@gmail.com',
+                    to: user.email,
+                    subject: `Rezervare carte: ${exemplar.carte_id}`,
+                    text: `Aveti la dispozitie 48 de ore pentru a ridica cartea. Prezentati acest cod: ${cod}`
+                };
+
+                await transporter.sendMail(mailOptions);
+
+                return res.status(200).json({ message: "Împrumut creat și email trimis!" });
+            }
+        }
+
+        res.status(400).json({ message: "Nu există exemplare disponibile în perioada selectată!" });
+    } catch (err) {
+        console.error("Eroare la crearea împrumutului:", err);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+app.delete('/anuleaza-imprumut/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const imprumut = await Imprumut.findByPk(id);
+
+        if (!imprumut) {
+            return res.status(404).json({ message: "Împrumutul nu a fost găsit!" });
+        }
+
+        // doar împrumuturile în așteptare pot fi anulate
+        if (imprumut.status !== 'în așteptare') {
+            return res.status(400).json({ message: "Doar împrumuturile în așteptare pot fi anulate!" });
+        }
+
+        // actualizează statusul exemplarului înapoi la "disponibil"
+        await ExemplarCarte.update(
+            { status_disponibilitate: 'disponibil' },
+            { where: { id: imprumut.exemplar_id } }
+        );
+
+        // șterge împrumutul
+        await imprumut.destroy();
+
+        res.status(200).json({ message: "Împrumut anulat cu succes!" });
+    } catch (error) {
+        console.error("Eroare la anularea împrumutului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+app.get("/verifica-cod/:cod", async (req, res) => {
+    const cod = req.params.cod;
+
+    try {
+        const imprumut = await Imprumut.findOne({
+            where: {
+                cod_confirmare: cod,
+                status: "în așteptare"
+            },
+            include: {
+                model: ExemplarCarte,
+                include: Carte
+            }
+        });
+
+        if (!imprumut) {
+            return res.status(404).json({ message: "Cod invalid!" });
+        }
+
+        res.json({
+            id: imprumut.id,
+            exemplar_id: imprumut.exemplar_id,
+            titlu: imprumut.ExemplarCarte.Carte.titlu
+        });
+    } catch (err) {
+        console.error("Eroare la verificarea codului:", err);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+app.put("/finalizeaza-imprumut/:cod", async (req, res) => {
+    const cod = req.params.cod;
+
+    try {
+        const imprumut = await Imprumut.findOne({
+            where: {
+                cod_confirmare: cod,
+                status: "în așteptare"
+            }
+        });
+
+        if (!imprumut) {
+            return res.status(404).json({ message: "Împrumutul nu a fost găsit sau a fost deja activat." });
+        }
+
+        // Actualizează statusul împrumutului
+        await imprumut.update({ status: "activ" });
+
+        // Actualizează statusul exemplarului
+        const exemplar = await ExemplarCarte.findByPk(imprumut.exemplar_id);
+        if (exemplar) {
+            await exemplar.update({ status_disponibilitate: "împrumutat" });
+        }
+
+        res.json({ message: "Împrumut activat cu succes!" });
+    } catch (err) {
+        console.error("Eroare la activare împrumut:", err);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
 
 
 // Pornire server

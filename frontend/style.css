@@ -39,6 +39,17 @@ body {
     box-shadow: 0px 2px 6px;
 }
 
+#btnConfirmaImprumut, #btnAnuleazaImprumut {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
 
 
 .forgot-password-link a {
@@ -51,7 +62,7 @@ body {
 }
 
 /* Efect hover - schimbă culoarea și adaugă umbră */
-#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover, #btnConfirmaPoza:hover, #btnAnuleazaPoza:hover, #btnAnuleazaModificarile:hover {
+#btnAuth:hover, #btnCreareCont:hover, #btnCreazaCont:hover, #btnLogin:hover, #btnEditProfil:hover, #btnSchimbaParola:hover, #btnsalveazaModificarile:hover, #btnDelogare:hover, #btnAdaugaPoza:hover, #btnSchimbaPoza:hover, #btnStergePoza:hover, #btnConfirmaPoza:hover, #btnAnuleazaPoza:hover, #btnAnuleazaModificarile:hover, #btnConfirmaImprumut:hover, #btnAnuleazaImprumut:hover {
     background-color: rgb(255, 209, 220);
     box-shadow: 0px 4px 10px rgb(62, 45, 36); /* Adaugă o umbra */
     transform: translateY(-2px); /* efect de ridicare */
@@ -600,7 +611,7 @@ html, body {
 
 /* Stiluri pentru pop-up pentru recenzie */
 /* Buton pentru a lăsa o recenzie */
-.btn-recenzie, .btn-favorite, .btnDelete, .btnEdit, .btnExemplare, .btnAdaugaExemplar {
+.btn-recenzie, .btn-favorite, .btnDelete, .btnEdit, .btnExemplare, .btnAdaugaExemplar, .btnImprumuta {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     border: none;
@@ -613,11 +624,15 @@ html, body {
     box-shadow: 0px 2px 6px;
 }
 
+.btnImprumuta {
+    margin-left: 40px;
+}
+
 .btn-favorite {
     margin-left: 20px;
 }
 
-.btn-recenzie:hover, .btn-favorite:hover, .btnDelete:hover, .btnEdit:hover, .btnExemplare:hover, .btnAdaugaExemplar:hover {
+.btn-recenzie:hover, .btn-favorite:hover, .btnDelete:hover, .btnEdit:hover, .btnExemplare:hover, .btnAdaugaExemplar:hover, .btnImprumuta:hover {
     background-color: rgb(255, 209, 220);
     box-shadow: 0px 4px 10px rgb(62, 45, 36); 
     transform: translateY(-2px);
@@ -1090,8 +1105,11 @@ html, body {
 /* UTILIZATORI.JSX */
 /* Stiluri pentru tabelul cu utilizatori */
 .user-table-container {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     padding: 20px;
-    margin-top: 10px;
 }
 
 .user-table {
@@ -1566,3 +1584,95 @@ html, body {
     width: 100%;
     box-sizing: border-box;
   }
+
+
+  /* Imprumut */
+  .popup-imprumut {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 0 10px black;
+    text-align: center;
+}
+
+.popup-content input[type="date"] {
+    margin: 5px 0;
+    width: 100%;
+    padding: 5px;
+    background-color: rgb(244, 230, 219);
+    color: #333;
+}
+
+.butoane-popup button {
+    margin: 10px 5px;
+}
+
+.butoane-popup {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* spațiu între butoane */
+    margin-top: 20px;
+  }
+
+  .btnAnuleazaImprumut, .btnPrelungesteImprumut {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+
+  }
+
+  /*  */
+  .popup-overlay-cod, .popup-overlay-confirmare {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .popup-content {
+    background: white;
+    padding: 25px 35px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  
+  .popup-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+#inputCod {
+    background-color: rgb(246, 235, 226);
+    color: black;
+}
+
+#btnAnuleazaCod, #btnOkCod, #btnEfectuat, #btnAnuleaza {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}

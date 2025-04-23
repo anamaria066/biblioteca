@@ -35,6 +35,11 @@ function MainPageAdmin() {
         nume: "",
         prenume: ""
     });
+    const [showPopupCod, setShowPopupCod] = useState(false);
+    const [codImprumut, setCodImprumut] = useState("");
+    const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
+    const [mesajEroareCod, setMesajEroareCod] = useState("");
+    const [detaliiImprumut, setDetaliiImprumut] = useState(null);
 
     // Fetch date pentru statistici
     useEffect(() => {
@@ -78,6 +83,43 @@ function MainPageAdmin() {
             return () => document.removeEventListener("mousedown", handleClickOutsideDropdown);
         }, []);
 
+        const verificaCod = async () => {
+            try {
+                const res = await fetch(`http://localhost:3000/verifica-cod/${codImprumut}`);
+                const data = await res.json();
+        
+                if (res.ok) {
+                    setDetaliiImprumut(data); // conține titlu, exemplar_id etc.
+                    setShowPopupCod(false);
+                    setShowPopupConfirmare(true);
+                } else {
+                    setMesajEroareCod("Cod invalid!");
+                    setTimeout(() => setMesajEroareCod(""), 3000);
+                }
+            } catch (err) {
+                console.error("Eroare verificare cod:", err);
+                setMesajEroareCod("Eroare de rețea!");
+                setTimeout(() => setMesajEroareCod(""), 3000);
+            }
+        };
+    
+        const finalizeazaImprumut = async () => {
+            try {
+                const res = await fetch(`http://localhost:3000/finalizeaza-imprumut/${codImprumut}`, {
+                    method: "PUT"
+                });
+        
+                if (res.ok) {
+                    setShowPopupConfirmare(false);
+                    setCodImprumut("");
+                    setDetaliiImprumut(null);
+                } else {
+                    alert("Eroare la activarea împrumutului!");
+                }
+            } catch (err) {
+                console.error("Eroare activare:", err);
+            }
+        };
 
     return (
         <div className="admin-container">
@@ -100,6 +142,7 @@ function MainPageAdmin() {
                             <div className="dropdown-menu show">
                                 <button className="dropdown-item">Cheltuială</button>
                                 <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                                <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
                             </div>
                         )}
                     </div>
@@ -196,6 +239,45 @@ function MainPageAdmin() {
                     />
                 </div>
             </div>
+
+            {/* ====== POPUP COD ÎMPRUMUT ====== */}
+            {showPopupCod && (
+                <div className="popup-overlay-cod">
+                    <div className="popup-content">
+                        <p>Introduceți cod împrumut:</p>
+                        <input
+                            id="inputCod"
+                            type="text"
+                            value={codImprumut}
+                            onChange={(e) => setCodImprumut(e.target.value)}
+                            maxLength={6}
+                        />
+                        <div className="popup-buttons">
+                            <button id="btnOkCod" onClick={verificaCod}>OK</button>
+                            <button id="btnAnuleazaCod" onClick={() => setShowPopupCod(false)}>Anulează</button>
+                        </div>
+                    </div>
+                    {mesajEroareCod && (
+                        <div className="floating-error">
+                            {mesajEroareCod}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ====== POPUP CONFIRMARE IMPRUMUT ====== */}
+            {showPopupConfirmare && detaliiImprumut && (
+                <div className="popup-overlay-confirmare">
+                    <div className="popup-content">
+                        <p><strong>Cod corect!</strong></p>
+                        <p>A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>, exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong></p>
+                        <div className="popup-buttons">
+                            <button id="btnEfectuat" onClick={finalizeazaImprumut}>Efectuat</button>
+                            <button id="btnAnuleaza" onClick={() => setShowPopupConfirmare(false)}>Anulează</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

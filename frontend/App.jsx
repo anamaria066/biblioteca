@@ -16,7 +16,7 @@ import Exemplare from './Exemplare';
 import Imprumuturi from './Imprumuturi';
 import AdaugaCarte from './AdaugaCarte';
 import EditeazaCarte from './EditeazaCarte';
-import ImprumuturiActive from './ImprumuturiActive';
+import ImprumuturiClient from './ImprumuturiClient';
 import Istoric from './Istoric';
 
 const App = () => {
@@ -39,7 +39,7 @@ const App = () => {
         <Route path='/imprumuturi' element={<Imprumuturi/>}/>
         <Route path='/adauga-carte' element={<AdaugaCarte/>}/>
         <Route path='/editeaza-carte/:id' element={<EditeazaCarte/>}/>
-        <Route path='/imprumuturi-active' element={<ImprumuturiActive/>}/>
+        <Route path='/imprumuturi-curente' element={<ImprumuturiClient/>}/>
         <Route path="/istoric" element={<Istoric />} />
       </Routes>
     </BrowserRouter>

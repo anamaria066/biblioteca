@@ -20,6 +20,12 @@ function DetaliiCarte() {
     });
     const [mesajFavorit, setMesajFavorit] = useState("");
     const [afiseazaMesajFavorit, setAfiseazaMesajFavorit] = useState(false);
+    const [showPopupImprumut, setShowPopupImprumut] = useState(false);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [zileIndisponibile, setZileIndisponibile] = useState([]);
+    const [mesajImprumut, setMesajImprumut] = useState("");
+    const [afiseazaMesajImprumut, setAfiseazaMesajImprumut] = useState(false);
 
     // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const userId = localStorage.getItem("utilizator_id");
@@ -53,7 +59,35 @@ const fetchData = async () => {
 
     useEffect(() => {
         fetchData();
-    }, [id]);
+        const incarcaZileIndisponibile = async () => {
+            try {
+                const res = await fetch(`http://localhost:3000/intervale-imprumut/${id}`);
+                const data = await res.json();
+    
+                const toateZilele = [];
+    
+                data.forEach(imprumut => {
+                    const start = new Date(imprumut.data_imprumut);
+                    const end = new Date(imprumut.data_returnare);
+                    const zile = [];
+    
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        zile.push(new Date(d).toISOString().slice(0, 10));
+                    }
+    
+                    toateZilele.push(...zile);
+                });
+    
+                setZileIndisponibile(toateZilele);
+            } catch (error) {
+                console.error("Eroare la încărcarea zilelor indisponibile:", error);
+            }
+        };
+    
+        if (showPopupImprumut) {
+            incarcaZileIndisponibile();
+        }
+    }, [showPopupImprumut, id]);
 
     // ✅ Calcularea rating-ului mediu
     const calculeazaRatingMediu = () => {
@@ -147,6 +181,55 @@ const fetchData = async () => {
         return <p>Se încarcă...</p>;
     }
 
+    const handleConfirmImprumut = async () => {
+        if (!startDate || !endDate) {
+            setMesajImprumut("Selectează ambele date!");
+            afiseazaPopupTemporar();
+            return;
+        }
+    
+        // verificăm dacă se suprapune
+        const suprapunere = zileIndisponibile.some(date => {
+            return date >= startDate && date <= endDate;
+        });
+    
+        if (suprapunere) {
+            setMesajImprumut("Date selectate indisponibile!");
+            afiseazaPopupTemporar();
+            return;
+        }
+    
+        // trimite request la server
+        try {
+            const res = await fetch("http://localhost:3000/creeaza-imprumut", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    utilizator_id: parseInt(utilizator_id),
+                    carte_id: parseInt(id),
+                    dataStart: startDate,
+                    dataEnd: endDate
+                })
+            });
+    
+            const data = await res.json();
+    
+            setMesajImprumut(data.message);
+            afiseazaPopupTemporar();
+            setShowPopupImprumut(false);
+            setStartDate("");
+            setEndDate("");
+        } catch (err) {
+            setMesajImprumut("Eroare la trimiterea împrumutului!");
+            afiseazaPopupTemporar();
+        }
+    };
+    
+    const afiseazaPopupTemporar = () => {
+        setAfiseazaMesajImprumut(true);
+        setTimeout(() => setAfiseazaMesajImprumut(false), 3000);
+    };
+
     return (
         <div className="detalii-container">
             {/* ======= Header fixat sus ======= */}
@@ -154,7 +237,7 @@ const fetchData = async () => {
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
                     <button className="nav-button">Recomandate</button>
-                    <button className="nav-button" onClick={() => navigate("/imprumuturi-active")}>Împrumuturi active</button>
+                    <button className="nav-button" onClick={() => navigate("/imprumuturi-curente")}>Împrumuturi curente</button>
                     <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
 
@@ -197,6 +280,7 @@ const fetchData = async () => {
                     <p><strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}/5)</p>
 
                     <button className="btn-recenzie" onClick={() => setShowPopup(true)}>Lasă o recenzie</button>
+                    <button className="btnImprumuta" onClick={() => setShowPopupImprumut(true)}>Împrumută</button>
                     
                 </div>
                 <div className="detalii-imagine">
@@ -238,6 +322,33 @@ const fetchData = async () => {
                     {mesajFavorit}
                 </div>
             )}
+
+            {afiseazaMesajImprumut && (
+            <div className={mesajImprumut.includes("succes") ? "floating-success" : "floating-error"}>
+                {mesajImprumut}
+            </div>
+            )}
+        {/*  */}
+        {showPopupImprumut && (
+        <div className="popup-imprumut">
+            <div className="popup-content">
+                <h3>Rezervare carte</h3>
+                <label>De la:</label>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+
+                <label>Până la:</label>
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+
+                <div className="butoane-popup">
+                    <button id="btnConfirmaImprumut" onClick={handleConfirmImprumut}>Confirmă</button>
+                    <button id="btnAnuleazaImprumut" onClick={() => setShowPopupImprumut(false)}>Anulează</button>
+                </div>
+
+                <p className="info-indisponibil">Date indisponibile: {zileIndisponibile.length ? zileIndisponibile.join(", ") : "None"}</p>
+            </div>
+        </div>
+    )}
+    {/*  */}
         </div>
     );
 }
