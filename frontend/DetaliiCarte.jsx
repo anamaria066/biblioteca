@@ -26,6 +26,7 @@ function DetaliiCarte() {
     const [zileIndisponibile, setZileIndisponibile] = useState([]);
     const [mesajImprumut, setMesajImprumut] = useState("");
     const [afiseazaMesajImprumut, setAfiseazaMesajImprumut] = useState(false);
+    const [esteSucces, setEsteSucces] = useState(false);
 
     // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
     const userId = localStorage.getItem("utilizator_id");
@@ -215,6 +216,7 @@ const fetchData = async () => {
             const data = await res.json();
     
             setMesajImprumut(data.message);
+            setEsteSucces(res.ok);
             afiseazaPopupTemporar();
             setShowPopupImprumut(false);
             setStartDate("");
@@ -324,9 +326,9 @@ const fetchData = async () => {
             )}
 
             {afiseazaMesajImprumut && (
-            <div className={mesajImprumut.includes("succes") ? "floating-success" : "floating-error"}>
-                {mesajImprumut}
-            </div>
+                <div className={esteSucces ? "floating-success" : "floating-error"}>
+                    {mesajImprumut}
+                </div>
             )}
         {/*  */}
         {showPopupImprumut && (

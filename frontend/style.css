@@ -1637,7 +1637,7 @@ html, body {
   }
 
   /*  */
-  .popup-overlay-cod, .popup-overlay-confirmare {
+  .popup-overlay-cod, .popup-overlay-confirmare, .popup-prelungire {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.4);
@@ -1666,7 +1666,7 @@ html, body {
     color: black;
 }
 
-#btnAnuleazaCod, #btnOkCod, #btnEfectuat, #btnAnuleaza {
+#btnAnuleazaCod, #btnOkCod, #btnEfectuat, #btnAnuleaza, #btnConfirmaPrelungire, #btnAnuleazaPrelungire {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     padding: 10px 15px;

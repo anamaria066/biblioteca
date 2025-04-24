@@ -13,6 +13,12 @@ function ImprumuturiClient() {
     const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
     const [idDeAnulat, setIdDeAnulat] = useState(null);
     const [showPopupSucces, setShowPopupSucces] = useState(false);
+    const [showPopupPrelungire, setShowPopupPrelungire] = useState(false);
+    const [imprumutSelectat, setImprumutSelectat] = useState(null);
+    const [dataNouaFinal, setDataNouaFinal] = useState("");
+    const [zileIndisponibile, setZileIndisponibile] = useState([]);
+    const [mesajPrelungire, setMesajPrelungire] = useState("");
+    const [succesPrelungire, setSuccesPrelungire] = useState(false);
 
     // Paginare
     const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +101,91 @@ function ImprumuturiClient() {
         setShowPopupConfirmare(false);
     };
 
+    const deschidePopupPrelungire = async (imprumut) => {
+        try {
+            const res = await fetch(`http://localhost:3000/intervale-imprumut/${imprumut.exemplarId}`);
+            const data = await res.json();
+    
+            const toateZilele = [];
+            data.forEach(impr => {
+                if (impr.id !== imprumut.id) {
+                    const start = new Date(impr.data_imprumut);
+                    const end = new Date(impr.data_returnare);
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        toateZilele.push(new Date(d).toISOString().slice(0, 10));
+                    }
+                }
+            });
+    
+            setZileIndisponibile(toateZilele);
+            setImprumutSelectat(imprumut);
+            setDataNouaFinal(imprumut.dataReturnare.slice(0, 10));
+            setShowPopupPrelungire(true);
+        } catch (err) {
+            console.error("Eroare la încărcarea zilelor ocupate:", err);
+        }
+    };
+
+
+    const confirmaPrelungire = async () => {
+        const dataStart = imprumutSelectat.dataImprumut.slice(0, 10);
+        const dataEnd = dataNouaFinal;
+    
+        if (dataEnd <= dataStart) {
+            setMesajPrelungire("Data de sfârșit trebuie să fie după cea de început!");
+            setSuccesPrelungire(false);
+            return;
+        }
+    
+        // ✅ Verificare durată maximă
+        const startDateObj = new Date(dataStart);
+        const endDateObj = new Date(dataEnd);
+        const durataZile = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24));
+    
+        if (durataZile > 30) {
+            setMesajPrelungire("Durata maximă a unui împrumut este de 30 de zile!");
+            setSuccesPrelungire(false);
+            return;
+        }
+    
+        const suprapunere = zileIndisponibile.some(date => date >= dataStart && date <= dataEnd);
+        if (suprapunere) {
+            setMesajPrelungire("Interval indisponibil!");
+            setSuccesPrelungire(false);
+            return;
+        }
+    
+        try {
+            const res = await fetch(`http://localhost:3000/modifica-imprumut/${imprumutSelectat.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data_returnare: dataEnd })
+            });
+    
+            const data = await res.json();
+    
+            if (res.ok) {
+                setShowPopupPrelungire(false);
+                setMesajPrelungire("Prelungire realizată cu succes!");
+                setSuccesPrelungire(true);
+    
+                const userId = localStorage.getItem("utilizator_id");
+                const updated = await fetch(`http://localhost:3000/imprumuturi-curente-utilizator/${userId}`);
+                const json = await updated.json();
+                setCartiImprumutate(json);
+    
+                setTimeout(() => setMesajPrelungire(""), 3000);
+            } else {
+                setMesajPrelungire(data.message || "Eroare la prelungire!");
+                setSuccesPrelungire(false);
+            }
+        } catch (err) {
+            console.error("Eroare la prelungire:", err);
+            setMesajPrelungire("Eroare de rețea!");
+            setSuccesPrelungire(false);
+        }
+    };
+
     return (
         <div className="admin-container">
             {/* ======= HEADER ======= */}
@@ -166,7 +257,7 @@ function ImprumuturiClient() {
                                         Anulează
                                     </button>
                                 ) : (
-                                    <button className="btnPrelungesteImprumut" onClick={() => console.log("Prelungire termen")}>
+                                    <button className="btnPrelungesteImprumut" onClick={() => deschidePopupPrelungire(carte)}>
                                         Prelungește
                                     </button>
                                 )}
@@ -211,6 +302,35 @@ function ImprumuturiClient() {
                     </button>
                 </div>
             </div>
+
+            {showPopupPrelungire && (
+                <div className="popup-prelungire">
+                    <div className="popup-content">
+                        <h3>Prelungire Împrumut</h3>
+                        <p><strong>Data început:</strong> {imprumutSelectat.dataImprumut.slice(0, 10)}</p>
+                        <label>Noua dată de returnare:</label>
+                        <input
+                            type="date"
+                            value={dataNouaFinal}
+                            onChange={(e) => setDataNouaFinal(e.target.value)}
+                            min={imprumutSelectat.dataImprumut.slice(0, 10)}
+                        />
+                        <p className="info-indisponibil">
+                            Zile indisponibile: {zileIndisponibile.length ? zileIndisponibile.join(", ") : "None"}
+                        </p>
+                        <div className="popup-buttons">
+                            <button id="btnConfirmaPrelungire" onClick={confirmaPrelungire}>Confirmă</button>
+                            <button id="btnAnuleazaPrelungire" onClick={() => setShowPopupPrelungire(false)}>Anulează</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {mesajPrelungire && (
+                <div className={succesPrelungire ? "floating-success" : "floating-error"}>
+                    {mesajPrelungire}
+                </div>
+            )}
         </div>
     );
 }
