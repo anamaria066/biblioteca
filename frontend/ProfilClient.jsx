@@ -31,6 +31,7 @@ function ProfilClient() {
     const [showFloatingMessage, setShowFloatingMessage] = useState(false);
     const [showFloatingError, setShowFloatingError] = useState(false);
     const [floatingErrorMessage, setFloatingErrorMessage] = useState("");
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
 
     const userId = localStorage.getItem("utilizator_id");
 
@@ -216,6 +217,26 @@ function ProfilClient() {
         .catch(err => console.error("Eroare la ștergerea pozei:", err));
     };
 
+    const handleDeleteAccount = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/sterge-cont/${userId}`, {
+                method: "DELETE"
+            });
+    
+            if (res.ok) {
+                localStorage.clear();
+                setShowDeletePopup(false);
+                navigate("/", { state: { showDeletedMessage: true } });
+            } else {
+                const data = await res.json();
+                alert(data.message || "Eroare la ștergerea contului.");
+            }
+        } catch (err) {
+            console.error("Eroare la ștergerea contului:", err);
+            alert("Eroare de rețea!");
+        }
+    };
+
     const pozaAfisata = previewPoza
     ? previewPoza
     : userData.pozaProfil && userData.pozaProfil !== ""
@@ -346,6 +367,9 @@ function ProfilClient() {
                             <button id="btnDelogare" onClick={() => { localStorage.clear(); navigate("/"); }}>Deloghează-te</button>
                         </>
                     )}
+
+                    
+
                     <input
                         type="file"
                         accept="image/*"
@@ -354,6 +378,10 @@ function ProfilClient() {
                         onChange={handleFileChange}
                     />
                 </div>
+
+                <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+                        Șterge cont
+                     </button>
             </div>
 
             {isChangingPassword && (
@@ -383,6 +411,17 @@ function ProfilClient() {
             )}
             {showFloatingError && (
                 <div className="floating-error">{floatingErrorMessage}</div>
+            )}
+
+
+            {showDeletePopup && (
+                <div className="popup-overlay-stergere-cont">
+                    <div className="popup">
+                        <p>Confirmați ștergerea contului? Această acțiune este ireversibilă!</p>
+                        <button id="confirmaStergereCont" onClick={handleDeleteAccount}>Confirmă</button>
+                        <button id="anuleazaStergereCont" onClick={() => setShowDeletePopup(false)}>Anulează</button>
+                    </div>
+                </div>
             )}
         </div>
     );

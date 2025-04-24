@@ -1074,6 +1074,8 @@ html, body {
 }
 
 
+
+
 /* previzualizare poza */
 .butoane-previzualizare {
     margin-top: 10px;
@@ -1624,7 +1626,7 @@ html, body {
     margin-top: 20px;
   }
 
-  .btnAnuleazaImprumut, .btnPrelungesteImprumut {
+  .btnAnuleazaImprumut, .btnPrelungesteImprumut, #btnStergeCont {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     padding: 10px 15px;
@@ -1636,8 +1638,15 @@ html, body {
 
   }
 
+
+    #btnStergeCont {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+      }
+
   /*  */
-  .popup-overlay-cod, .popup-overlay-confirmare, .popup-prelungire {
+  .popup-overlay-cod, .popup-overlay-confirmare, .popup-prelungire, .popup-overlay-stergere-cont {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.4);
@@ -1666,7 +1675,7 @@ html, body {
     color: black;
 }
 
-#btnAnuleazaCod, #btnOkCod, #btnEfectuat, #btnAnuleaza, #btnConfirmaPrelungire, #btnAnuleazaPrelungire {
+#btnAnuleazaCod, #btnOkCod, #btnEfectuat, #btnAnuleaza, #btnConfirmaPrelungire, #btnAnuleazaPrelungire, #confirmaStergereCont, #anuleazaStergereCont {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     padding: 10px 15px;
