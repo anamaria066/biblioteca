@@ -10,7 +10,7 @@ function DetaliiCarteAdmin() {
     const [recenzii, setRecenzii] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
     const [mesaj, setMesaj] = useState("");
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(null);
     const [user, setUser] = useState({
             nume: "",
             prenume: ""
@@ -45,6 +45,19 @@ function DetaliiCarteAdmin() {
             console.error("Eroare la încărcarea datelor:", error);
         }
     };
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                setMenuOpen(null); // închide meniul
+            }
+        };
+    
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         fetchData();
@@ -143,25 +156,31 @@ function DetaliiCarteAdmin() {
             {/* ======= HEADER ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    {/* Butoane de navigare */}
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
+                    <div className="dropdown" >
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'imprumuturi' ? null : 'imprumuturi')}>
+                        Împrumuturi...
+                    </button>
+                    {menuOpen === 'imprumuturi' && (
+                        <div className="dropdown-menu show">
+                        <button className="dropdown-item" onClick={() => navigate("/imprumuturi")}>Active</button>
+                        <button className="dropdown-item" onClick={() => navigate("/istoric-imprumuturi")}>Istoric</button>
+                        </div>
+                    )}
+                    </div>
                     <div className="dropdown">
-                        {/* Meniul dropdown */}
-                        <button className="nav-button" onClick={() => {
-                            setMenuOpen(!menuOpen); 
-                        }}>
-                            Adaugă...
-                        </button>
-                        {menuOpen && (
-                            <div className="dropdown-menu show">
-                                <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
-                                <button className="dropdown-item">Împrumut</button>
-                            </div>
-                        )}
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'adauga' ? null : 'adauga')}>
+                    Adaugă...
+                </button>
+                {menuOpen === 'adauga' && (
+                    <div className="dropdown-menu show">
+                        <button className="dropdown-item">Cheltuială</button>
+                        <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                        <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
+                    </div>
+                )}
                     </div>
                 </div>
                 <div className="right-buttons">

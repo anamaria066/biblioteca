@@ -25,7 +25,7 @@ function ProfilAdmin() {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(null);
     const [pozaMareDropdownDeschis, setPozaMareDropdownDeschis] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -79,7 +79,7 @@ function ProfilAdmin() {
       useEffect(() => {
         const handleClickOutsideDropdown = (e) => {
             if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
-                setMenuOpen(false);
+                setMenuOpen(null);
             }
         };
         document.addEventListener("mousedown", handleClickOutsideDropdown);
@@ -298,25 +298,43 @@ function ProfilAdmin() {
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Înregistrează Împrumut</button>
                     <div className="dropdown">
-                        <button className="nav-button" onClick={() => setMenuOpen(!menuOpen)}>Adaugă...</button>
-                        {menuOpen && (
-                            <div className="dropdown-menu">
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-cheltuiala")}>Cheltuială</button>
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
-                                <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
-                            </div>
-                        )}
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'imprumuturi' ? null : 'imprumuturi')}>
+                        Împrumuturi...
+                    </button>
+                    {menuOpen === 'imprumuturi' && (
+                        <div className="dropdown-menu show">
+                        <button className="dropdown-item" onClick={() => navigate("/imprumuturi")}>Active</button>
+                        <button className="dropdown-item" onClick={() => navigate("/istoric-imprumuturi")}>Istoric</button>
+                        </div>
+                    )}
+                    </div>
+                    <div className="dropdown">
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'adauga' ? null : 'adauga')}>
+                    Adaugă...
+                </button>
+                {menuOpen === 'adauga' && (
+                    <div className="dropdown-menu show">
+                        <button className="dropdown-item">Cheltuială</button>
+                        <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                        <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
+                    </div>
+                )}
                     </div>
                 </div>
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {userData.nume} {userData.prenume}!</p>
                     <img
-                        src={pozaAfisata}
-                        alt="Poza de profil"
-                        className="profile-img-small"
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        userData.pozaProfil
+                            ? userData.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${userData.pozaProfil}`
+                                : userData.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

@@ -15,13 +15,26 @@ function AdaugaCarte() {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [successMessage, setSuccessMessage] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(null);
 
     const [user, setUser] = useState({
         nume: "",
         prenume: "",
         pozaProfil: ""
     });
+
+    useEffect(() => {
+        const handleClickOutsideDropdown = (e) => {
+            if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                setMenuOpen(null); // Închide meniul
+            }
+        };
+    
+        document.addEventListener("mousedown", handleClickOutsideDropdown);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutsideDropdown);
+        };
+    }, []);
 
     useEffect(() => {
         const userId = localStorage.getItem("utilizator_id");
@@ -94,30 +107,43 @@ function AdaugaCarte() {
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Împrumuturi</button>
                     <div className="dropdown">
-                        <button className="nav-button" onClick={() => setMenuOpen(!menuOpen)}>Adaugă...</button>
-                        {menuOpen && (
-                            <div className="dropdown-menu show">
-                                <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
-                            </div>
-                        )}
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'imprumuturi' ? null : 'imprumuturi')}>
+                        Împrumuturi...
+                    </button>
+                    {menuOpen === 'imprumuturi' && (
+                        <div className="dropdown-menu show">
+                        <button className="dropdown-item" onClick={() => navigate("/imprumuturi")}>Active</button>
+                        <button className="dropdown-item" onClick={() => navigate("/istoric-imprumuturi")}>Istoric</button>
+                        </div>
+                    )}
+                    </div>
+                    <div className="dropdown">
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'adauga' ? null : 'adauga')}>
+                    Adaugă...
+                </button>
+                {menuOpen === 'adauga' && (
+                    <div className="dropdown-menu show">
+                        <button className="dropdown-item">Cheltuială</button>
+                        <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                        <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
+                    </div>
+                )}
                     </div>
                 </div>
                 <div className="right-buttons">
                     <p className="user-info">Bun venit, {user.nume} {user.prenume}!</p>
                     <img
-                        src={
-                            user.pozaProfil
-                                ? user.pozaProfil.startsWith("/uploads")
-                                    ? `http://localhost:3000${user.pozaProfil}`
-                                    : user.pozaProfil
-                                : "/images/default-avatar.jpg"
-                        }
-                        alt="Poza de profil"
-                        className="profile-img-small"
-                        onClick={() => navigate("/profil-admin")}
+                    src={
+                        user.pozaProfil
+                            ? user.pozaProfil.startsWith("/uploads")
+                                ? `http://localhost:3000${user.pozaProfil}`
+                                : user.pozaProfil
+                            : "/images/default-avatar.jpg"
+                    }
+                    alt="Poza de profil"
+                    className="profile-img-small"
+                    onClick={() => navigate("/profil-admin")}
                     />
                 </div>
             </header>

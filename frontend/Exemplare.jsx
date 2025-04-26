@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./style.css";
 
@@ -19,6 +19,7 @@ function Exemplare() {
     const [newStare, setNewStare] = useState("");
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+    const dropdownRef = useRef(null);
 
     // Funcție pentru a încărca exemplarele și datele cărții
     const fetchData = async () => {
@@ -43,12 +44,26 @@ function Exemplare() {
 
     useEffect(() => {
         fetchData();
-        // Setează numele și prenumele utilizatorului din localStorage
         const nume = localStorage.getItem("nume");
         const prenume = localStorage.getItem("prenume");
-        const pozaProfil = localStorage.getItem("pozaProfil");
-        setUser({ nume, prenume, pozaProfil });
-    }, [selectedCarteId]);
+        const utilizator_id = localStorage.getItem("utilizator_id");
+      
+        const fetchProfil = async () => {
+          try {
+            const res = await fetch(`http://localhost:3000/profil/${utilizator_id}`);
+            const data = await res.json();
+            setUser({
+              nume: data.nume,
+              prenume: data.prenume,
+              pozaProfil: data.pozaProfil ? `http://localhost:3000${data.pozaProfil}` : "/images/default-avatar.jpg"
+            });
+          } catch (error) {
+            console.error("Eroare la preluarea profilului:", error);
+          }
+        };
+      
+        fetchProfil();
+      }, [selectedCarteId]);
 
 
 
@@ -104,24 +119,31 @@ function Exemplare() {
             {/* ======= HEADER ======= */}
             <header className="header">
                 <div className="nav-buttons">
-                    {/* Butoane de navigare */}
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/inregistreaza-imprumut")}>Înregistrează Împrumut</button>
-                    <div className="dropdown">
-                        {/* Meniul dropdown */}
-                        <button className="nav-button" onClick={() => {
-                            setMenuOpen(!menuOpen);
-                        }}>
-                            Adaugă...
-                        </button>
-                        {menuOpen && (
-                            <div className="dropdown-menu show">
-                                <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item">Carte</button>
-                            </div>
-                        )}
+                    <div className="dropdown" ref={dropdownRef}>
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'imprumuturi' ? null : 'imprumuturi')}>
+                        Împrumuturi...
+                    </button>
+                    {menuOpen === 'imprumuturi' && (
+                        <div className="dropdown-menu show">
+                        <button className="dropdown-item" onClick={() => navigate("/imprumuturi")}>Active</button>
+                        <button className="dropdown-item" onClick={() => navigate("/istoric-imprumuturi")}>Istoric</button>
+                        </div>
+                    )}
+                    </div>
+                    <div className="dropdown" ref={dropdownRef}>
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'adauga' ? null : 'adauga')}>
+                    Adaugă...
+                </button>
+                {menuOpen === 'adauga' && (
+                    <div className="dropdown-menu show">
+                        <button className="dropdown-item">Cheltuială</button>
+                        <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                        <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
+                    </div>
+                )}
                     </div>
                 </div>
                 <div className="right-buttons">

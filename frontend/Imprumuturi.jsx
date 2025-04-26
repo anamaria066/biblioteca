@@ -5,7 +5,7 @@ import "./style.css";
 function Imprumuturi() {
     const navigate = useNavigate();
     const [imprumuturi, setImprumuturi] = useState([]);
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(null);
     const [user, setUser] = useState({
         nume: "",
         prenume: "",
@@ -18,6 +18,11 @@ function Imprumuturi() {
     const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
     const [mesajEroareCod, setMesajEroareCod] = useState("");
     const [detaliiImprumut, setDetaliiImprumut] = useState(null);
+    const [showPopupFinalizare, setShowPopupFinalizare] = useState(false);
+    const [detaliiFinalizare, setDetaliiFinalizare] = useState(null);
+    const [stareExemplar, setStareExemplar] = useState("bună");
+    const [showPopupSucces, setShowPopupSucces] = useState(false);
+    const [mesajSucces, setMesajSucces] = useState("");
 
     useEffect(() => {
         fetch("http://localhost:3000/imprumuturi")
@@ -62,7 +67,7 @@ function Imprumuturi() {
           useEffect(() => {
             const handleClickOutsideDropdown = (e) => {
                 if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
-                    setMenuOpen(false);
+                    setMenuOpen(null);
                 }
             };
             document.addEventListener("mousedown", handleClickOutsideDropdown);
@@ -106,6 +111,48 @@ function Imprumuturi() {
                 console.error("Eroare activare:", err);
             }
         };
+
+        const confirmaFinalizare = async () => {
+            if (!detaliiFinalizare) return;
+        
+            try {
+                await fetch(`http://localhost:3000/modifica-imprumut/${detaliiFinalizare.idImprumut}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        data_returnare: new Date().toISOString(),
+                        status: "returnat"    // 🛠️ trimitem status nou
+                    }),
+                });
+        
+                await fetch(`http://localhost:3000/modifica-exemplar/${detaliiFinalizare.exemplarId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ stare: stareExemplar, status_disponibilitate: "disponibil" }),
+                });
+        
+                setShowPopupFinalizare(false);
+                setDetaliiFinalizare(null);
+                setStareExemplar("bună");
+        
+                setMesajSucces("Împrumut finalizat cu succes!");
+                setShowPopupSucces(true);
+                setTimeout(() => setShowPopupSucces(false), 3000);
+        
+                fetch("http://localhost:3000/imprumuturi")
+                    .then(res => res.json())
+                    .then(data => setImprumuturi(data))
+                    .catch(error => console.error("Eroare la reîncărcare împrumuturi:", error));
+        
+            } catch (error) {
+                console.error("Eroare la finalizarea împrumutului:", error);
+                alert("A apărut o eroare la finalizare!");
+            }
+        };
     
 
     return (
@@ -116,18 +163,28 @@ function Imprumuturi() {
                     <button className="nav-button" onClick={() => navigate("/admin")}>Pagina Principală</button>
                     <button className="nav-button" onClick={() => navigate("/carti")}>Cărți</button>
                     <button className="nav-button" onClick={() => navigate("/utilizatori")}>Utilizatori</button>
-                    <button className="nav-button" onClick={() => navigate("/imprumuturi")}>Împrumuturi</button>
                     <div className="dropdown">
-                        <button className="nav-button" onClick={() => setMenuOpen(!menuOpen)}>
-                            Adaugă...
-                        </button>
-                        {menuOpen && (
-                            <div className="dropdown-menu show">
-                                <button className="dropdown-item">Cheltuială</button>
-                                <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
-                                <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
-                            </div>
-                        )}
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'imprumuturi' ? null : 'imprumuturi')}>
+                        Împrumuturi...
+                    </button>
+                    {menuOpen === 'imprumuturi' && (
+                        <div className="dropdown-menu show">
+                        <button className="dropdown-item" onClick={() => navigate("/imprumuturi")}>Active</button>
+                        <button className="dropdown-item" onClick={() => navigate("/istoric-imprumuturi")}>Istoric</button>
+                        </div>
+                    )}
+                    </div>
+                    <div className="dropdown">
+                    <button className="nav-button" onClick={() => setMenuOpen(menuOpen === 'adauga' ? null : 'adauga')}>
+                    Adaugă...
+                </button>
+                {menuOpen === 'adauga' && (
+                    <div className="dropdown-menu show">
+                        <button className="dropdown-item">Cheltuială</button>
+                        <button className="dropdown-item" onClick={() => navigate("/adauga-carte")}>Carte</button>
+                        <button className="dropdown-item" onClick={() => setShowPopupCod(true)}>Împrumut</button>
+                    </div>
+                )}
                     </div>
                 </div>
                 <div className="right-buttons">
@@ -159,28 +216,41 @@ function Imprumuturi() {
                             <th>Carte</th>
                             <th>Data Împrumut</th>
                             <th>Data Returnare</th>
+                            <th>Acțiune</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentRows.length === 0 ? (
-                            <tr className="empty-row">
-                            <td colSpan="5" className="empty-message">
-                                Niciun împrumut activ
+                    {currentRows.length === 0 ? (
+                        <tr className="empty-row">
+                        <td colSpan="7" className="empty-message">Niciun împrumut activ</td> {/* 7 coloane acum */}
+                        </tr>
+                    ) : (
+                        currentRows.map((imprumut, index) => (
+                        <tr key={imprumut.id}>
+                            <td>{indexOfFirst + index + 1}</td>
+                            <td>{imprumut.numeUtilizator}</td>
+                            <td>{imprumut.emailUtilizator}</td>
+                            <td>{imprumut.titluCarte}</td>
+                            <td>{new Date(imprumut.dataImprumut).toLocaleDateString()}</td>
+                            <td>{new Date(imprumut.dataReturnare).toLocaleDateString()}</td>
+                            <td>
+                            <button
+                                id="btnFinalizeazaImprumut"
+                                onClick={() => {
+                                setDetaliiFinalizare({
+                                    idImprumut: imprumut.id,
+                                    exemplarId: imprumut.exemplarId
+                                });
+                                setShowPopupFinalizare(true);
+                                }}
+                            >
+                                Finalizează Împrumut
+                            </button>
                             </td>
-                            </tr>
-                        ) : (
-                            currentRows.map((imprumut, index) => (
-                            <tr key={imprumut.id}>
-                                <td>{indexOfFirst + index + 1}</td>
-                                <td>{imprumut.numeUtilizator}</td>
-                                <td>{imprumut.emailUtilizator}</td> 
-                                <td>{imprumut.titluCarte}</td>
-                                <td>{new Date(imprumut.dataImprumut).toLocaleDateString()}</td>
-                                <td>{new Date(imprumut.dataReturnare).toLocaleDateString()}</td>
-                            </tr>
-                            ))
-                        )}
-                        </tbody>
+                        </tr>
+                        ))
+                    )}
+                    </tbody>
                 </table>
             </div>
 
@@ -240,6 +310,33 @@ function Imprumuturi() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showPopupFinalizare && detaliiFinalizare && (
+            <div className="popup-overlay-finalizare">
+                <div className="popup-content">
+                <p>Selectează starea exemplarului returnat:</p>
+                <select
+                    value={stareExemplar}
+                    onChange={(e) => setStareExemplar(e.target.value)}
+                >
+                    <option value="bună">Bună</option>
+                    <option value="deteriorată">Deteriorată</option>
+                    <option value="necesită înlocuire">Necesită înlocuire</option>
+                </select>
+                <div className="popup-buttons">
+                    <button id="btnConfirmaFinalizare" onClick={confirmaFinalizare}>Confirmă</button>
+                    <button id="btnAnuleazaFinalizare" onClick={() => setShowPopupFinalizare(false)}>Anulează</button>
+                </div>
+                </div>
+            </div>
+            )}
+
+
+            {showPopupSucces && (
+            <div className="floating-success">
+                {mesajSucces}
+            </div>
             )}
         </div>
     );

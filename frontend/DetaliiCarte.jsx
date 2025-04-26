@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./style.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function DetaliiCarte() {
     const { id } = useParams();
@@ -62,21 +64,19 @@ const fetchData = async () => {
         fetchData();
         const incarcaZileIndisponibile = async () => {
             try {
-                const res = await fetch(`http://localhost:3000/intervale-imprumut/${id}`);
+                const res = await fetch(`http://localhost:3000/intervale-imprumut-carte/${id}`);
                 const data = await res.json();
     
                 const toateZilele = [];
-    
+
                 data.forEach(imprumut => {
-                    const start = new Date(imprumut.data_imprumut);
-                    const end = new Date(imprumut.data_returnare);
-                    const zile = [];
-    
-                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                        zile.push(new Date(d).toISOString().slice(0, 10));
+                    const start = new Date(imprumut.data_imprumut + "T00:00:00");
+                    const end = new Date(imprumut.data_returnare + "T00:00:00");
+
+                    for (let d = new Date(start); d <= end;) {
+                        toateZilele.push(d.toISOString().slice(0, 10));
+                        d = new Date(d.getTime() + 24 * 60 * 60 * 1000);
                     }
-    
-                    toateZilele.push(...zile);
                 });
     
                 setZileIndisponibile(toateZilele);
@@ -189,18 +189,6 @@ const fetchData = async () => {
             return;
         }
     
-        // verificăm dacă se suprapune
-        const suprapunere = zileIndisponibile.some(date => {
-            return date >= startDate && date <= endDate;
-        });
-    
-        if (suprapunere) {
-            setMesajImprumut("Date selectate indisponibile!");
-            afiseazaPopupTemporar();
-            return;
-        }
-    
-        // trimite request la server
         try {
             const res = await fetch("http://localhost:3000/creeaza-imprumut", {
                 method: "POST",
@@ -218,11 +206,15 @@ const fetchData = async () => {
             setMesajImprumut(data.message);
             setEsteSucces(res.ok);
             afiseazaPopupTemporar();
-            setShowPopupImprumut(false);
-            setStartDate("");
-            setEndDate("");
+    
+            if (res.ok) {
+                setShowPopupImprumut(false);
+                setStartDate("");
+                setEndDate("");
+            }
         } catch (err) {
             setMesajImprumut("Eroare la trimiterea împrumutului!");
+            setEsteSucces(false);
             afiseazaPopupTemporar();
         }
     };
@@ -335,18 +327,35 @@ const fetchData = async () => {
         <div className="popup-imprumut">
             <div className="popup-content">
                 <h3>Rezervare carte</h3>
-                <label>De la:</label>
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-
-                <label>Până la:</label>
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <DatePicker
+                    selected={startDate ? new Date(startDate) : null}
+                    onChange={(date) => setStartDate(date.toISOString().split('T')[0])}
+                    minDate={new Date()}
+                    excludeDates={zileIndisponibile.map(date => new Date(date))}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Selectează data de start"
+                    dayClassName={(date) => {
+                        const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                        return zileIndisponibile.includes(formatted) ? "zi-indisponibila" : undefined;
+                      }}
+                />
+                <DatePicker
+                    selected={endDate ? new Date(endDate) : null}
+                    onChange={(date) => setEndDate(date.toISOString().split('T')[0])}
+                    minDate={startDate ? new Date(startDate) : new Date()}
+                    excludeDates={zileIndisponibile.map(date => new Date(date))}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Selectează data de final"
+                    dayClassName={(date) => {
+                        const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                        return zileIndisponibile.includes(formatted) ? "zi-indisponibila" : undefined;
+                      }}
+                />
 
                 <div className="butoane-popup">
                     <button id="btnConfirmaImprumut" onClick={handleConfirmImprumut}>Confirmă</button>
                     <button id="btnAnuleazaImprumut" onClick={() => setShowPopupImprumut(false)}>Anulează</button>
                 </div>
-
-                <p className="info-indisponibil">Date indisponibile: {zileIndisponibile.length ? zileIndisponibile.join(", ") : "None"}</p>
             </div>
         </div>
     )}

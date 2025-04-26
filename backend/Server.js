@@ -12,6 +12,14 @@ import cron from 'node-cron';
 // pt ca folosesc ESModules (cu `import` în loc de `require`):
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// Configurare nodemailer
+export const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'bibliotecaonlinesystem@gmail.com',
+        pass: 'uiai mhpi gdlx zyde'
+    }
+});
 
 
 const app = express();
@@ -1426,10 +1434,40 @@ app.get('/intervale-imprumut/:exemplar_id', async (req, res) => {
 });
 
 
+// Intervale indisponibile pentru TOATE exemplarele unei cărți
+app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
+    const { carte_id } = req.params;
+
+    try {
+        const exemplare = await ExemplarCarte.findAll({
+            where: { carte_id }
+        });
+
+        let toateImprumuturile = [];
+
+        for (const exemplar of exemplare) {
+            const imprumuturi = await Imprumut.findAll({
+                where: {
+                    exemplar_id: exemplar.id,
+                    status: ['activ', 'în așteptare']
+                },
+                attributes: ['data_imprumut', 'data_returnare']
+            });
+            toateImprumuturile.push(...imprumuturi);
+        }
+
+        res.status(200).json(toateImprumuturile);
+    } catch (error) {
+        console.error("Eroare la obținerea intervalelor pentru carte:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
 
 app.post('/creeaza-imprumut', async (req, res) => {
     const { utilizator_id, carte_id, dataStart, dataEnd } = req.body;
-    console.log(`📬 Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);//de sters
+    console.log(`📬 Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);
 
     try {
         const exemplare = await ExemplarCarte.findAll({
@@ -1440,6 +1478,7 @@ app.post('/creeaza-imprumut', async (req, res) => {
         });
 
         for (const exemplar of exemplare) {
+            // Pentru fiecare exemplar verificăm dacă există suprapuneri
             const suprapuneri = await Imprumut.findOne({
                 where: {
                     exemplar_id: exemplar.id,
@@ -1460,10 +1499,12 @@ app.post('/creeaza-imprumut', async (req, res) => {
             });
 
             if (!suprapuneri) {
-                // Cod random
+                // 📬 Exemplarul este liber -> îl folosim!
+
+                // Creează cod random de confirmare
                 const cod = Math.floor(100000 + Math.random() * 900000);
 
-                // Creează împrumutul
+                // Creăm împrumutul
                 await Imprumut.create({
                     utilizator_id,
                     exemplar_id: exemplar.id,
@@ -1473,17 +1514,18 @@ app.post('/creeaza-imprumut', async (req, res) => {
                     cod_confirmare: cod.toString()
                 });
 
+                // Actualizăm statusul exemplarului
                 await exemplar.update({ status_disponibilitate: 'in asteptare' });
 
-                // Trimite email
+                // Trimitem email de confirmare
                 const user = await Utilizator.findByPk(utilizator_id);
                 const carte = await Carte.findByPk(exemplar.carte_id);
 
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
-                        user: 'bibliotecaonlinesystem@gmail.com', // contul tău
-                        pass: 'uiai mhpi gdlx zyde' // generează din Google
+                        user: 'bibliotecaonlinesystem@gmail.com',
+                        pass: 'uiai mhpi gdlx zyde'
                     }
                 });
 
@@ -1491,7 +1533,7 @@ app.post('/creeaza-imprumut', async (req, res) => {
                     from: 'bibliotecaonlinesystem@gmail.com',
                     to: user.email,
                     subject: `Rezervare carte: ${carte.titlu}`,
-                    text: `Aveti la dispozitie 48 de ore pentru a ridica cartea. Prezentati acest cod: ${cod}`
+                    text: `Aveți la dispoziție 48 de ore pentru a ridica cartea. Prezentati acest cod: ${cod}`
                 };
 
                 await transporter.sendMail(mailOptions);
@@ -1500,7 +1542,9 @@ app.post('/creeaza-imprumut', async (req, res) => {
             }
         }
 
-        res.status(400).json({ message: "Nu există exemplare disponibile în perioada selectată!" });
+        // ❗ Dacă terminăm loop-ul și nu am găsit niciun exemplar liber
+        return res.status(400).json({ message: "Nu există exemplare disponibile în perioada selectată!" });
+
     } catch (err) {
         console.error("Eroare la crearea împrumutului:", err);
         res.status(500).json({ message: "Eroare la server!" });
@@ -1604,7 +1648,7 @@ app.put("/finalizeaza-imprumut/:cod", async (req, res) => {
 
 app.put('/modifica-imprumut/:id', async (req, res) => {
     const { id } = req.params;
-    const { data_returnare } = req.body;
+    const { data_returnare, status } = req.body;  // 🛠️ luăm și status
 
     try {
         const imprumut = await Imprumut.findByPk(id);
@@ -1612,47 +1656,47 @@ app.put('/modifica-imprumut/:id', async (req, res) => {
             return res.status(404).json({ message: "Împrumutul nu a fost găsit!" });
         }
 
-        if (imprumut.status !== "activ") {
-            return res.status(400).json({ message: "Doar împrumuturile active pot fi prelungite!" });
+        // Dacă trimitem status, actualizăm și statusul
+        if (status) {
+            imprumut.status = status;
         }
 
-        const dataStart = new Date(imprumut.data_imprumut);
-        const dataEnd = new Date(data_returnare);
-
-        if (dataEnd <= dataStart) {
-            return res.status(400).json({ message: "Data de returnare trebuie să fie după data de împrumut!" });
+        if (data_returnare) {
+            imprumut.data_returnare = data_returnare;
         }
 
-        const durataZile = Math.ceil((dataEnd - dataStart) / (1000 * 60 * 60 * 24));
-        if (durataZile > 30) {
-            return res.status(400).json({ message: "Durata maximă a unui împrumut este de 30 de zile!" });
-        }
+        await imprumut.save();
 
-        const suprapunere = await Imprumut.findOne({
-            where: {
-                id: { [Sequelize.Op.ne]: id },
-                exemplar_id: imprumut.exemplar_id,
-                status: ['activ', 'în așteptare'],
-                [Sequelize.Op.or]: [
-                    { data_imprumut: { [Sequelize.Op.between]: [dataStart, dataEnd] } },
-                    { data_returnare: { [Sequelize.Op.between]: [dataStart, dataEnd] } },
-                    {
-                        data_imprumut: { [Sequelize.Op.lte]: dataStart },
-                        data_returnare: { [Sequelize.Op.gte]: dataEnd }
-                    }
-                ]
-            }
+        res.status(200).json({ message: "Împrumut actualizat cu succes!" });
+    } catch (error) {
+        console.error("Eroare la modificarea împrumutului:", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+
+app.get('/imprumuturi-incheiate', async (req, res) => {
+    try {
+        const imprumuturi = await Imprumut.findAll({
+            where: { status: 'returnat' },
+            include: [
+                { model: Utilizator, attributes: ['nume', 'prenume', 'email'] },
+                { model: ExemplarCarte, include: [{ model: Carte, attributes: ['titlu'] }] }
+            ]
         });
 
-        if (suprapunere) {
-            return res.status(400).json({ message: "Exemplarul este deja rezervat în această perioadă!" });
-        }
+        const rezultat = imprumuturi.map((imp) => ({
+            id: imp.id,
+            numeUtilizator: `${imp.Utilizator.nume} ${imp.Utilizator.prenume}`,
+            emailUtilizator: imp.Utilizator.email,
+            titluCarte: imp.ExemplarCarte?.Carte?.titlu,
+            dataImprumut: imp.data_imprumut,
+            dataReturnare: imp.data_returnare
+        }));
 
-        await imprumut.update({ data_returnare });
-
-        res.status(200).json({ message: "Împrumutul a fost prelungit cu succes!" });
+        res.json(rezultat);
     } catch (error) {
-        console.error("Eroare la prelungirea împrumutului:", error);
+        console.error("Eroare la obținerea istoricului:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
@@ -1663,18 +1707,24 @@ cron.schedule('0 8 * * *', async () => {
 
     const maine = new Date();
     maine.setDate(maine.getDate() + 1);
-    maine.setHours(0, 0, 0, 0);
 
-    const ziSfarsit = new Date(maine);
-    ziSfarsit.setHours(23, 59, 59, 999);
+    const an = maine.getFullYear();
+    const luna = String(maine.getMonth() + 1).padStart(2, '0');
+    const zi = String(maine.getDate()).padStart(2, '0');
+
+    const dataMaine = `${an}-${luna}-${zi}`;
 
     try {
         const imprumuturi = await Imprumut.findAll({
             where: {
                 status: 'activ',
-                data_returnare: {
-                    [Sequelize.between]: [maine, ziSfarsit]
-                }
+                [Sequelize.Op.and]: [
+                    Sequelize.where(
+                        Sequelize.fn('DATE', Sequelize.col('data_returnare')), 
+                        '=', 
+                        dataMaine
+                    )
+                ]
             },
             include: [
                 {
@@ -1710,6 +1760,68 @@ cron.schedule('0 8 * * *', async () => {
         }
     } catch (error) {
         console.error("❌ Eroare la trimiterea emailurilor de reamintire:", error);
+    }
+});
+
+app.get('/test-trimite-reminder', async (req, res) => {
+    console.log("⏰ Test manual: verificare împrumuturi care expiră mâine...");
+
+    const maine = new Date();
+    maine.setDate(maine.getDate() + 1);
+
+    const an = maine.getFullYear();
+    const luna = String(maine.getMonth() + 1).padStart(2, '0');
+    const zi = String(maine.getDate()).padStart(2, '0');
+
+    const dataMaine = `${an}-${luna}-${zi}`;
+
+    try {
+        const imprumuturi = await Imprumut.findAll({
+            where: {
+                status: 'activ',
+                [Sequelize.Op.and]: [
+                    Sequelize.where(
+                        Sequelize.fn('DATE', Sequelize.col('data_returnare')), 
+                        '=', 
+                        dataMaine
+                    )
+                ]
+            },
+            include: [
+                { model: Utilizator, attributes: ['email', 'nume', 'prenume'] },
+                { model: ExemplarCarte, include: [{ model: Carte, attributes: ['titlu'] }] }
+            ]
+        });
+
+        for (const imprumut of imprumuturi) {
+            try {
+                const email = imprumut.Utilizator.email;
+                const nume = imprumut.Utilizator.nume;
+                const prenume = imprumut.Utilizator.prenume;
+                const titlu = imprumut.ExemplarCarte?.Carte?.titlu;
+
+                const mailOptions = {
+                    from: 'bibliotecaonlinesystem@gmail.com',
+                    to: email,
+                    subject: `Reamintire: returnare carte "${titlu}"`,
+                    text: `Bună, ${nume} ${prenume}!\n\nÎți reamintim că trebuie să returnezi cartea "${titlu}" până mâine.\n\nTe rugăm să o aduci la timp pentru a evita penalizări.\n\nMulțumim!\nBiblioteca Online 📚`
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`📨 Email trimis către ${email} pentru cartea "${titlu}"`);
+            } catch (error) {
+                console.error(`❌ Eroare la trimiterea emailului către ${imprumut.Utilizator.email}:`, error);
+            }
+        }
+
+        if (imprumuturi.length === 0) {
+            console.log("📭 Niciun împrumut care expiră mâine.");
+        }
+
+        res.status(200).json({ message: "Reminder trimis (dacă era nevoie)!" });
+    } catch (error) {
+        console.error("❌ Eroare la trimiterea emailurilor de reamintire:", error);
+        res.status(500).json({ message: "Eroare la trimiterea emailurilor!" });
     }
 });
 
