@@ -116,25 +116,17 @@ function Imprumuturi() {
             if (!detaliiFinalizare) return;
         
             try {
-                await fetch(`http://localhost:3000/modifica-imprumut/${detaliiFinalizare.idImprumut}`, {
+                await fetch(`http://localhost:3000/finalizeaza-returnare/${detaliiFinalizare.idImprumut}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        data_returnare: new Date().toISOString(),
-                        status: "returnat"    // 🛠️ trimitem status nou
+                        stareExemplar: stareExemplar  // 🔥 trimitem starea aleasă din dropdown
                     }),
                 });
         
-                await fetch(`http://localhost:3000/modifica-exemplar/${detaliiFinalizare.exemplarId}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ stare: stareExemplar, status_disponibilitate: "disponibil" }),
-                });
-        
+                // Dacă merge cu succes:
                 setShowPopupFinalizare(false);
                 setDetaliiFinalizare(null);
                 setStareExemplar("bună");
@@ -143,6 +135,7 @@ function Imprumuturi() {
                 setShowPopupSucces(true);
                 setTimeout(() => setShowPopupSucces(false), 3000);
         
+                // Reîncărcăm împrumuturile
                 fetch("http://localhost:3000/imprumuturi")
                     .then(res => res.json())
                     .then(data => setImprumuturi(data))

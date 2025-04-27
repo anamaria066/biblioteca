@@ -60,35 +60,43 @@ const fetchData = async () => {
     }
 };
 
-    useEffect(() => {
-        fetchData();
-        const incarcaZileIndisponibile = async () => {
-            try {
-                const res = await fetch(`http://localhost:3000/intervale-imprumut-carte/${id}`);
-                const data = await res.json();
-    
-                const toateZilele = [];
+useEffect(() => {
+    fetchData();
 
-                data.forEach(imprumut => {
-                    const start = new Date(imprumut.data_imprumut + "T00:00:00");
-                    const end = new Date(imprumut.data_returnare + "T00:00:00");
+    const incarcaZileIndisponibile = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/intervale-imprumut-carte/${id}`);
+            const data = await res.json();
 
-                    for (let d = new Date(start); d <= end;) {
-                        toateZilele.push(d.toISOString().slice(0, 10));
-                        d = new Date(d.getTime() + 24 * 60 * 60 * 1000);
-                    }
-                });
-    
-                setZileIndisponibile(toateZilele);
-            } catch (error) {
-                console.error("Eroare la încărcarea zilelor indisponibile:", error);
-            }
-        };
-    
-        if (showPopupImprumut) {
-            incarcaZileIndisponibile();
+            // 🆕 Extragem imprumuturi și totalExemplare
+            const { imprumuturi, totalExemplare } = data;
+
+            const zileCounter = {}; // 🆕 contor pentru zile
+
+            imprumuturi.forEach(imprumut => {
+                const start = new Date(imprumut.data_imprumut);
+                const end = new Date(imprumut.data_returnare);
+
+                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                    const day = d.toISOString().slice(0, 10); // format "yyyy-mm-dd"
+                    zileCounter[day] = (zileCounter[day] || 0) + 1; // incrementăm
+                }
+            });
+
+            // 🆕 selectăm doar zilele în care toate exemplarele sunt ocupate
+            const zileIndisponibile = Object.keys(zileCounter).filter(day => zileCounter[day] >= totalExemplare);
+
+            setZileIndisponibile(zileIndisponibile);
+
+        } catch (error) {
+            console.error("Eroare la încărcarea zilelor indisponibile:", error);
         }
-    }, [showPopupImprumut, id]);
+    };
+
+    if (showPopupImprumut) {
+        incarcaZileIndisponibile();
+    }
+}, [showPopupImprumut, id]);
 
     // ✅ Calcularea rating-ului mediu
     const calculeazaRatingMediu = () => {
@@ -329,27 +337,39 @@ const fetchData = async () => {
                 <h3>Rezervare carte</h3>
                 <DatePicker
                     selected={startDate ? new Date(startDate) : null}
-                    onChange={(date) => setStartDate(date.toISOString().split('T')[0])}
+                    onChange={(date) => {
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        setStartDate(`${year}-${month}-${day}`);
+                    }}
                     minDate={new Date()}
                     excludeDates={zileIndisponibile.map(date => new Date(date))}
+                    highlightDates={[
+                        {
+                            "zi-indisponibila": zileIndisponibile.map(date => new Date(date))
+                        }
+                    ]}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="Selectează data de start"
-                    dayClassName={(date) => {
-                        const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                        return zileIndisponibile.includes(formatted) ? "zi-indisponibila" : undefined;
-                      }}
                 />
                 <DatePicker
                     selected={endDate ? new Date(endDate) : null}
-                    onChange={(date) => setEndDate(date.toISOString().split('T')[0])}
+                    onChange={(date) => {
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        setEndDate(`${year}-${month}-${day}`);
+                    }}
                     minDate={startDate ? new Date(startDate) : new Date()}
                     excludeDates={zileIndisponibile.map(date => new Date(date))}
+                    highlightDates={[
+                        {
+                            "zi-indisponibila": zileIndisponibile.map(date => new Date(date))
+                        }
+                    ]}
                     dateFormat="yyyy-MM-dd"
-                    placeholderText="Selectează data de final"
-                    dayClassName={(date) => {
-                        const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                        return zileIndisponibile.includes(formatted) ? "zi-indisponibila" : undefined;
-                      }}
+                    placeholderText="Selectează data de retur"
                 />
 
                 <div className="butoane-popup">

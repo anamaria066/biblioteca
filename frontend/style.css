@@ -1695,8 +1695,12 @@ html, body {
     border-radius: 8px;
   }
 
-  .zi-indisponibila {
-    background-color: #ff4d4f !important; /* roșu aprins */
+  .react-datepicker__day.zi-indisponibila {
+    background-color: #ff4d4f !important;
     color: white !important;
     border-radius: 50% !important;
+}
+
+.react-datepicker__day.zi-indisponibila:hover {
+    background-color: #e60000 !important;
 }

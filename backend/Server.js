@@ -1435,13 +1435,13 @@ app.get('/intervale-imprumut/:exemplar_id', async (req, res) => {
 
 
 // Intervale indisponibile pentru TOATE exemplarele unei cărți
+// ✅ Endpoint modificat pentru intervale + număr exemplare
 app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
     const { carte_id } = req.params;
 
     try {
-        const exemplare = await ExemplarCarte.findAll({
-            where: { carte_id }
-        });
+        const exemplare = await ExemplarCarte.findAll({ where: { carte_id } });
+        const totalExemplare = exemplare.length; // 🆕 Adaugă numărul total de exemplare
 
         let toateImprumuturile = [];
 
@@ -1456,7 +1456,10 @@ app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
             toateImprumuturile.push(...imprumuturi);
         }
 
-        res.status(200).json(toateImprumuturile);
+        res.status(200).json({
+            imprumuturi: toateImprumuturile, // 🆕 trimitem toate intervalele
+            totalExemplare                  // 🆕 trimitem numărul total de exemplare
+        });
     } catch (error) {
         console.error("Eroare la obținerea intervalelor pentru carte:", error);
         res.status(500).json({ message: "Eroare la server!" });
@@ -1533,7 +1536,15 @@ app.post('/creeaza-imprumut', async (req, res) => {
                     from: 'bibliotecaonlinesystem@gmail.com',
                     to: user.email,
                     subject: `Rezervare carte: ${carte.titlu}`,
-                    text: `Aveți la dispoziție 48 de ore pentru a ridica cartea. Prezentati acest cod: ${cod}`
+                    text: `Rezervarea ta pentru cartea "${carte.titlu}" a fost înregistrată!
+                
+                Codul de confirmare: ${cod}
+                
+                ⏳ Codul devine activ începând cu data de start a împrumutului: ${dataStart}.
+                
+                Te rugăm să prezinți acest cod din ${dataStart} începând, în termen de 48 de ore.
+                
+                Mulțumim! 📚`
                 };
 
                 await transporter.sendMail(mailOptions);
@@ -1603,6 +1614,13 @@ app.get("/verifica-cod/:cod", async (req, res) => {
             return res.status(404).json({ message: "Cod invalid!" });
         }
 
+        const today = new Date();
+        const startDate = new Date(imprumut.data_imprumut);
+
+        if (today < startDate) {
+            return res.status(400).json({ message: `Codul nu este încă activ! Va deveni activ pe ${startDate.toISOString().slice(0, 10)}.` });
+        }
+
         res.json({
             id: imprumut.id,
             exemplar_id: imprumut.exemplar_id,
@@ -1642,6 +1660,36 @@ app.put("/finalizeaza-imprumut/:cod", async (req, res) => {
     } catch (err) {
         console.error("Eroare la activare împrumut:", err);
         res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
+app.put('/finalizeaza-returnare/:idImprumut', async (req, res) => {
+    const { idImprumut } = req.params;
+    const { stareExemplar } = req.body;
+
+    try {
+        const imprumut = await Imprumut.findByPk(idImprumut);
+        if (!imprumut) {
+            return res.status(404).json({ message: "Împrumutul nu a fost găsit!" });
+        }
+
+        // Update împrumut
+        imprumut.status = 'returnat';
+        imprumut.data_returnare = new Date();
+        await imprumut.save();
+
+        // Update exemplar
+        const exemplar = await ExemplarCarte.findByPk(imprumut.exemplar_id);
+        if (exemplar) {
+            exemplar.status_disponibilitate = 'disponibil';
+            exemplar.stare = stareExemplar;
+            await exemplar.save();
+        }
+
+        res.status(200).json({ message: "Împrumut și exemplar actualizate cu succes!" });
+    } catch (error) {
+        console.error("Eroare la finalizarea returnării:", error);
+        res.status(500).json({ message: "Eroare server!" });
     }
 });
 
@@ -1822,6 +1870,41 @@ app.get('/test-trimite-reminder', async (req, res) => {
     } catch (error) {
         console.error("❌ Eroare la trimiterea emailurilor de reamintire:", error);
         res.status(500).json({ message: "Eroare la trimiterea emailurilor!" });
+    }
+});
+
+
+// Cron job pentru expirarea împrumuturilor în așteptare după 48 de ore
+cron.schedule('0 * * * *', async () => { 
+    console.log("🔎 Verificare împrumuturi în așteptare...");
+
+    const acum = new Date();
+    const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000); // scădem 48 de ore
+
+    try {
+        const imprumuturiInAsteptare = await Imprumut.findAll({
+            where: {
+                status: 'în așteptare',
+                data_imprumut: { [Sequelize.Op.lt]: acumMinus48h }
+            }
+        });
+
+        for (const imprumut of imprumuturiInAsteptare) {
+            console.log(`⚡ Expiră împrumut ID: ${imprumut.id}`);
+
+            // actualizăm statusul împrumutului
+            await imprumut.update({ status: 'expirat' });
+
+            // setăm exemplarul ca fiind disponibil
+            await ExemplarCarte.update(
+                { status_disponibilitate: 'disponibil' },
+                { where: { id: imprumut.exemplar_id } }
+            );
+        }
+
+        console.log(`✅ Finalizat verificarea împrumuturilor.`);
+    } catch (error) {
+        console.error("❌ Eroare la expirarea împrumuturilor:", error);
     }
 });
 
