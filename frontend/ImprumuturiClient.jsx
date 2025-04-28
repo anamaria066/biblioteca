@@ -19,6 +19,8 @@ function ImprumuturiClient() {
     const [zileIndisponibile, setZileIndisponibile] = useState([]);
     const [mesajPrelungire, setMesajPrelungire] = useState("");
     const [succesPrelungire, setSuccesPrelungire] = useState(false);
+    const [showPopupTaxa, setShowPopupTaxa] = useState(false);
+    const [taxaCalculata, setTaxaCalculata] = useState(0);
 
     // Paginare
     const [currentPage, setCurrentPage] = useState(1);
@@ -46,6 +48,7 @@ function ImprumuturiClient() {
                 .catch(err => console.error("Eroare la încărcarea împrumuturilor:", err));
         }
     }, []);
+
 
     // Paginare logică
     const indexOfLast = currentPage * rowsPerPage;
@@ -123,6 +126,24 @@ function ImprumuturiClient() {
             setShowPopupPrelungire(true);
         } catch (err) {
             console.error("Eroare la încărcarea zilelor ocupate:", err);
+        }
+    };
+
+    const deschidePopupTaxa = (imprumut) => {
+        const azi = new Date();
+        const dataReturnare = new Date(imprumut.dataReturnare);
+    
+        // Normalizează ambele la ora 00:00 LOCALĂ
+        const aziNormalizat = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
+        const returnareNormalizata = new Date(dataReturnare.getFullYear(), dataReturnare.getMonth(), dataReturnare.getDate());
+    
+        if (aziNormalizat > returnareNormalizata && imprumut.status === "activ") {
+            const timeDiff = aziNormalizat.getTime() - returnareNormalizata.getTime(); // în milisecunde
+            const diferentaZile = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // transformare în zile
+            const taxaPeZi = 5;
+            const taxa = diferentaZile * taxaPeZi;
+            setTaxaCalculata(taxa);
+            setShowPopupTaxa(true);
         }
     };
 
@@ -244,7 +265,7 @@ function ImprumuturiClient() {
                     </tr>
                 ) : (
                     currentRows.map((carte, index) => (
-                        <tr key={carte.id}>
+                        <tr key={carte.id} className={(new Date() > new Date(carte.dataReturnare) && carte.status === "activ") ? "expired-row" : ""}>
                             <td>{indexOfFirst + index + 1}</td>
                             <td>{carte.titlu}</td>
                             <td>{carte.autor}</td>
@@ -252,15 +273,31 @@ function ImprumuturiClient() {
                             <td>{new Date(carte.dataReturnare).toLocaleDateString()}</td>
                             <td>{carte.status}</td>
                             <td>
-                                {carte.status === "în așteptare" ? (
-                                    <button className="btnAnuleazaImprumut" onClick={() => deschidePopupConfirmare(carte.id)}>
-                                        Anulează
-                                    </button>
-                                ) : (
-                                    <button className="btnPrelungesteImprumut" onClick={() => deschidePopupPrelungire(carte)}>
-                                        Prelungește
-                                    </button>
-                                )}
+                                {(() => {
+                                    const azi = new Date();
+                                    const dataReturnare = new Date(carte.dataReturnare);
+
+                                    if (carte.status === "în așteptare") {
+                                        return (
+                                            <button className="btnAnuleazaImprumut" onClick={() => deschidePopupConfirmare(carte.id)}>
+                                                Anulează
+                                            </button>
+                                        );
+                                    } else if (azi > dataReturnare && carte.status === "activ") {
+                                        // 📍 Împrumut expirat
+                                        return (
+                                            <button className="btnVeziTaxa" onClick={() => deschidePopupTaxa(carte)}>
+                                                Vezi taxa
+                                            </button>
+                                        );
+                                    } else {
+                                        return (
+                                            <button className="btnPrelungesteImprumut" onClick={() => deschidePopupPrelungire(carte)}>
+                                                Prelungește
+                                            </button>
+                                        );
+                                    }
+                                })()}
                             </td>
                         </tr>
                     ))
@@ -329,6 +366,16 @@ function ImprumuturiClient() {
             {mesajPrelungire && (
                 <div className={succesPrelungire ? "floating-success" : "floating-error"}>
                     {mesajPrelungire}
+                </div>
+            )}
+
+            {showPopupTaxa && (
+                <div className="popup-overlay" onClick={() => setShowPopupTaxa(false)}>
+                    <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Împrumut expirat</h3>
+                        <p>Taxa de întârziere: <strong>{taxaCalculata} lei</strong></p>
+                        <p>A fi achitată la momentul returului!</p>
+                    </div>
                 </div>
             )}
         </div>

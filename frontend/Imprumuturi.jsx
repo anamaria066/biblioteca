@@ -23,6 +23,7 @@ function Imprumuturi() {
     const [stareExemplar, setStareExemplar] = useState("bună");
     const [showPopupSucces, setShowPopupSucces] = useState(false);
     const [mesajSucces, setMesajSucces] = useState("");
+    const [taxaIntarziere, setTaxaIntarziere] = useState(0);
 
     useEffect(() => {
         fetch("http://localhost:3000/imprumuturi")
@@ -129,6 +130,7 @@ function Imprumuturi() {
                 // Dacă merge cu succes:
                 setShowPopupFinalizare(false);
                 setDetaliiFinalizare(null);
+                setTaxaIntarziere(0);
                 setStareExemplar("bună");
         
                 setMesajSucces("Împrumut finalizat cu succes!");
@@ -219,7 +221,10 @@ function Imprumuturi() {
                         </tr>
                     ) : (
                         currentRows.map((imprumut, index) => (
-                        <tr key={imprumut.id}>
+                            <tr
+                            key={imprumut.id}
+                            className={(new Date() > new Date(imprumut.dataReturnare)) ? "expired-row" : ""}
+                          >
                             <td>{indexOfFirst + index + 1}</td>
                             <td>{imprumut.numeUtilizator}</td>
                             <td>{imprumut.emailUtilizator}</td>
@@ -228,16 +233,30 @@ function Imprumuturi() {
                             <td>{new Date(imprumut.dataReturnare).toLocaleDateString()}</td>
                             <td>
                             <button
-                                id="btnFinalizeazaImprumut"
-                                onClick={() => {
+                            id="btnFinalizeazaImprumut"
+                            onClick={() => {
+                                const azi = new Date();
+                                const dataReturnare = new Date(imprumut.dataReturnare);
+
+                                const aziNormalizat = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
+                                const dataReturnareNormalizata = new Date(dataReturnare.getFullYear(), dataReturnare.getMonth(), dataReturnare.getDate());
+
+                                let taxa = 0;
+                                if (aziNormalizat > dataReturnareNormalizata) {
+                                const diffTime = aziNormalizat - dataReturnareNormalizata;
+                                const zileIntarziere = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                taxa = zileIntarziere * 5; // 5 lei pe zi
+                                }
+
                                 setDetaliiFinalizare({
-                                    idImprumut: imprumut.id,
-                                    exemplarId: imprumut.exemplarId
+                                idImprumut: imprumut.id,
+                                exemplarId: imprumut.exemplarId
                                 });
+                                setTaxaIntarziere(taxa); // 🆕 setăm taxa calculată
                                 setShowPopupFinalizare(true);
-                                }}
+                            }}
                             >
-                                Finalizează Împrumut
+                            Finalizează Împrumut
                             </button>
                             </td>
                         </tr>
@@ -317,6 +336,11 @@ function Imprumuturi() {
                     <option value="deteriorată">Deteriorată</option>
                     <option value="necesită înlocuire">Necesită înlocuire</option>
                 </select>
+                {taxaIntarziere > 0 && (
+                    <p style={{ marginTop: "10px", color: "red", fontWeight: "bold" }}>
+                        Taxa de întârziere: {taxaIntarziere} lei
+                    </p>
+                    )}
                 <div className="popup-buttons">
                     <button id="btnConfirmaFinalizare" onClick={confirmaFinalizare}>Confirmă</button>
                     <button id="btnAnuleazaFinalizare" onClick={() => setShowPopupFinalizare(false)}>Anulează</button>
