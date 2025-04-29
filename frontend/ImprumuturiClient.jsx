@@ -19,8 +19,9 @@ function ImprumuturiClient() {
     const [zileIndisponibile, setZileIndisponibile] = useState([]);
     const [mesajPrelungire, setMesajPrelungire] = useState("");
     const [succesPrelungire, setSuccesPrelungire] = useState(false);
-    const [showPopupTaxa, setShowPopupTaxa] = useState(false);
+    // const [showPopupTaxa, setShowPopupTaxa] = useState(false);
     const [taxaCalculata, setTaxaCalculata] = useState(0);
+    const [imprumutCuTaxa, setImprumutCuTaxa] = useState(null);
 
     // Paginare
     const [currentPage, setCurrentPage] = useState(1);
@@ -133,17 +134,15 @@ function ImprumuturiClient() {
         const azi = new Date();
         const dataReturnare = new Date(imprumut.dataReturnare);
     
-        // Normalizează ambele la ora 00:00 LOCALĂ
         const aziNormalizat = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
         const returnareNormalizata = new Date(dataReturnare.getFullYear(), dataReturnare.getMonth(), dataReturnare.getDate());
     
         if (aziNormalizat > returnareNormalizata && imprumut.status === "activ") {
-            const timeDiff = aziNormalizat.getTime() - returnareNormalizata.getTime(); // în milisecunde
-            const diferentaZile = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // transformare în zile
-            const taxaPeZi = 5;
-            const taxa = diferentaZile * taxaPeZi;
-            setTaxaCalculata(taxa);
-            setShowPopupTaxa(true);
+            const timeDiff = aziNormalizat.getTime() - returnareNormalizata.getTime();
+            const diferentaZile = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const taxa = diferentaZile * 5;
+    
+            setImprumutCuTaxa({ ...imprumut, taxa });
         }
     };
 
@@ -213,7 +212,7 @@ function ImprumuturiClient() {
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
-                    <button className="nav-button">Recomandate</button>
+                    <button className="nav-button" onClick={() => navigate("/recomandate")}>Recomandate</button>
                     <button className="nav-button" onClick={() => navigate("/imprumuturi-curente")}>Împrumuturi curente</button>
                     <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
@@ -265,7 +264,16 @@ function ImprumuturiClient() {
                     </tr>
                 ) : (
                     currentRows.map((carte, index) => (
-                        <tr key={carte.id} className={(new Date() > new Date(carte.dataReturnare) && carte.status === "activ") ? "expired-row" : ""}>
+                        <tr key={carte.id} className={
+                            (() => {
+                                const azi = new Date();
+                                const dataReturnare = new Date(carte.dataReturnare);
+                                const aziNormalizat = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
+                                const returnareNormalizata = new Date(dataReturnare.getFullYear(), dataReturnare.getMonth(), dataReturnare.getDate());
+                        
+                                return (aziNormalizat > returnareNormalizata && carte.status === "activ") ? "expired-row" : "";
+                            })()
+                        }>
                             <td>{indexOfFirst + index + 1}</td>
                             <td>{carte.titlu}</td>
                             <td>{carte.autor}</td>
@@ -274,30 +282,32 @@ function ImprumuturiClient() {
                             <td>{carte.status}</td>
                             <td>
                                 {(() => {
-                                    const azi = new Date();
-                                    const dataReturnare = new Date(carte.dataReturnare);
+                                const azi = new Date();
+                                const dataReturnare = new Date(carte.dataReturnare);
 
-                                    if (carte.status === "în așteptare") {
-                                        return (
-                                            <button className="btnAnuleazaImprumut" onClick={() => deschidePopupConfirmare(carte.id)}>
-                                                Anulează
-                                            </button>
-                                        );
-                                    } else if (azi > dataReturnare && carte.status === "activ") {
-                                        // 📍 Împrumut expirat
-                                        return (
-                                            <button className="btnVeziTaxa" onClick={() => deschidePopupTaxa(carte)}>
-                                                Vezi taxa
-                                            </button>
-                                        );
-                                    } else {
-                                        return (
-                                            <button className="btnPrelungesteImprumut" onClick={() => deschidePopupPrelungire(carte)}>
-                                                Prelungește
-                                            </button>
-                                        );
-                                    }
-                                })()}
+                                const aziNormalizat = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
+                                const returnareNormalizata = new Date(dataReturnare.getFullYear(), dataReturnare.getMonth(), dataReturnare.getDate());
+
+                                if (carte.status === "în așteptare") {
+                                    return (
+                                        <button className="btnAnuleazaImprumut" onClick={() => deschidePopupConfirmare(carte.id)}>
+                                            Anulează
+                                        </button>
+                                    );
+                                } else if (aziNormalizat > returnareNormalizata && carte.status === "activ") {
+                                    return (
+                                        <button className="btnVeziTaxa" onClick={() => deschidePopupTaxa(carte)}>
+                                            Vezi taxa
+                                        </button>
+                                    );
+                                } else {
+                                    return (
+                                        <button className="btnPrelungesteImprumut" onClick={() => deschidePopupPrelungire(carte)}>
+                                            Prelungește
+                                        </button>
+                                    );
+                                }
+                            })()}
                             </td>
                         </tr>
                     ))
@@ -369,11 +379,14 @@ function ImprumuturiClient() {
                 </div>
             )}
 
-            {showPopupTaxa && (
-                <div className="popup-overlay" onClick={() => setShowPopupTaxa(false)}>
+            {imprumutCuTaxa && (
+                <div className="popup-overlay" onClick={() => setImprumutCuTaxa(null)}>
                     <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Împrumut expirat</h3>
-                        <p>Taxa de întârziere: <strong>{taxaCalculata} lei</strong></p>
+                        <p>
+                            Taxa de întârziere pentru <strong>{imprumutCuTaxa.titlu}</strong>:<br />
+                            <strong>{imprumutCuTaxa.taxa} lei</strong>
+                        </p>
                         <p>A fi achitată la momentul returului!</p>
                     </div>
                 </div>

@@ -30,6 +30,8 @@ function CartiAdmin() {
     const [mesajEroareCod, setMesajEroareCod] = useState("");
     const [detaliiImprumut, setDetaliiImprumut] = useState(null);
     const dropdownRef = useRef(null);
+    const [limbaSelectata, setLimbaSelectata] = useState("");
+    const [filtruLimba, setFiltruLimba] = useState("");
 
     // Fetch date pentru cărți și utilizator
     useEffect(() => {
@@ -136,7 +138,11 @@ function CartiAdmin() {
             }
         }
     
-        return matchesSearch && matchesGen && matchesAn;
+        const matchesLimba = filtruLimba
+            ? carte.limba?.toLowerCase() === filtruLimba.toLowerCase()
+            : true;
+    
+        return matchesSearch && matchesGen && matchesAn && matchesLimba;
     });
     // Calculăm numărul total de pagini
     const numarTotalPagini = Math.ceil(filteredBooks.length / cartiPerPagina);
@@ -270,6 +276,14 @@ function CartiAdmin() {
                     <option value="Economie">Economie</option>
                 </select>
 
+                <label>Limba:</label>
+                <select value={limbaSelectata} onChange={(e) => setLimbaSelectata(e.target.value)}>
+                    <option value="">Toate</option>
+                    <option value="română">Română</option>
+                    <option value="engleză">Engleză</option>
+                    <option value="franceză">Franceză</option>
+                </select>
+
                 <label>An exact:</label>
                 <input
                     type="number"
@@ -293,6 +307,7 @@ function CartiAdmin() {
                 <div className="butoane-filtru">
                     <button onClick={() => {
                         setFiltruGen(genSelectat);
+                        setFiltruLimba(limbaSelectata);
                         if (anManual) {
                             setFiltruAn({ type: "exact", value: anManual });
                         } else if (intervalSelectat) {
@@ -310,6 +325,8 @@ function CartiAdmin() {
                         setAnManual("");
                         setIntervalSelectat("");
                         setFiltruAn("");
+                        setLimbaSelectata("");
+                        setFiltruLimba("");
                         setPaginaCurenta(1);
                         setShowFilterPopup(false);
                     }}>Șterge</button>

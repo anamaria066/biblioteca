@@ -57,7 +57,7 @@ function Favorite() {
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
-                    <button className="nav-button">Recomandate</button>
+                    <button className="nav-button" onClick={() => navigate("/recomandate")}>Recomandate</button>
                     <button className="nav-button" onClick={() => navigate("/imprumuturi-active")}>Împrumuturi active</button>
                     <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>

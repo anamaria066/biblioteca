@@ -20,6 +20,8 @@ function MainPageClient() {
     const [filtruGen, setFiltruGen] = useState("");
     const [filtruAn, setFiltruAn] = useState("");
     const popupRef = useRef(null);
+    const [filtruLimba, setFiltruLimba] = useState("");
+    const [limbaSelectata, setLimbaSelectata] = useState("");
 
     // Fetch date pentru cărți și utilizator
     useEffect(() => {
@@ -101,8 +103,10 @@ function MainPageClient() {
                 default: matchesAn = true;
             }
         }
+
+        const matchesLimba = filtruLimba ? carte.limba === filtruLimba : true;
     
-        return matchesSearch && matchesGen && matchesAn;
+        return matchesSearch && matchesGen && matchesAn && matchesLimba;
     });
 
     // Calculăm numărul total de pagini
@@ -135,7 +139,7 @@ function MainPageClient() {
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
-                    <button className="nav-button">Recomandate</button>
+                    <button className="nav-button" onClick={() => navigate("/recomandate")}>Recomandate</button>
                     <button className="nav-button" onClick={() => navigate("/imprumuturi-curente")}>Împrumuturi curente</button>
                     <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
@@ -182,6 +186,14 @@ function MainPageClient() {
                             <option value="Economie">Economie</option>
                 </select>
 
+                <label>Limba:</label>
+                <select value={limbaSelectata} onChange={(e) => setLimbaSelectata(e.target.value)}>
+                    <option value="">Toate</option>
+                    <option value="română">Română</option>
+                    <option value="engleză">Engleză</option>
+                    <option value="franceză">Franceză</option>
+                </select>
+
                 <label>An exact:</label>
                 <input
                     type="number"
@@ -205,6 +217,7 @@ function MainPageClient() {
                 <div className="butoane-filtru">
                 <button onClick={() => {
                     setFiltruGen(genSelectat);
+                    setFiltruLimba(limbaSelectata);
                     if (anManual) {
                         setFiltruAn({ type: "exact", value: anManual });
                     } else if (intervalSelectat) {
@@ -222,6 +235,8 @@ function MainPageClient() {
                     setAnManual("");
                     setIntervalSelectat("");
                     setFiltruAn("");
+                    setFiltruLimba("");
+                    setLimbaSelectata("");  
                     setPaginaCurenta(1);
                     setShowFilterPopup(false);
                 }}>Șterge</button>

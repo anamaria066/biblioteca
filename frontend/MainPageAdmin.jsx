@@ -40,6 +40,7 @@ function MainPageAdmin() {
     const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
     const [mesajEroareCod, setMesajEroareCod] = useState("");
     const [detaliiImprumut, setDetaliiImprumut] = useState(null);
+    const [filtruLimba, setFiltruLimba] = useState("");
 
     // Fetch date pentru statistici
     useEffect(() => {

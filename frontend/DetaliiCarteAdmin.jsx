@@ -205,6 +205,7 @@ function DetaliiCarteAdmin() {
                     <h2>{carte.titlu}</h2>
                     <p><strong>Autor:</strong> {carte.autor}</p>
                     <p><strong>An publicare:</strong> {carte.an_publicatie}</p>
+                    <p><strong>Limba:</strong> {carte.limba}</p>
                     <p><strong>Gen:</strong> {carte.gen}</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
 

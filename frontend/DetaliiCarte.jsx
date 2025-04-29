@@ -238,7 +238,7 @@ useEffect(() => {
             <header className="header">
                 <div className="nav-buttons">
                     <button className="nav-button" onClick={() => navigate("/client")}>Explorează</button>
-                    <button className="nav-button">Recomandate</button>
+                    <button className="nav-button" onClick={() => navigate("/recomandate")}>Recomandate</button>
                     <button className="nav-button" onClick={() => navigate("/imprumuturi-curente")}>Împrumuturi curente</button>
                     <button className="nav-button" onClick={() => navigate("/istoric")}>Istoric</button>
                 </div>
@@ -277,6 +277,7 @@ useEffect(() => {
                     <h2>{carte.titlu}</h2>
                     <p><strong>Autor:</strong> {carte.autor}</p>
                     <p><strong>An publicare:</strong> {carte.an_publicatie}</p>
+                    <p><strong>Limba:</strong> {carte.limba}</p>
                     <p><strong>Gen:</strong> {carte.gen}</p>
                     <p><strong>Descriere:</strong> {carte.descriere}</p>
                     <p><strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}/5)</p>

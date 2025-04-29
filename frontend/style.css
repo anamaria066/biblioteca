@@ -1729,3 +1729,13 @@ html, body {
 .btnVeziTaxa:hover {
     background-color: darkred;
 }
+
+.titluRecomandate {
+    margin-top: 80px; /* pentru a lăsa loc de header */
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(62, 45, 36);
+    z-index: 1;
+}

@@ -19,6 +19,7 @@ import EditeazaCarte from './EditeazaCarte';
 import ImprumuturiClient from './ImprumuturiClient';
 import Istoric from './Istoric';
 import IstoricImprumuturiAdmin from './IstoricImprumuturiAdmin';
+import Recomandate from './Recomandate';
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
         <Route path='/imprumuturi-curente' element={<ImprumuturiClient/>}/>
         <Route path="/istoric" element={<Istoric />} />
         <Route path="/istoric-imprumuturi" element={<IstoricImprumuturiAdmin />} />
+        <Route path="/recomandate" element={<Recomandate />} />
       </Routes>
     </BrowserRouter>
   );

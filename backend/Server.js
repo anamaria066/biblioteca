@@ -73,6 +73,10 @@ export const Carte = sequelize.define('Carte', {
         type: DataTypes.TEXT, // Am adăugat câmpul "descriere"
         allowNull: true
     },
+    limba: {
+        type: DataTypes.STRING,
+        allowNull: true // sau false dacă vrei să fie obligatorie
+    },
     gen: {
         type: DataTypes.STRING
     },
@@ -915,7 +919,8 @@ app.get('/carti-cu-rating', async (req, res) => {
                 'an_publicatie',
                 'gen',
                 'pret',
-                'imagine'
+                'imagine',
+                'limba'
             ],
             include: [
                 {
@@ -940,6 +945,7 @@ app.get('/carti-cu-rating', async (req, res) => {
                 gen: carte.gen,
                 pret: carte.pret,
                 imagine: carte.imagine,
+                limba: carte.limba,
                 rating: ratingMediu.toFixed(1) // Rotunjim la 1 zecimală
             };
         });
@@ -1782,6 +1788,87 @@ cron.schedule('0 * * * *', async () => {
         console.log(`✅ Finalizat verificarea împrumuturilor.`);
     } catch (error) {
         console.error("❌ Eroare la expirarea împrumuturilor:", error);
+    }
+});
+
+
+// Recomandări personalizate - http://localhost:3000/recomandari/:utilizator_id
+//	•	Recomandări bazate pe:
+	// •	frecvența genurilor (ex: citești des Fantasy),
+	// •	frecvența autorilor (ex: ai multe de Agatha Christie),
+	// •	scoruri combinate: gen (x2) + autor (x3),
+	// •	excludere cărți deja împrumutate sau favorite,
+	// •	ordonare după scor și rating.
+app.get('/recomandari/:utilizator_id', async (req, res) => {
+    const { utilizator_id } = req.params;
+
+    try {
+        //Istoric + Favorite
+        const imprumuturi = await Imprumut.findAll({
+            where: {
+                utilizator_id,
+                status: ['returnat']
+            },
+            include: {
+                model: ExemplarCarte,
+                include: {
+                    model: Carte,
+                    attributes: ['id', 'gen', 'autor']
+                }
+            }
+        });//Obțin toate împrumuturile returnate (istoric) ale utilizatorului
+
+        const favorite = await Favorite.findAll({
+            where: { utilizator_id },
+            include: {
+                model: Carte,
+                attributes: ['id', 'gen', 'autor']
+            }
+        });//Obțin și cărțile adăugate de utilizator la Favorite
+
+        //Combin cărțile din istoric și favorite într-un singur array (toateCartile)
+        const toateCartile = [
+            ...imprumuturi.map(imp => imp.ExemplarCarte?.Carte),
+            ...favorite.map(fav => fav.Carte)
+        ].filter(Boolean); // elimin null (ex: împrumuturi fără carte validă)
+
+        //Construiesc scoruri de preferință (Se numără de câte ori apare fiecare gen și autor în preferințele utilizatorului)
+        const scoruriGen = {};
+        const scoruriAutori = {};
+
+        toateCartile.forEach(carte => {
+            // GEN
+            scoruriGen[carte.gen] = (scoruriGen[carte.gen] || 0) + 1;
+            // AUTOR
+            scoruriAutori[carte.autor] = (scoruriAutori[carte.autor] || 0) + 1;
+        });
+
+        // Cărți deja citite / favorite
+        const idCartiExclude = toateCartile.map(c => c.id);
+
+        // Cărți candidate pentru recomandare
+        const cartiToate = await Carte.findAll({
+            where: {
+                id: { [Sequelize.Op.notIn]: idCartiExclude }
+            }
+        });//Se extrag toate cărțile care nu sunt deja citite/favorite, acestea sunt candidate pentru recomandar
+
+        //Calculez scoruri de similaritate (pt fiecare carte se cauta scorul genului si autorului in preferintele utilizatorului si se calculeaza scor total)
+        const cartiRecomandate = cartiToate
+            .map(carte => {
+                const scorGen = scoruriGen[carte.gen] || 0;
+                const scorAutor = scoruriAutori[carte.autor] || 0;
+                const scorTotal = scorGen * 2 + scorAutor * 3; // ponderăm autorul mai mult (Autorul e mai important decât genul, deci are o pondere mai mare)
+                return { ...carte.toJSON(), scorTotal };
+            })
+            .filter(c => c.scorTotal > 0) //Se păstrează doar cărțile cu scor pozitiv (carti relevante)
+            .sort((a, b) => b.scorTotal - a.scorTotal || b.rating - a.rating) //se sorteaza in primul rand dupa scor si daca sunt scoruri egale atunci dupa rating
+            .slice(0, 20); // top 20 recomandări
+
+        res.json(cartiRecomandate);
+    } catch (err) {
+        console.error("❌ Eroare la generarea recomandărilor:", err);
+        res.status(500).json({ message: "Eroare la server!" });
     }
 });
 
