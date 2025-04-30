@@ -20,6 +20,14 @@ function Exemplare() {
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
     const dropdownRef = useRef(null);
+    const [rowMenuOpen, setRowMenuOpen] = useState(null);   // pentru 3 puncte
+    const rowDropdownRefs = useRef({});
+    const [showPopupCheltuiala, setShowPopupCheltuiala] = useState(false);
+    const [tipCheltuiala, setTipCheltuiala] = useState(""); // "Reparatie" sau "Inlocuire"
+    const [cheltuialaDetalii, setCheltuialaDetalii] = useState("");
+    const [cheltuialaCost, setCheltuialaCost] = useState("");
+    const [exemplarCurentId, setExemplarCurentId] = useState(null);
+    
 
     // Funcție pentru a încărca exemplarele și datele cărții
     const fetchData = async () => {
@@ -66,6 +74,32 @@ function Exemplare() {
       }, [selectedCarteId]);
 
 
+      useEffect(() => {
+        const handleClickOutside = (event) => {
+          // Închide dropdown din tabel dacă e deschis și s-a dat click în afara lui
+          if (
+            rowMenuOpen &&
+            rowDropdownRefs.current[rowMenuOpen] &&
+            !rowDropdownRefs.current[rowMenuOpen].contains(event.target)
+          ) {
+            setRowMenuOpen(null);
+          }
+      
+          // Închide dropdown din header dacă s-a dat click în afara dropdownRef
+          if (
+            menuOpen &&
+            dropdownRef.current &&
+            !dropdownRef.current.contains(event.target)
+          ) {
+            setMenuOpen(false);
+          }
+        };
+      
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, [rowMenuOpen, menuOpen]);
 
     // Dacă datele sunt încărcate
     if (loading) {
@@ -113,6 +147,37 @@ function Exemplare() {
             console.error("Eroare la ștergere exemplar:", error);
         }
     };
+
+    const handleConfirmCheltuiala = async () => {
+        try {
+          // Actualizează starea exemplarului în "bună"
+          await fetch(`http://localhost:3000/modifica-exemplar/${exemplarCurentId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ stare: "bună" }),
+          });
+      
+          // Creează o înregistrare de cheltuială
+          await fetch("http://localhost:3000/adauga-cheltuiala", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              exemplar_id: exemplarCurentId,
+              tip_cheltuiala: tipCheltuiala,
+              cost_total: parseFloat(cheltuialaCost),
+              detalii_suplimentare: cheltuialaDetalii,
+            }),
+          });
+      
+          // Resetează popup-ul
+          fetchData(); // reîncarcă datele
+          setShowPopupCheltuiala(false);
+          setCheltuialaCost("");
+          setCheltuialaDetalii("");
+        } catch (error) {
+          console.error("Eroare la înregistrarea cheltuielii:", error);
+        }
+      };
 
     return (
         <div className="exemplare-container">
@@ -175,59 +240,116 @@ function Exemplare() {
                             <th>Stare</th>
                             <th>Cost Achiziție</th>
                             <th>Disponibilitate</th>
-                            <th>Editare</th>
-                            <th>Ștergere</th>
+                            <th style={{ backgroundColor: "transparent" }}></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {exemplare.length === 0 ? (
-                            <tr>
-                                <td colSpan="6">Nu există exemplare pentru această carte.</td>
+                    {exemplare.length === 0 ? (
+                        <tr>
+                        <td colSpan="6">Nu există exemplare pentru această carte.</td>
+                        </tr>
+                    ) : (
+                        exemplare.map((exemplar) => {
+                        const necesitaInlocuire = exemplar.stare === "necesită înlocuire";
+
+                        return (
+                            <tr
+                            key={exemplar.id}
+                            className={necesitaInlocuire ? "expired-row" : ""}
+                            >
+                            <td>{exemplar.id}</td>
+                            <td>
+                            {editExemplarId === exemplar.id ? (
+                                <>
+                                <select
+                                className="select-stare"
+                                value={newStare}
+                                onChange={(e) => setNewStare(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleConfirmEdit(exemplar.id);
+                                    }
+                                }}
+                                >
+                                <option value="bună">bună</option>
+                                <option value="deteriorată">deteriorată</option>
+                                <option value="necesită înlocuire">necesită înlocuire</option>
+                                </select>
+                                </>
+                            ) : (
+                                exemplar.stare
+                            )}
+                            </td>
+                            <td>{exemplar.cost_achizitie} RON</td>
+                            <td>{exemplar.status_disponibilitate}</td>
+                            <td className="dropdown-cell" ref={(el) => (rowDropdownRefs.current[exemplar.id] = el)}>
+                            <div className="dropdown">
+                                <button
+                                className="dots-button"
+                                onClick={() => setRowMenuOpen(rowMenuOpen === exemplar.id ? null : exemplar.id)}
+                                >
+                                &#8942;
+                                </button>
+                                {rowMenuOpen === exemplar.id && (
+                                <div className="dropdown-menu show">
+                                    <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        handleEditClick(exemplar);
+                                        setRowMenuOpen(null);
+                                    }}
+                                    >
+                                    Editează
+                                    </button>
+
+                                    {exemplar.status_disponibilitate !== "împrumutat" && (
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                        setConfirmDeleteId(exemplar.id);
+                                        setRowMenuOpen(null);
+                                        }}
+                                    >
+                                        Șterge
+                                    </button>
+                                    )}
+
+                                    {exemplar.stare === "necesită înlocuire" && (
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                        setTipCheltuiala("Inlocuire");
+                                        setShowPopupCheltuiala(true);
+                                        setExemplarCurentId(exemplar.id);
+                                        setRowMenuOpen(null);
+                                        }}
+                                    >
+                                        Înlocuiește
+                                    </button>
+                                    )}
+
+                                    {exemplar.stare === "deteriorată" && (
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                        setTipCheltuiala("Reparatie");
+                                        setShowPopupCheltuiala(true);
+                                        setExemplarCurentId(exemplar.id);
+                                        setRowMenuOpen(null);
+                                        }}
+                                    >
+                                        Înregistrează reparație
+                                    </button>
+                                    )}
+                                </div>
+                                )}
+                            </div>
+                            </td>
                             </tr>
-                        ) : (
-                            exemplare.map((exemplar) => (
-                                <tr key={exemplar.id}>
-                                    <td>{exemplar.id}</td>
-                                    <td>
-                                        {editExemplarId === exemplar.id ? (
-                                            <select
-                                                value={newStare}
-                                                onChange={(e) => setNewStare(e.target.value)}
-                                                className="select-stare"
-                                            >
-                                                <option value="bună">bună</option>
-                                                <option value="deteriorată">deteriorată</option>
-                                                <option value="necesită înlocuire">necesită înlocuire</option>
-                                            </select>
-                                        ) : (
-                                            exemplar.stare
-                                        )}
-                                    </td>
-                                    <td>{exemplar.cost_achizitie} RON</td>
-                                    <td>{exemplar.status_disponibilitate}</td>
-                                    <td>
-                                        {editExemplarId === exemplar.id ? (
-                                            <button id="btnConfirmaEditExemplar" onClick={() => handleConfirmEdit(exemplar.id)}>Confirmă</button>
-                                        ) : (
-                                            <button id="btnEditExemplar" onClick={() => handleEditClick(exemplar)}>Editează</button>
-                                        )}
-                                    </td>
-                                    <td>
-                                        {exemplar.status_disponibilitate === "împrumutat" ? (
-                                            <button
-                                            disabled
-                                            title="Exemplarul este împrumutat și nu poate fi șters"
-                                            style={{ opacity: 0.5, cursor: "not-allowed" }}
-                                        >
-                                            Nu se poate șterge
-                                        </button>
-                                        ) : (
-                                            <button id="btnStergeExemplar" onClick={() => setConfirmDeleteId(exemplar.id)}>Șterge exemplar</button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                        );
+                        })
+                    )}
                     </tbody>
                 </table>
 
@@ -249,6 +371,34 @@ function Exemplare() {
                     </div>
                 )}
             </div>
+
+            {showPopupCheltuiala && (
+            <div className="confirm-modal">
+                <div className="modal-content">
+                <h3>Formular {tipCheltuiala.toLowerCase()}</h3>
+
+                <textarea
+                    placeholder="Detalii suplimentare"
+                    value={cheltuialaDetalii}
+                    onChange={(e) => setCheltuialaDetalii(e.target.value)}
+                    style={{ width: "100%", height: "60px", marginBottom: "10px" }}
+                />
+
+                <input
+                    type="number"
+                    placeholder="Cost total"
+                    value={cheltuialaCost}
+                    onChange={(e) => setCheltuialaCost(e.target.value)}
+                    style={{ width: "100%", marginBottom: "10px" }}
+                />
+
+                <div className="popup-buttons">
+                    <button onClick={handleConfirmCheltuiala}>Confirmă</button>
+                    <button onClick={() => setShowPopupCheltuiala(false)}>Anulează</button>
+                </div>
+                </div>
+            </div>
+            )}
         </div>
     );
 }

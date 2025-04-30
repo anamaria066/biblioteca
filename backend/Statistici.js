@@ -8,11 +8,11 @@ export async function getCheltuieliLunare() {
     try {
         const result = await Cheltuiala.findAll({
             attributes: [
-                [Sequelize.fn('MONTH', Sequelize.col('data')), 'luna'],
-                [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
+                [Sequelize.fn('MONTH', Sequelize.col('data_cheltuiala')), 'luna'],
+                [Sequelize.fn('SUM', Sequelize.col('cost_total')), 'total']
             ],
             where: {
-                data: {
+                data_cheltuiala: {
                     [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
                 }
             },
@@ -89,11 +89,11 @@ export async function getUtilizatoriNoi() {
     try {
         const result = await Utilizator.findAll({
             attributes: [
-                [Sequelize.fn('MONTH', Sequelize.col('data_inregistrare')), 'luna'],
+                [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'luna'],
                 [Sequelize.fn('COUNT', Sequelize.col('id')), 'numar']
             ],
             where: {
-                data_inregistrare: {
+                createdAt: {
                     [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
                 }
             },
@@ -115,15 +115,15 @@ export async function getTipuriCheltuieli() {
     try {
         const result = await Cheltuiala.findAll({
             attributes: [
-                'tip',
-                [Sequelize.fn('COUNT', Sequelize.col('tip')), 'numar']
+                ['tip_cheltuiala', 'tip'],
+                [Sequelize.fn('COUNT', Sequelize.col('tip_cheltuiala')), 'numar']
             ],
             where: {
-                data: {
+                data_cheltuiala: {
                     [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
                 }
             },
-            group: ['tip']
+            group: ['tip_cheltuiala']
         });
 
         return result.map(row => ({

@@ -272,21 +272,17 @@ export const Cheltuiala = sequelize.define('Cheltuiala', {
         autoIncrement: true,
         primaryKey: true
     },
-    carte_id: {
+    exemplar_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Carte,
+            model: ExemplarCarte,
             key: 'id'
         },
         onDelete: 'CASCADE'
     },
     tip_cheltuiala: {
         type: DataTypes.ENUM('Reparatie', 'Inlocuire'),
-        allowNull: false
-    },
-    numar_exemplare: {
-        type: DataTypes.INTEGER,
         allowNull: false
     },
     cost_total: {
@@ -345,8 +341,6 @@ Recenzie.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//O recenzie apa
 Recenzie.belongsTo(Carte, { foreignKey: 'carte_id' });//O recenzie aparține unei singure cărți
 Utilizator.hasMany(Imprumut, { foreignKey: 'utilizator_id' });//Un utilizator poate împrumuta mai multe cărți
 Imprumut.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//Un împrumut aparține unui singur utilizator
-Carte.hasMany(Cheltuiala, { foreignKey: 'carte_id' });//O carte poate avea mai multe cheltuieli asociate (ex: reparații, înlocuire)
-Cheltuiala.belongsTo(Carte, { foreignKey: 'carte_id' });//O cheltuială este legată de o singură carte
 Utilizator.hasMany(Favorite, { foreignKey: 'utilizator_id' });
 Carte.hasMany(Favorite, { foreignKey: 'carte_id' });
 Favorite.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
@@ -1757,40 +1751,40 @@ app.get('/imprumuturi-incheiate', async (req, res) => {
 
 
 
-// Cron job pentru expirarea împrumuturilor în așteptare după 48 de ore
-cron.schedule('0 * * * *', async () => { 
-    console.log("🔎 Verificare împrumuturi în așteptare...");
-
+// Functie pentru expirarea împrumuturilor în așteptare după 48 de ore/dupa termenul limita
+const verificaImprumuturiExpirate = async () => {
     const acum = new Date();
-    const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000); // scădem 48 de ore
+    const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000);
 
     try {
         const imprumuturiInAsteptare = await Imprumut.findAll({
             where: {
                 status: 'în așteptare',
-                data_imprumut: { [Sequelize.Op.lt]: acumMinus48h }
+                [Sequelize.Op.or]: [
+                    { data_imprumut: { [Sequelize.Op.lt]: acumMinus48h } },
+                    { data_returnare: { [Sequelize.Op.lt]: acum } }
+                ]
             }
         });
 
         for (const imprumut of imprumuturiInAsteptare) {
             console.log(`⚡ Expiră împrumut ID: ${imprumut.id}`);
-
-            // actualizăm statusul împrumutului
             await imprumut.update({ status: 'expirat' });
 
-            // setăm exemplarul ca fiind disponibil
             await ExemplarCarte.update(
                 { status_disponibilitate: 'disponibil' },
                 { where: { id: imprumut.exemplar_id } }
             );
         }
 
-        console.log(`✅ Finalizat verificarea împrumuturilor.`);
+        console.log(`✅ Verificare finalizată. ${imprumuturiInAsteptare.length} împrumuturi expirate.`);
     } catch (error) {
         console.error("❌ Eroare la expirarea împrumuturilor:", error);
     }
-});
+};
 
+// Verificare automată la fiecare oră atata timp cat serverul e pornit
+cron.schedule('0 * * * *', verificaImprumuturiExpirate);
 
 // Recomandări personalizate - http://localhost:3000/recomandari/:utilizator_id
 //	•	Recomandări bazate pe:
@@ -1873,8 +1867,35 @@ app.get('/recomandari/:utilizator_id', async (req, res) => {
 });
 
 
+app.post('/adauga-cheltuiala', async (req, res) => {
+    try {
+      const { exemplar_id, tip_cheltuiala, cost_total, detalii_suplimentare } = req.body;
+  
+      if (!exemplar_id || !tip_cheltuiala || !cost_total) {
+        return res.status(400).json({ message: "Câmpuri obligatorii lipsă!" });
+      }
+  
+      await Cheltuiala.create({
+        exemplar_id,
+        tip_cheltuiala,
+        cost_total,
+        detalii_suplimentare
+      });
+  
+      res.status(201).json({ message: "Cheltuiala a fost înregistrată!" });
+    } catch (error) {
+      console.error("Eroare la înregistrarea cheltuielii:", error);
+      res.status(500).json({ message: "Eroare la server!" });
+    }
+  });
+
+
 // Pornire server
 const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Serverul rulează pe http://localhost:${PORT}`);
-});
+(async () => {
+    await verificaImprumuturiExpirate();
+
+    app.listen(PORT, () => {
+        console.log(`Serverul rulează pe http://localhost:${PORT}`);
+    });
+})();
