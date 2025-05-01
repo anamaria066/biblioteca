@@ -10,22 +10,21 @@ function Welcome() {
     useEffect(() => {
         if (location.state?.showDeletedMessage) {
             setShowDeletedMessage(true);
-
-            // Ascunde după 3 secunde
             const timer = setTimeout(() => setShowDeletedMessage(false), 3000);
             return () => clearTimeout(timer);
         }
     }, [location.state]);
 
     return (
-        <div>
-            <div className="header-image">
-                <img src="/images/library.jpg" alt="Library" />
-            </div>
-            <div className="welcome-box">
-                <h2 id='titluWelcome'>Bun venit în biblioteca online!</h2>
-                <button id='btnAuth' onClick={() => navigate('/login')}>Autentificare</button>
-                <button id='btnCreareCont' onClick={() => navigate('/signup')}>Creare cont</button>
+        <div className="welcome-container">
+            <div className="welcome-overlay"></div>
+            <div className="welcome-content">
+                <h1 className="welcome-title">Bun venit!</h1>
+                <p className="welcome-subtitle">Descoperă, împrumută și bucură-te de cărți din confortul casei tale.</p>
+                <div className="welcome-buttons">
+                    <button id='btnAuth' onClick={() => navigate('/login')}>Autentificare</button>
+                    <button id='btnCreareCont' onClick={() => navigate('/signup')}>Creare cont</button>
+                </div>
             </div>
 
             {showDeletedMessage && (
@@ -33,6 +32,6 @@ function Welcome() {
             )}
         </div>
     );
-};
+}
 
 export default Welcome;
