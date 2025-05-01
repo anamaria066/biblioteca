@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import "./aspect/ProfilAdmin.css";
 
 function ProfilAdmin() {
     const navigate = useNavigate();

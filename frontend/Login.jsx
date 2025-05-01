@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import "./aspect/Login.css";
 
 function Login() {
     const navigate = useNavigate();

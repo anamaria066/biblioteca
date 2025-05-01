@@ -1,0 +1,335 @@
+.detalii-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(252, 240, 224);
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background-color: rgb(255, 209, 220);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-button {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nav-button:hover {
+    transform: scale(1.05);
+}
+
+.right-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 80px;
+}
+
+.user-info {
+    color: rgb(62, 45, 36);
+}
+
+.profile-img-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-left: 5px;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    margin-left: 80px;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    width: 100%;
+    color: rgb(62, 45, 36);
+}
+
+.dropdown-item:hover {
+    background-color: rgb(255, 209, 220);
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.detalii-carte {
+    display: flex;
+    width: 1000px;
+    height: auto;
+    background-color: rgb(255, 219, 204);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.detalii-text {
+    flex: 1;
+    padding: 20px;
+}
+
+.detalii-text h2 {
+    margin-bottom: 10px;
+    color: #3B3A4F;
+}
+
+.detalii-text p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.detalii-imagine {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coperta-mare {
+    width: 80%;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btnDelete, .btnEdit, .btnExemplare, .btnAdaugaExemplar {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+.btnEdit {
+    margin-left: 20px;
+}
+
+.btnExemplare {
+    margin-left: 20px;
+}
+
+.btnDelete:hover, .btnEdit:hover, .btnExemplare:hover, .btnAdaugaExemplar:hover {
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    transform: translateY(-2px);
+}
+
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+    color: rgb(62, 45, 36);
+}
+
+.confirm-button, .cancel-button {
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm-button {
+    background-color: #527e53;
+    color: white;
+}
+
+.cancel-button {
+    background-color: #923131;
+    color: white;
+}
+
+.confirm-button:hover {
+    background-color: rgb(42, 105, 46);
+}
+
+.cancel-button:hover {
+    background-color: rgb(120, 41, 41);
+}
+
+.recenzii-container {
+    margin-top: 30px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    width: 1100px;
+    height: 320px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.recenzii-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.recenzie-card {
+    width: 300px;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    height: 180px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.recenzie-text {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.fara-recenzii {
+    text-align: center;
+    color: gray;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.popup {
+    background-color: white;
+    color: rgb(62, 45, 36);
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.popup input,
+.popup select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f1ece5;
+    font-size: 1rem;
+    color: rgb(62, 45, 36);
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popup input:focus,
+.popup select:focus {
+    border-color: #e4d8c6;
+    box-shadow: 0 0 5px rgba(167, 148, 170, 0.4);
+    outline: none;
+}
+
+#btnConfirmaExemplar, #btnAnuleazaExemplar {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+#btnConfirmaExemplar:hover, #btnAnuleazaExemplar:hover {
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    transform: translateY(-2px);
+}
+
+.floating-success {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}

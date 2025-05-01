@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // Importă pentru navigare
-import "./style.css";
+import "./aspect/CartiAdmin.css";
 import { useLocation } from "react-router-dom";
 
 function CartiAdmin() {

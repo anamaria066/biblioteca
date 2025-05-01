@@ -1,0 +1,244 @@
+.detalii-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(252, 240, 224);
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+.detalii-carte {
+    display: flex;
+    width: 1000px;
+    background-color: rgb(255, 219, 204);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.detalii-text {
+    flex: 1;
+    padding: 20px;
+}
+
+.detalii-text h2 {
+    margin-bottom: 10px;
+    color: #3B3A4F;
+}
+
+.detalii-text p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.detalii-imagine {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coperta-mare {
+    width: 80%;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.icon-favorite {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.icon-favorite:hover {
+    transform: scale(1.1);
+}
+
+.rating-stars {
+    font-size: 24px;
+    color: gold;
+}
+
+.half-star {
+    position: relative;
+    display: inline-block;
+    color: lightgray;
+}
+
+.half-star::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: gold;
+}
+
+.recenzii-container {
+    margin-top: 30px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    width: 1100px;
+    height: 320px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.recenzii-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.recenzie-card {
+    width: 300px;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    height: 180px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.recenzie-text {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.fara-recenzii {
+    text-align: center;
+    color: gray;
+}
+
+/* Mesaje de succes sau eroare plutitoare */
+.floating-success {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.floating-error {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #e20303;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
+/* Butoane */
+.btn-recenzie,
+.btnImprumuta {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+.btnImprumuta {
+    margin-left: 40px;
+}
+
+.btn-recenzie:hover,
+.btnImprumuta:hover {
+    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    transform: translateY(-2px);
+}
+
+/* Pop-up pentru împrumut */
+.popup-imprumut {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 0 10px black;
+    text-align: center;
+}
+
+.popup-content input[type="date"] {
+    margin: 5px 0;
+    width: 100%;
+    padding: 5px;
+    background-color: rgb(244, 230, 219);
+    color: #333;
+}
+
+.butoane-popup {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#btnConfirmaImprumut,
+#btnAnuleazaImprumut {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+#btnConfirmaImprumut:hover,
+#btnAnuleazaImprumut:hover {
+    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    transform: translateY(-2px);
+}
+
+/* Zile indisponibile în calendar */
+.react-datepicker__day.zi-indisponibila {
+    background-color: #ff4d4f !important;
+    color: white !important;
+    border-radius: 50% !important;
+}
+
+.react-datepicker__day.zi-indisponibila:hover {
+    background-color: #e60000 !important;
+}

@@ -1,7 +1,7 @@
 // EditeazaCarte.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./style.css";
+import "./aspect/EditeazaCarte.css";
 
 function EditeazaCarte() {
     const navigate = useNavigate();

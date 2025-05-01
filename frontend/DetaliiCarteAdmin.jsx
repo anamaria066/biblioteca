@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./style.css";
+import "./aspect/DetaliiCarteAdmin.css";
 import { useLocation } from "react-router-dom";
 
 function DetaliiCarteAdmin() {

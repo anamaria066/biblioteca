@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import "./aspect/Favorite.css";
 
 function Favorite() {
     const [favorite, setFavorite] = useState([]);

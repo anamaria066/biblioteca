@@ -1,0 +1,313 @@
+/* ======= HEADER ======= */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background-color: rgb(255, 209, 220);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-button {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nav-button:hover {
+    transform: scale(1.05);
+}
+
+.right-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 80px;
+}
+
+.user-info {
+    color: rgb(62, 45, 36);
+}
+
+.profile-img-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-left: 5px;
+}
+
+.favorite-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-top: 15px;
+    transition: transform 0.2s ease;
+}
+
+.favorite-icon:hover {
+    transform: scale(1.1);
+}
+
+/* ======= CONȚINUT PROFIL ======= */
+.profil-container {
+    margin-top: 90px;
+    padding: 20px;
+    background-color: rgb(252, 240, 224);
+    min-height: 100vh;
+}
+
+.profil-content {
+    width: 800px;
+    height: 450px;
+    max-width: 1000px;
+    background-color: rgb(251, 249, 245);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.profile-picture {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    margin-left: 40px;
+    flex-shrink: 0;
+}
+
+.profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+
+.dropdown-poza-mare {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 100;
+    padding: 5px 0;
+    margin-left: -80px;
+}
+
+.dropdown-poza-mare button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    text-align: left;
+    width: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgb(62, 45, 36);
+}
+
+.dropdown-poza-mare button:hover {
+    background-color: rgb(255, 209, 220);
+}
+
+.butoane-previzualizare {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#btnConfirmaPoza, #btnAnuleazaPoza {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    margin-right: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+.butoane-previzualizare button:hover {
+    opacity: 0.9;
+}
+
+.profile-details {
+    margin-left: 80px;
+    flex-direction: column;
+}
+
+.informatii-basic {
+    margin-right: 100px;
+    margin-bottom: 20px;
+}
+
+.profile-details h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.profile-details p {
+    color: #777;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+#inputNume, #inputPrenume, #inputMail {
+    color: rgb(62, 45, 36);
+    background-color: transparent;
+    font-size: 17px;
+    border-radius: 8px;
+    border: 1.5px solid rgb(62, 45, 36);
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+#inputNume, #inputPrenume {
+    font-size: 22px;
+    width: 120px;
+    margin-right: 30px;
+}
+
+#inputMail {
+    width: 250px;
+    height: 27px;
+}
+
+#btnsalveazaModificarile,
+#btnAnuleazaModificarile,
+#btnEditProfil,
+#btnSchimbaParola,
+#btnAdaugaPoza,
+#btnDelogare,
+#btnStergeCont,
+#btnConfirmaSchimbParola,
+#btnAnuleazaSchimbParola {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    padding: 10px 15px;
+    margin-right: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0px 2px 6px;
+}
+
+#btnStergeCont {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+#btnsalveazaModificarile:hover,
+#btnAnuleazaModificarile:hover,
+#btnEditProfil:hover,
+#btnSchimbaParola:hover,
+#btnAdaugaPoza:hover,
+#btnDelogare:hover,
+#btnStergeCont:hover,
+#btnConfirmaSchimbParola:hover,
+#btnAnuleazaSchimbParola:hover {
+    background-color: rgb(255, 209, 220);
+    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    transform: translateY(-2px);
+}
+
+.popup-overlay,
+.popup-overlay-stergere-cont {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: white;
+    padding: 25px 35px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.popup input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#confirmStergerePfp {
+    color: rgb(62, 45, 36);
+    background-color: rgb(255, 209, 220);
+}
+
+.floating-success {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.floating-error {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #e20303;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}

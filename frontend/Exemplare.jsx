@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./style.css";
+
+import "./aspect/Exemplare.css";
 
 function Exemplare() {
     const { id } = useParams();
@@ -27,6 +28,9 @@ function Exemplare() {
     const [cheltuialaDetalii, setCheltuialaDetalii] = useState("");
     const [cheltuialaCost, setCheltuialaCost] = useState("");
     const [exemplarCurentId, setExemplarCurentId] = useState(null);
+    const [popupRentabilitate, setPopupRentabilitate] = useState(null); // { numarImprumuturi, rentabilitate, eticheta }
+    const [loadingRentabilitate, setLoadingRentabilitate] = useState(false);
+
     
 
     // Funcție pentru a încărca exemplarele și datele cărții
@@ -179,6 +183,19 @@ function Exemplare() {
         }
       };
 
+      const handleVeziDetalii = async (id) => {
+        setLoadingRentabilitate(true);
+        try {
+            const res = await fetch(`http://localhost:3000/rentabilitate-exemplar/${id}`);
+            const data = await res.json();
+            setPopupRentabilitate({ id, ...data });
+        } catch (err) {
+            console.error("Eroare rentabilitate:", err);
+        } finally {
+            setLoadingRentabilitate(false);
+        }
+    };
+
     return (
         <div className="exemplare-container">
             {/* ======= HEADER ======= */}
@@ -303,6 +320,16 @@ function Exemplare() {
                                     Editează
                                     </button>
 
+                                    <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        handleVeziDetalii(exemplar.id);
+                                        setRowMenuOpen(null);
+                                    }}
+                                    >
+                                    Vezi detalii
+                                    </button>
+
                                     {exemplar.status_disponibilitate !== "împrumutat" && (
                                     <button
                                         className="dropdown-item"
@@ -395,6 +422,19 @@ function Exemplare() {
                 <div className="popup-buttons">
                     <button onClick={handleConfirmCheltuiala}>Confirmă</button>
                     <button onClick={() => setShowPopupCheltuiala(false)}>Anulează</button>
+                </div>
+                </div>
+            </div>
+            )}
+
+            {popupRentabilitate && (
+            <div className="confirm-modal">
+                <div className="modal-content">
+                <h3>Rentabilitate exemplar ID: {popupRentabilitate.id}</h3>
+                <p>Număr împrumuturi: <strong>{popupRentabilitate.numarImprumuturi}</strong></p>
+                <p>Rentabilitate: <strong>{popupRentabilitate.rentabilitate}</strong> ({popupRentabilitate.eticheta})</p>
+                <div className="popup-buttons">
+                    <button onClick={() => setPopupRentabilitate(null)}>Închide</button>
                 </div>
                 </div>
             </div>

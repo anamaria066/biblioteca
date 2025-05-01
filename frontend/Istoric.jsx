@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import "./aspect/Istoric.css";
 
 function Istoric() {
     const [user, setUser] = useState({ nume: "", prenume: "", pozaProfil: "" });

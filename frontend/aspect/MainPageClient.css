@@ -1,0 +1,271 @@
+/* Container principal */
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(252, 240, 224);
+    width: 100%;
+}
+
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background-color: rgb(255, 209, 220);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-button {
+    background-color: rgb(255, 209, 220);
+    color: rgb(62, 45, 36);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nav-button:hover {
+    transform: scale(1.05);
+}
+
+.right-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 80px;
+}
+
+.favorite-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-top: 15px;
+    transition: transform 0.2s ease;
+}
+
+.favorite-icon:hover {
+    transform: scale(1.1);
+}
+
+.profile-img-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-left: 5px;
+}
+
+/* Căutare */
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 60px;
+    padding: 10px 0;
+}
+
+.search-bar {
+    width: 900px;
+    height: 10px;
+    padding: 12px;
+    border: 2px solid rgb(255, 209, 220);
+    border-radius: 20px;
+    font-size: 16px;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.filter-icon {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+}
+
+.filter-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Popup pentru filtre */
+.popup-filtru {
+    position: absolute;
+    top: 110px;
+    right: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 200px;
+}
+
+.popup-filtru select {
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.input-an {
+    margin-bottom: 8px;
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.butoane-filtru {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.butoane-filtru button {
+    flex: 1;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    background-color: #eb7d7d;
+    color: white;
+    cursor: pointer;
+}
+
+.butoane-filtru button:hover {
+    background-color: #d16262;
+}
+
+/* Grid pentru cărți */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    justify-content: flex-start;
+    padding: 20px; 
+    margin: 0;
+    width: 100%;
+    margin-top: -10px;
+    margin-left: -45px;
+}
+
+.book-card {
+    width: 170px;
+    height: 280px;
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.book-card:hover {
+    transform: scale(1.05);
+}
+
+.book-card.hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.book-image {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.book-title {
+    font-weight: bold;
+    margin-top: 10px;
+    color: #3B3A4F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.book-rating {
+    font-size: 18px;
+    color: gold;
+    margin-top: -10px;
+}
+
+.rating-stars {
+    font-size: 24px;
+    color: gold;
+}
+
+.half-star {
+    position: relative;
+    display: inline-block;
+    color: lightgray;
+}
+
+.half-star::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: gold;
+}
+
+/* Paginare */
+.pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(252, 240, 224);
+    padding: 20px 0;
+    position: relative;
+}
+
+.pagination-button {
+    background-color: rgb(255, 209, 220);
+    border: none;
+    padding: 10px 15px;
+    margin: 0 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: rgb(255, 180, 200);
+}
+
+.pagination-button:disabled {
+    background-color: rgb(200, 200, 200);
+    cursor: not-allowed;
+}
+
+.pagina-info {
+    font-size: 16px;
+    font-weight: bold;
+    color: #3B3A4F;
+}

@@ -3,7 +3,7 @@ import cors from 'cors';
 import { Sequelize, DataTypes } from 'sequelize';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
-import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli } from './Statistici.js';
+import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli, getTaxeIntarziereLunare } from './Statistici.js';
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -334,6 +334,38 @@ export const Favorite = sequelize.define('Favorite', {
 });
 
 
+export const TaxaIntarziere = sequelize.define('TaxaIntarziere', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    imprumut_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Imprumut,
+        key: 'id'
+      },
+      onDelete: 'CASCADE'
+    },
+    suma: {
+      type: DataTypes.FLOAT,
+      allowNull: false
+    },
+    platita: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    data_taxare: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
+  }, {
+    timestamps: false,
+    freezeTableName: true
+  });
+
 //Definirea relațiilor între tabele
 Utilizator.hasMany(Recenzie, { foreignKey: 'utilizator_id' });//Un utilizator poate lăsa mai multe recenzii
 Carte.hasMany(Recenzie, { foreignKey: 'carte_id' });//O carte poate avea mai multe recenzii
@@ -350,6 +382,8 @@ Carte.hasMany(ExemplarCarte, { foreignKey: 'carte_id' });
 ExemplarCarte.belongsTo(Carte, { foreignKey: 'carte_id' });
 Imprumut.belongsTo(ExemplarCarte, { foreignKey: 'exemplar_id' });
 ExemplarCarte.hasMany(Imprumut, { foreignKey: 'exemplar_id' });
+Imprumut.hasOne(TaxaIntarziere, { foreignKey: 'imprumut_id' });
+TaxaIntarziere.belongsTo(Imprumut, { foreignKey: 'imprumut_id' });
 
 
 // Sincronizarea bazei de date (crearea tabelei, dacă nu există)
@@ -1255,14 +1289,15 @@ app.get('/statistici', async (req, res) => {
         const imprumuturi = await getImprumuturiLunare();
         const utilizatori = await getUtilizatoriNoi();
         const tipCheltuieli = await getTipuriCheltuieli();
+        const taxeLunare = await getTaxeIntarziereLunare();
 
         // ✅ Verifică dacă sunt undefined
-        if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli) {
+        if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli || !taxeLunare) {
             console.error("❌ Una dintre funcțiile statistice a returnat undefined!");
         }
 
         // ✅ Trimite datele doar dacă sunt valide
-        res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli });
+        res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli, taxeLunare });
     } catch (error) {
         console.error("❌ Eroare API statistici:", error);
         res.status(500).json({ message: "Eroare la server!", error: error.message });
@@ -1686,12 +1721,66 @@ app.put('/finalizeaza-returnare/:idImprumut', async (req, res) => {
             await exemplar.save();
         }
 
+        const today = new Date();
+        const returnDue = new Date(imprumut.data_returnare);
+
+        if (today > returnDue) {
+        const zileIntarziere = Math.ceil((today - returnDue) / (1000 * 60 * 60 * 24));
+        const taxa = zileIntarziere * 1.5; // Exemplu: 1.5 lei pe zi
+
+        await TaxaIntarziere.create({
+            imprumut_id: imprumut.id,
+            suma: taxa
+        });
+        }
+
         res.status(200).json({ message: "Împrumut și exemplar actualizate cu succes!" });
     } catch (error) {
         console.error("Eroare la finalizarea returnării:", error);
         res.status(500).json({ message: "Eroare server!" });
     }
 });
+
+app.get('/taxe-utilizator/:id', async (req, res) => {
+    try {
+      const taxe = await TaxaIntarziere.findAll({
+        include: {
+          model: Imprumut,
+          where: { utilizator_id: req.params.id },
+          include: {
+            model: ExemplarCarte,
+            include: { model: Carte, attributes: ['titlu'] }
+          }
+        },
+        where: { platita: false }
+      });
+  
+      const rezultat = taxe.map(taxa => ({
+        id: taxa.id,
+        suma: taxa.suma,
+        data: taxa.data_taxare,
+        titluCarte: taxa.Imprumut.ExemplarCarte.Carte.titlu
+      }));
+  
+      res.json(rezultat);
+    } catch (err) {
+      res.status(500).json({ message: 'Eroare la server' });
+    }
+  });
+
+  app.put('/plateste-taxa/:id', async (req, res) => {
+    try {
+      const taxa = await TaxaIntarziere.findByPk(req.params.id);
+      if (!taxa) return res.status(404).json({ message: "Taxa nu a fost găsită!" });
+  
+      taxa.platita = true;
+      await taxa.save();
+  
+      res.json({ message: "Taxa a fost marcată ca plătită." });
+    } catch (err) {
+      res.status(500).json({ message: "Eroare la server!" });
+    }
+  });
 
 
 app.put('/modifica-imprumut/:id', async (req, res) => {
@@ -1867,6 +1956,7 @@ app.get('/recomandari/:utilizator_id', async (req, res) => {
 });
 
 
+
 app.post('/adauga-cheltuiala', async (req, res) => {
     try {
       const { exemplar_id, tip_cheltuiala, cost_total, detalii_suplimentare } = req.body;
@@ -1888,6 +1978,35 @@ app.post('/adauga-cheltuiala', async (req, res) => {
       res.status(500).json({ message: "Eroare la server!" });
     }
   });
+
+  app.get('/rentabilitate-exemplar/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const numarImprumuturi = await Imprumut.count({ where: { exemplar_id: id } });
+        const exemplar = await ExemplarCarte.findByPk(id);
+
+        const cheltuieli = await Cheltuiala.findAll({ where: { exemplar_id: id } });
+        const totalCheltuieli = cheltuieli.reduce((sum, c) => sum + c.cost_total, 0);
+
+        const costTotal = exemplar.cost_achizitie + totalCheltuieli;
+        const rentabilitate = costTotal > 0 ? (numarImprumuturi / costTotal) : 0;
+
+        // Clasificare
+        let eticheta = "scăzută";
+        if (rentabilitate >= 1.5) eticheta = "excelentă";
+        else if (rentabilitate >= 1) eticheta = "bună";
+        else if (rentabilitate >= 0.5) eticheta = "modestă";
+
+        res.json({
+            numarImprumuturi,
+            rentabilitate: rentabilitate.toFixed(2),
+            eticheta
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Eroare server", error: err.message });
+    }
+});
 
 
 // Pornire server

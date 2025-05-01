@@ -3,6 +3,7 @@ import { Cheltuiala } from './Server.js';
 import { Carte } from './Server.js';
 import { Imprumut } from './Server.js';
 import { Utilizator } from './Server.js';
+import { TaxaIntarziere } from './Server.js';
 
 export async function getCheltuieliLunare() {
     try {
@@ -135,3 +136,31 @@ export async function getTipuriCheltuieli() {
         return [];
     }
 }
+
+
+export async function getTaxeIntarziereLunare() {
+    try {
+      const result = await TaxaIntarziere.findAll({
+        attributes: [
+          [Sequelize.fn('MONTH', Sequelize.col('data_taxare')), 'luna'],
+          [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
+        ],
+        where: {
+          data_taxare: {
+            [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
+          },
+          platita: true // Doar ce a fost plătit
+        },
+        group: ['luna'],
+        order: [[Sequelize.literal('luna'), 'ASC']]
+      });
+  
+      return result.map(row => ({
+        luna: row.getDataValue('luna'),
+        total: row.getDataValue('total')
+      }));
+    } catch (error) {
+      console.error("❌ Eroare la `getTaxeIntarziereLunare`:", error);
+      return [];
+    }
+  }
