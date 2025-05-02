@@ -17,10 +17,16 @@ function Welcome() {
 
     return (
         <div className="welcome-container">
+            {/* Imagine pe tot ecranul */}
+            <img src="/images/cozy-background.jpg" className="background-image" />
+
             <div className="welcome-overlay"></div>
+
             <div className="welcome-content">
                 <h1 className="welcome-title">Bun venit!</h1>
-                <p className="welcome-subtitle">Descoperă, împrumută și bucură-te de cărți din confortul casei tale.</p>
+                <p className="welcome-subtitle">
+                    Descoperă, împrumută și bucură-te de cărți din confortul casei tale.
+                </p>
                 <div className="welcome-buttons">
                     <button id='btnAuth' onClick={() => navigate('/login')}>Autentificare</button>
                     <button id='btnCreareCont' onClick={() => navigate('/signup')}>Creare cont</button>
