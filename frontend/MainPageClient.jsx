@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // Importă pentru navigare
 import "./aspect/MainPageClient.css";
+import ChatWidget from "./ChatWidget";
 
 function MainPageClient() {
     const [carti, setCarti] = useState([]);
@@ -294,6 +295,7 @@ function MainPageClient() {
                     ▶
                 </button>
             </div>
+            <ChatWidget />
         </div>
     );
 }

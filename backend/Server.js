@@ -9,6 +9,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from 'nodemailer';
 import cron from 'node-cron';
+import OpenAI from "openai";
+import dotenv from "dotenv";
+dotenv.config();
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
 // pt ca folosesc ESModules (cu `import` în loc de `require`):
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2007,6 +2014,31 @@ app.post('/adauga-cheltuiala', async (req, res) => {
         res.status(500).json({ message: "Eroare server", error: err.message });
     }
 });
+
+app.post("/intreaba-ai", async (req, res) => {
+    const { question } = req.body;
+  
+    if (!question) {
+      return res.status(400).json({ error: "Întrebare lipsă!" });
+    }
+  
+    try {
+        const completare = await openai.chat.completions.create({
+            model: "o4-mini",
+            messages: [
+              { role: "system", content: "Ești un asistent virtual pentru biblioteca online." },
+              { role: "user", content: question }
+            ],
+          });
+  
+      const raspunsAI = completare.data.choices[0].message.content;
+      res.json({ answer: raspunsAI });
+  
+    } catch (err) {
+      console.error("Eroare AI:", err.response?.data || err.message);
+      res.status(500).json({ error: "Eroare la comunicarea cu AI-ul." });
+    }
+  });
 
 
 // Pornire server

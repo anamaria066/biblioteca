@@ -1,0 +1,98 @@
+/* Buton chatbot - poziționat în colțul stânga jos */
+.chat-button {
+    position: fixed;
+    bottom: 30px;
+    left: 30px; /* modificat din right: 30px */
+    width: 60px;
+    height: 60px;
+    background-color: transparent;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    transition: transform 0.2s ease;
+  }
+  
+  .chat-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .chat-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Casetă de chat flotantă */
+  .chat-box {
+    position: fixed;
+    bottom: 100px;
+    left: 30px; /* modificat din right: 30px */
+    width: 320px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  /* Header chat - mai subțire */
+  .chat-header {
+    background-color: #25344F;
+    color: white;
+    padding: 8px 14px; /* redus padding-ul */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500; /* puțin mai fin decât bold */
+    font-size: 14px;
+    height: 40px; /* opțional dacă vrei să forțezi o înălțime mică */
+  }
+  
+  /* Conținutul chatului */
+  .chat-body {
+    padding: 15px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f7f7f7;
+  }
+
+  .chat-message.user {
+    text-align: right;
+    color: #25344F;
+    margin-bottom: 8px;
+  }
+  
+  .chat-message.bot {
+    text-align: left;
+    color: #000;
+    margin-bottom: 8px;
+  }
+  
+  .chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background-color: #fff;
+  }
+  
+  .chat-input input {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .chat-input button {
+    margin-left: 8px;
+    padding: 8px 12px;
+    background-color: #25344F;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
