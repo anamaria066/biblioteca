@@ -2015,30 +2015,30 @@ app.post('/adauga-cheltuiala', async (req, res) => {
     }
 });
 
-app.post("/intreaba-ai", async (req, res) => {
-    const { question } = req.body;
+// app.post("/intreaba-ai", async (req, res) => {
+//     const { question } = req.body;
   
-    if (!question) {
-      return res.status(400).json({ error: "Întrebare lipsă!" });
-    }
+//     if (!question) {
+//       return res.status(400).json({ error: "Întrebare lipsă!" });
+//     }
   
-    try {
-        const completare = await openai.chat.completions.create({
-            model: "o4-mini",
-            messages: [
-              { role: "system", content: "Ești un asistent virtual pentru biblioteca online." },
-              { role: "user", content: question }
-            ],
-          });
+//     try {
+//         const completare = await openai.chat.completions.create({
+//             model: "o4-mini",
+//             messages: [
+//               { role: "system", content: "Ești un asistent virtual pentru biblioteca online." },
+//               { role: "user", content: question }
+//             ],
+//           });
   
-      const raspunsAI = completare.data.choices[0].message.content;
-      res.json({ answer: raspunsAI });
+//       const raspunsAI = completare.data.choices[0].message.content;
+//       res.json({ answer: raspunsAI });
   
-    } catch (err) {
-      console.error("Eroare AI:", err.response?.data || err.message);
-      res.status(500).json({ error: "Eroare la comunicarea cu AI-ul." });
-    }
-  });
+//     } catch (err) {
+//       console.error("Eroare AI:", err.response?.data || err.message);
+//       res.status(500).json({ error: "Eroare la comunicarea cu AI-ul." });
+//     }
+//   });
 
 
 // Pornire server
