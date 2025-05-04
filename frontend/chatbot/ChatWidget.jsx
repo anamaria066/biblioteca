@@ -17,7 +17,34 @@ const ChatWidget = () => {
   const chatBodyRef = useRef();
 
   const generateBotResponse = async (history) => {
-    //functie pt a updata istoricul chatului
+    const lastUserMessage = history[history.length - 1]?.text;
+
+    // Pas 1: încearcă să obții un răspuns de la server
+    try {
+      const userId = localStorage.getItem("utilizator_id");
+      const res = await fetch("http://localhost:3000/chatbot-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: lastUserMessage, userId }),
+      });
+
+      const serverReply = await res.json();
+
+      // Dacă serverul a răspuns cu informații dinamice (ex: din DB)
+      if (serverReply.type === "dynamic") {
+        setChatHistory((prev) => [
+          ...prev.filter((msg) => msg.text !== "Se gândește..."),
+          { role: "model", text: serverReply.text },
+        ]);
+        return;
+      }
+
+      // Dacă serverul nu a găsit un răspuns, continuăm spre fallback AI
+    } catch (err) {
+      console.error("Eroare la interogarea serverului:", err);
+    }
+
+    // Pas 2: fallback – AI-ul răspunde folosind istoricul (inclusiv basic_info)
     const updateHistory = (text, isError = false) => {
       setChatHistory((prev) => [
         ...prev.filter((msg) => msg.text !== "Se gândește..."),
@@ -25,32 +52,25 @@ const ChatWidget = () => {
       ]);
     };
 
-    //formatare istoric chat pt API request
-    history = history.map(({ role, text }) => ({ role, parts: [{ text }] }));
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: history }),
-    };
+    const formattedHistory = history.map(({ role, text }) => ({
+      role,
+      parts: [{ text }],
+    }));
 
     try {
-      //fac un API call pentru a primi raspunsul bot ului
-      const response = await fetch(
-        import.meta.env.VITE_API_URL,
-        requestOptions
-      );
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.error.message || "Ceva nu a funcționat!");
+      const response = await fetch(import.meta.env.VITE_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: formattedHistory }),
+      });
 
-      //curat si fac update la istoricul chatului cu raspunsul bot ului
-      const apiResponseText = data.candidates[0].content.parts[0].text
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .trim();
-      updateHistory(apiResponseText);
-    } catch (error) {
-      updateHistory(error.message, true);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || "Eroare AI");
+
+      const aiResponse = data.candidates[0].content.parts[0].text.trim();
+      updateHistory(aiResponse);
+    } catch (err) {
+      updateHistory(err.message, true);
     }
   };
 

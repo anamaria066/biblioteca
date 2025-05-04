@@ -2012,30 +2012,95 @@ app.post('/adauga-cheltuiala', async (req, res) => {
     }
 });
 
-// app.post("/intreaba-ai", async (req, res) => {
-//     const { question } = req.body;
+
+app.post("/chatbot-query", async (req, res) => {
+    const { userId, question } = req.body;
   
-//     if (!question) {
-//       return res.status(400).json({ error: "Întrebare lipsă!" });
-//     }
+    try {
+      const intrebare = question.toLowerCase();
   
-//     try {
-//         const completare = await openai.chat.completions.create({
-//             model: "o4-mini",
-//             messages: [
-//               { role: "system", content: "Ești un asistent virtual pentru biblioteca online." },
-//               { role: "user", content: question }
-//             ],
-//           });
+      // 1️⃣ Împrumuturi active
+      if (
+        intrebare.includes("împrumut") &&
+        (
+          intrebare.includes("activ") ||
+          intrebare.includes("imprumuturi") ||
+          intrebare.includes("în curs") ||
+          intrebare.includes("curent") ||
+          intrebare.includes("am acum") ||
+          intrebare.includes("momentan") ||
+          intrebare.includes("ai mei") ||
+          intrebare.includes("meu") ||
+          intrebare.includes("mele")
+        )
+      ) {
+        const imprumuturi = await Imprumut.findAll({
+          where: {
+            utilizator_id: userId,
+            status: "activ",
+          },
+          include: [
+            {
+              model: ExemplarCarte,
+              include: [{ model: Carte }],
+            },
+          ],
+        });
   
-//       const raspunsAI = completare.data.choices[0].message.content;
-//       res.json({ answer: raspunsAI });
+        if (!imprumuturi.length) {
+          return res.json({
+            type: "dynamic",
+            text: "Nu ai împrumuturi active în acest moment.",
+          });
+        }
   
-//     } catch (err) {
-//       console.error("Eroare AI:", err.response?.data || err.message);
-//       res.status(500).json({ error: "Eroare la comunicarea cu AI-ul." });
-//     }
-//   });
+        const lista = imprumuturi
+          .map((imp) => {
+            const titlu = imp.ExemplarCarte?.Carte?.titlu;
+            const autor = imp.ExemplarCarte?.Carte?.autor;
+            const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
+            return `• "${titlu}" de ${autor} (retur: ${retur})`;
+          })
+          .join("\n");
+  
+        return res.json({
+          type: "dynamic",
+          text: `Ai ${imprumuturi.length} împrumuturi active:\n${lista}`,
+        });
+      }
+  
+      // 2️⃣ Favorite
+      if (intrebare.includes("favorite")) {
+        const favorite = await Favorite.findAll({
+          where: { utilizator_id: userId },
+          include: [{ model: Carte }],
+        });
+  
+        if (!favorite.length) {
+          return res.json({
+            type: "dynamic",
+            text: "Nu ai nicio carte la favorite momentan.",
+          });
+        }
+  
+        const lista = favorite
+          .map((f) => `• "${f.Carte.titlu}" de ${f.Carte.autor}`)
+          .join("\n");
+  
+        return res.json({
+          type: "dynamic",
+          text: `Iată lista cărților tale favorite:\n${lista}`,
+        });
+      }
+  
+      // Niciun răspuns direct – lasă AI-ul să preia
+      return res.json({ type: "no-match" });
+  
+    } catch (err) {
+      console.error("Eroare /chatbot-query:", err);
+      return res.status(500).json({ error: "Eroare la interogare server." });
+    }
+  });
 
 
 // Pornire server
