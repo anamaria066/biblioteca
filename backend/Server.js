@@ -9,13 +9,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from 'nodemailer';
 import cron from 'node-cron';
-import OpenAI from "openai";
 import dotenv from "dotenv";
 dotenv.config();
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-  });
+
 // pt ca folosesc ESModules (cu `import` în loc de `require`):
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -64,7 +64,7 @@ const ChatWidget = () => {
 
   return (
     <>
-      <div className={`container ${showChatbot ? "show-chatbot" : ""}`}>
+      <div className={`chatbot-container ${showChatbot ? "show-chatbot" : ""}`}>
         <button
           onClick={() => setShowChatbot((prev) => !prev)}
           id="chatbot-toggler"
