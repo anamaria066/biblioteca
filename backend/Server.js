@@ -205,7 +205,7 @@ export const Recenzie = sequelize.define('Recenzie', {
         onDelete: 'CASCADE'
     },
     rating: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: false,
         validate: { min: 0, max: 5 }
     },
