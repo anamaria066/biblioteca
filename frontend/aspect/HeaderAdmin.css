@@ -85,3 +85,32 @@
     margin-top: 8px;
     margin-left: 5px;
 }
+
+.floating-success, .floating-error {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: fadeInOut 3s ease-in-out forwards;
+  }
+  
+  .floating-success {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .floating-error {
+    background-color: #D32F2F;
+    color: white;
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+  }

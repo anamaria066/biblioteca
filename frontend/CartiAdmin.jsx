@@ -366,6 +366,7 @@ function CartiAdmin() {
                 <p className="book-title">
                   {carte.titlu} - {carte.autor}
                 </p>
+                <div className="book-spacer"></div>
                 <p className="book-rating">{renderStars(carte.rating)}</p>
               </>
             )}

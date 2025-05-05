@@ -30,12 +30,12 @@ function Recomandate() {
           });
         });
 
-      // Obține cărțile recomandate
-      fetch(`http://localhost:3000/recomandari/${userId}`)
+      // Obține cărțile recomandate din DB
+      fetch(`http://localhost:3000/recomandari-db/${userId}`)
         .then((res) => res.json())
         .then((data) => setCarti(data))
         .catch((err) =>
-          console.error("Eroare la obținerea recomandărilor:", err)
+          console.error("Eroare la obținerea recomandărilor din DB:", err)
         );
     }
   }, []);
@@ -60,6 +60,7 @@ function Recomandate() {
   const cartiAfisate = carti.slice(indexStart, indexStart + cartiPerPagina);
   const spatiiGoale = cartiPerPagina - cartiAfisate.length;
   const cartiComplete = [...cartiAfisate, ...Array(spatiiGoale).fill(null)];
+  const scorMaxim = Math.max(1, ...carti.map((c) => c?.scor || 0)); //test
 
   const paginaAnterioara = () => {
     if (paginaCurenta > 1) setPaginaCurenta(paginaCurenta - 1);
@@ -104,7 +105,12 @@ function Recomandate() {
                   <p className="book-title">
                     {carte.titlu} - {carte.autor}
                   </p>
+                  <div className="book-spacer"></div>
                   <p className="book-rating">{renderStars(carte.rating)}</p>
+                  <p className="book-score">
+                    Compatibilitate:{" "}
+                    {Math.round((carte.scor / scorMaxim) * 100)}%
+                  </p>
                 </>
               )}
             </div>

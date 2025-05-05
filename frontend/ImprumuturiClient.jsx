@@ -177,12 +177,13 @@ function ImprumuturiClient() {
     // ✅ Verificare durată maximă
     const startDateObj = new Date(dataStart);
     const endDateObj = new Date(dataEnd);
-    const durataZile = Math.ceil(
-      (endDateObj - startDateObj) / (1000 * 60 * 60 * 24)
+    const durataPrelungire = Math.ceil(
+      (endDateObj - new Date(imprumutSelectat.dataReturnare)) /
+        (1000 * 60 * 60 * 24)
     );
 
-    if (durataZile > 30) {
-      setMesajPrelungire("Durata maximă a unui împrumut este de 30 de zile!");
+    if (durataPrelungire > 7) {
+      setMesajPrelungire("Limita maxima de prelungire este 7 zile!");
       setSuccesPrelungire(false);
       return;
     }

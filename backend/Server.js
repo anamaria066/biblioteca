@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from 'nodemailer';
 import cron from 'node-cron';
+import { exec } from 'child_process';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -337,6 +338,40 @@ export const Favorite = sequelize.define('Favorite', {
     freezeTableName: true
 });
 
+//Definirea tabelei Recomandate
+export const Recomandare = sequelize.define('Recomandare', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    utilizator_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Utilizator,
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
+    },
+    carte_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Carte,
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
+    },
+    scor: {
+        type: DataTypes.FLOAT,
+        allowNull: false
+    }
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
 
 export const TaxaIntarziere = sequelize.define('TaxaIntarziere', {
     id: {
@@ -388,6 +423,10 @@ Imprumut.belongsTo(ExemplarCarte, { foreignKey: 'exemplar_id' });
 ExemplarCarte.hasMany(Imprumut, { foreignKey: 'exemplar_id' });
 Imprumut.hasOne(TaxaIntarziere, { foreignKey: 'imprumut_id' });
 TaxaIntarziere.belongsTo(Imprumut, { foreignKey: 'imprumut_id' });
+Utilizator.hasMany(Recomandare, { foreignKey: 'utilizator_id' });
+Carte.hasMany(Recomandare, { foreignKey: 'carte_id' });
+Recomandare.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
+Recomandare.belongsTo(Carte, { foreignKey: 'carte_id' });
 
 
 // Sincronizarea bazei de date (crearea tabelei, dacă nu există)
@@ -502,8 +541,8 @@ app.post("/adauga-carte-cu-upload", upload.single("imagine"), async (req, res) =
 
 
   
-  // Expune folderul uploads public
-  app.use("/uploads", express.static("uploads"));
+// Expune folderul uploads public
+app.use("/uploads", express.static("uploads"));
 
 
 //vizualizare tabele - http://localhost:3000/tabele
@@ -564,6 +603,25 @@ app.get('/conturi', async (req, res) => {
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
+
+
+// http://localhost:3000/adauga-utilizatori
+app.post('/adauga-utilizatori', async (req, res) => {
+    try {
+      const utilizatori = req.body;
+  
+      if (!Array.isArray(utilizatori) || utilizatori.length === 0) {
+        return res.status(400).json({ message: "Trebuie trimis un vector de utilizatori!" });
+      }
+  
+      const utilizatoriCreati = await Utilizator.bulkCreate(utilizatori, { ignoreDuplicates: true });
+  
+      res.status(201).json({ message: "Utilizatori adăugați cu succes!", utilizatori: utilizatoriCreati });
+    } catch (error) {
+      console.error("Eroare la adăugarea utilizatorilor:", error);
+      res.status(500).json({ message: "Eroare server!" });
+    }
+  });
 
 
 
@@ -903,15 +961,43 @@ app.post('/adauga-recenzie', async (req, res) => {
         const recenzii = await Recenzie.findAll({ where: { carte_id } });
         const ratingMediu = recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length;
 
-        // Actualizează rating-ul în tabelul Carte
         await Carte.update({ rating: ratingMediu.toFixed(1) }, { where: { id: carte_id } });
 
-        res.status(201).json({ message: "Recenzie adăugată cu succes și rating actualizat!" });
+        // 🔁 Recalculează automat recomandările pentru utilizatorul care a lăsat recenzia
+        exec(`python3 backend/recomandari.py ${utilizator_id}`, (err, stdout, stderr) => {
+            if (err) {
+                console.error("❌ Eroare la regenerarea recomandărilor:", err);
+                console.error(stderr);
+            } else {
+                console.log(`✅ Recomandări regenerate pentru utilizatorul ${utilizator_id}`);
+                console.log(stdout);
+            }
+        });
+
+        res.status(201).json({ message: "Recenzie adăugată cu succes, rating actualizat și recomandări regenerate!" });
+
     } catch (error) {
         console.error("Eroare la adăugarea recenziei:", error);
         res.status(500).json({ message: "Eroare la server!" });
     }
 });
+
+// http://localhost:3000/adauga-recenzii
+app.post('/adauga-recenzii', async (req, res) => {
+    try {
+      const recenzii = req.body;
+  
+      if (!Array.isArray(recenzii) || recenzii.length === 0) {
+        return res.status(400).json({ message: "Trebuie trimis un vector de recenzii!" });
+      }
+  
+      await Recenzie.bulkCreate(recenzii);
+      res.status(201).json({ message: "Recenzii adăugate cu succes!" });
+    } catch (error) {
+      console.error("Eroare la adăugarea recenziilor:", error);
+      res.status(500).json({ message: "Eroare server!" });
+    }
+  });
 
 
 // Endpoint pentru obținerea tuturor recenziilor - http://localhost:3000/recenzii
@@ -1512,6 +1598,18 @@ app.post('/creeaza-imprumut', async (req, res) => {
     console.log(`📬 Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);
 
     try {
+        //Verificăm câte împrumuturi are deja utilizatorul
+        const numarImprumuturi = await Imprumut.count({
+            where: {
+                utilizator_id,
+                status: ['activ', 'în așteptare']
+            }
+        });
+
+        if (numarImprumuturi >= 3) {
+            return res.status(400).json({ message: "Ati atins limita de imprumuturi simultane!" });
+        }
+
         const exemplare = await ExemplarCarte.findAll({
             where: {
                 carte_id,
@@ -1960,6 +2058,86 @@ app.get('/recomandari/:utilizator_id', async (req, res) => {
 });
 
 
+
+// http://localhost:3000/recomandari-salvate/:utilizator_id
+app.get('/recomandari-salvate/:utilizator_id', async (req, res) => {
+    const { utilizator_id } = req.params;
+
+    try {
+        const recomandari = await Recomandare.findAll({
+            where: { utilizator_id },
+            include: {
+                model: Carte,
+                attributes: ['titlu', 'autor', 'gen', 'imagine', 'descriere', 'pret']
+            },
+            order: [['scor', 'DESC']]
+        });
+
+        const rezultat = recomandari.map(r => ({
+            id: r.carte_id,
+            titlu: r.Carte.titlu,
+            autor: r.Carte.autor,
+            gen: r.Carte.gen,
+            imagine: r.Carte.imagine,
+            descriere: r.Carte.descriere,
+            pret: r.Carte.pret,
+            scor: r.scor.toFixed(2)
+        }));
+
+        res.json(rezultat);
+    } catch (err) {
+        console.error("Eroare la obținerea recomandărilor salvate:", err);
+        res.status(500).json({ message: "Eroare server!" });
+    }
+});
+
+
+// Recomandări din baza de date (salvate de scriptul Python)
+app.get('/recomandari-db/:utilizator_id', async (req, res) => {
+    const { utilizator_id } = req.params;
+  
+    try {
+      const recomandari = await Recomandare.findAll({
+        where: { utilizator_id },
+        include: [
+          {
+            model: Carte,
+            attributes: ['id', 'titlu', 'autor', 'gen', 'imagine'],
+            include: [
+              {
+                model: Recenzie,
+                attributes: ['rating']
+              }
+            ]
+          }
+        ],
+        order: [['scor', 'DESC']]
+      });
+  
+      // Procesăm datele: calculăm ratingul mediu pentru fiecare carte
+      const rezultat = recomandari.map(r => {
+        const recenzii = r.Carte.Recenzies || [];
+        const ratingMediu = recenzii.length
+          ? recenzii.reduce((sum, recenzie) => sum + recenzie.rating, 0) / recenzii.length
+          : 0;
+  
+        return {
+          id: r.Carte.id,
+          titlu: r.Carte.titlu,
+          autor: r.Carte.autor,
+          gen: r.Carte.gen,
+          imagine: r.Carte.imagine,
+          scor: r.scor,
+          rating: parseFloat(ratingMediu.toFixed(1)) // rotunjit la o zecimală
+        };
+      });
+  
+      res.json(rezultat);
+    } catch (error) {
+      console.error("Eroare la obținerea recomandărilor din DB:", error);
+      res.status(500).json({ message: "Eroare la server!" });
+    }
+  });
 
 app.post('/adauga-cheltuiala', async (req, res) => {
     try {

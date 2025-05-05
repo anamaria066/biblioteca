@@ -11,9 +11,9 @@ const HeaderAdmin = () => {
 
   const [menuOpen, setMenuOpen] = useState(null);
   const [showPopupCod, setShowPopupCod] = useState(false);
-
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const [mesajFlotant, setMesajFlotant] = useState(null);
 
   useEffect(() => {
     const userId = localStorage.getItem("utilizator_id");
@@ -46,6 +46,55 @@ const HeaderAdmin = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleConfirmareCod = async () => {
+    const cod = document.getElementById("inputCod").value.trim();
+
+    if (!cod) return;
+
+    try {
+      // Verificăm dacă codul e valid
+      const res = await fetch(`http://localhost:3000/verifica-cod/${cod}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMesajFlotant({
+          mesaj: data.message || "Cod invalid!",
+          tip: "eroare",
+        });
+        setTimeout(() => setMesajFlotant(null), 3000);
+        return;
+      }
+
+      // Finalizăm împrumutul
+      const res2 = await fetch(
+        `http://localhost:3000/finalizeaza-imprumut/${cod}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      const data2 = await res2.json();
+
+      if (res2.ok) {
+        setMesajFlotant({
+          mesaj: "Împrumutul a fost activat cu succes!",
+          tip: "succes",
+        });
+        setShowPopupCod(false); // închide popup
+      } else {
+        setMesajFlotant({
+          mesaj: data2.message || "Eroare la activare!",
+          tip: "eroare",
+        });
+      }
+
+      setTimeout(() => setMesajFlotant(null), 3000);
+    } catch (err) {
+      setMesajFlotant({ mesaj: "Eroare la server!", tip: "eroare" });
+      setTimeout(() => setMesajFlotant(null), 3000);
+    }
+  };
 
   return (
     <header className="header">
@@ -136,7 +185,9 @@ const HeaderAdmin = () => {
               placeholder="123456"
             />
             <div className="popup-buttons">
-              <button id="btnOkCod">OK</button>
+              <button id="btnOkCod" onClick={handleConfirmareCod}>
+                OK
+              </button>
               <button
                 id="btnAnuleazaCod"
                 onClick={() => setShowPopupCod(false)}
@@ -145,6 +196,17 @@ const HeaderAdmin = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {mesajFlotant && (
+        <div
+          className={
+            mesajFlotant.tip === "succes"
+              ? "floating-success"
+              : "floating-error"
+          }
+        >
+          {mesajFlotant.mesaj}
         </div>
       )}
     </header>
