@@ -1,82 +1,123 @@
-/* Casetă și formular login */
-.login-box {
-    border: 1.5px solid rgb(255, 209, 220);
-    border-radius: 12px;
-    padding: 30px 30px;
-    padding-left: 90px;
-    padding-bottom: 50px;
-    text-align: center;
-    box-shadow: 0px 5px 17px rgba(139, 69, 19, 0.5);
-    transition: box-shadow 0.8s ease-in-out;
-    display: inline-block;
-    margin-top: 100px;
-    background-color: rgb(252, 244, 235);
+.login-wrapper {
     display: flex;
-    flex-direction: column;
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Nou: imaginea mutată în dreapta */
+.login-left {
+    flex: 1;
+    background: linear-gradient(to bottom right, #1a2238, #fdf6ed); /* navy → bej */
+    display: flex;
     justify-content: center;
     align-items: center;
-    background: white;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 400px;
-    margin-top: 10px;
+    position: relative;
 }
 
-.login-form {
+/* Container login pe partea stângă */
+.login-right {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.login-background-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(2.5px); /* efect de blur */
+    transform: scale(1.05); /* puțin zoom */
+}
+
+/* Container cu formularul */
+.login-container-new {
+    background: rgba(255, 255, 255, 0.2); /* fundal semi-transparent */
+    backdrop-filter: blur(10px);          /* efect de blur */
+    -webkit-backdrop-filter: blur(10px);  /* compatibilitate Safari */
+    padding: 40px 30px;
+    border: 1px solid #d8c7a2;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(215, 192, 151, 0.3);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.login-container-new h2 {
+    margin-bottom: 25px;
+    color: #3b3a3a;
+}
+
+.login-form-new {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Inputuri */
-.login-input {
-    width: 100%; 
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
+.login-form-new input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #d9cdb3;
     border-radius: 8px;
-    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: rgb(252, 224, 230);
-    color: #3B3A4F;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
 }
 
-.login-input:focus {
+.login-form-new input:focus {
     outline: none;
-    border-color: rgb(225, 199, 205);
-    box-shadow: 0px 0px 5px rgb(89, 74, 77);
+    border-color: #b3a58a;
+    box-shadow: 0 0 5px #c6b28a;
 }
 
-/* Buton logare */
-#btnLogin {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    margin-top: 10px;
-    margin-right: 5px;
-    padding: 10px 15px;
+.login-form-new button {
+    background-color: #25344F;
+    color: #ffffff;
+    padding: 12px 24px;
     border: none;
     border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
+    transition: all 0.3s ease;
 }
 
-#btnLogin:hover {
-    background-color: rgb(255, 209, 220);
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+.login-form-new button:hover {
+    background-color: #617891;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* Link parolă uitată */
-.forgot-password-link a {
-    color: rgb(120, 99, 104);
+.forgot-link {
+    display: block;
+    margin-top: 20px;
+    color: #7b6e63;
     text-decoration: none;
 }
 
-.forgot-password-link a:hover {
+.forgot-link:hover {
     text-decoration: underline;
 }
 
-/* Mesaj eroare */
+.login-email-info {
+    font-size: 0.85rem;
+    color: #887c6a;
+    margin-top: 8px;
+}
+
+/* Pictograma mică */
+.login-icon-small {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    width: 80px;
+    opacity: 0.85;
+    z-index: 3;
+}
+
 .error-message {
     color: red;
     margin-top: 10px;
