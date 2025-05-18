@@ -7,7 +7,7 @@
 /* Nou: imaginea mutată în dreapta */
 .login-left {
     flex: 1;
-    background: linear-gradient(to bottom right, #1a2238, #fdf6ed); /* navy → bej */
+    background: linear-gradient(to bottom right, #0b351a, #c6e4b8); /* navy → bej */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,9 +35,9 @@
     backdrop-filter: blur(10px);          /* efect de blur */
     -webkit-backdrop-filter: blur(10px);  /* compatibilitate Safari */
     padding: 40px 30px;
-    border: 1px solid #d8c7a2;
+    border: 1px solid rgba(1, 50, 12, 0.3);
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(215, 192, 151, 0.3);
+    box-shadow: 0 0 10px rgba(1, 50, 12, 0.3);
     max-width: 400px;
     width: 100%;
     text-align: center;
@@ -60,7 +60,8 @@
     width: 90%;
     padding: 12px;
     margin: 10px 0;
-    border: 1px solid #d9cdb3;
+    border: none;
+    box-shadow: 0 0 5px #234719;
     border-radius: 8px;
     background-color: #f9f4ef;
     color: #3b3a3a;
@@ -69,12 +70,13 @@
 
 .login-form-new input:focus {
     outline: none;
-    border-color: #b3a58a;
-    box-shadow: 0 0 5px #c6b28a;
+    border-color: #2a4725;
+    box-shadow: 0 0 5px #234719;
 }
 
 .login-form-new button {
-    background-color: #25344F;
+    background-color: #8d6d4a;
+    box-shadow: 0 0 5px #472e23;
     color: #ffffff;
     padding: 12px 24px;
     border: none;
@@ -86,7 +88,7 @@
 }
 
 .login-form-new button:hover {
-    background-color: #617891;
+    background-color: #917a61;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }

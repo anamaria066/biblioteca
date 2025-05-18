@@ -406,17 +406,16 @@ export const TaxaIntarziere = sequelize.define('TaxaIntarziere', {
   });
 
 //Definirea relațiilor între tabele
-Utilizator.hasMany(Recenzie, { foreignKey: 'utilizator_id' });//Un utilizator poate lăsa mai multe recenzii
-Carte.hasMany(Recenzie, { foreignKey: 'carte_id' });//O carte poate avea mai multe recenzii
-Recenzie.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//O recenzie aparține unui singur utilizator
-Recenzie.belongsTo(Carte, { foreignKey: 'carte_id' });//O recenzie aparține unei singure cărți
-Utilizator.hasMany(Imprumut, { foreignKey: 'utilizator_id' });//Un utilizator poate împrumuta mai multe cărți
-Imprumut.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });//Un împrumut aparține unui singur utilizator
+Utilizator.hasMany(Recenzie, { foreignKey: 'utilizator_id' });
+Carte.hasMany(Recenzie, { foreignKey: 'carte_id' });
+Recenzie.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
+Recenzie.belongsTo(Carte, { foreignKey: 'carte_id' });
+Utilizator.hasMany(Imprumut, { foreignKey: 'utilizator_id' });
+Imprumut.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
 Utilizator.hasMany(Favorite, { foreignKey: 'utilizator_id' });
 Carte.hasMany(Favorite, { foreignKey: 'carte_id' });
 Favorite.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
 Favorite.belongsTo(Carte, { foreignKey: 'carte_id' });
-// Relația 1-N între Carte și ExemplarCarte (o carte poate avea mai multe exemplare)
 Carte.hasMany(ExemplarCarte, { foreignKey: 'carte_id' });
 ExemplarCarte.belongsTo(Carte, { foreignKey: 'carte_id' });
 Imprumut.belongsTo(ExemplarCarte, { foreignKey: 'exemplar_id' });
@@ -1977,85 +1976,6 @@ const verificaImprumuturiExpirate = async () => {
 // Verificare automată la fiecare oră atata timp cat serverul e pornit
 cron.schedule('0 * * * *', verificaImprumuturiExpirate);
 
-// Recomandări personalizate - http://localhost:3000/recomandari/:utilizator_id
-//	•	Recomandări bazate pe:
-	// •	frecvența genurilor (ex: citești des Fantasy),
-	// •	frecvența autorilor (ex: ai multe de Agatha Christie),
-	// •	scoruri combinate: gen (x2) + autor (x3),
-	// •	excludere cărți deja împrumutate sau favorite,
-	// •	ordonare după scor și rating.
-app.get('/recomandari/:utilizator_id', async (req, res) => {
-    const { utilizator_id } = req.params;
-
-    try {
-        //Istoric + Favorite
-        const imprumuturi = await Imprumut.findAll({
-            where: {
-                utilizator_id,
-                status: ['returnat']
-            },
-            include: {
-                model: ExemplarCarte,
-                include: {
-                    model: Carte,
-                    attributes: ['id', 'gen', 'autor']
-                }
-            }
-        });//Obțin toate împrumuturile returnate (istoric) ale utilizatorului
-
-        const favorite = await Favorite.findAll({
-            where: { utilizator_id },
-            include: {
-                model: Carte,
-                attributes: ['id', 'gen', 'autor']
-            }
-        });//Obțin și cărțile adăugate de utilizator la Favorite
-
-        //Combin cărțile din istoric și favorite într-un singur array (toateCartile)
-        const toateCartile = [
-            ...imprumuturi.map(imp => imp.ExemplarCarte?.Carte),
-            ...favorite.map(fav => fav.Carte)
-        ].filter(Boolean); // elimin null (ex: împrumuturi fără carte validă)
-
-        //Construiesc scoruri de preferință (Se numără de câte ori apare fiecare gen și autor în preferințele utilizatorului)
-        const scoruriGen = {};
-        const scoruriAutori = {};
-
-        toateCartile.forEach(carte => {
-            // GEN
-            scoruriGen[carte.gen] = (scoruriGen[carte.gen] || 0) + 1;
-            // AUTOR
-            scoruriAutori[carte.autor] = (scoruriAutori[carte.autor] || 0) + 1;
-        });
-
-        // Cărți deja citite / favorite
-        const idCartiExclude = toateCartile.map(c => c.id);
-
-        // Cărți candidate pentru recomandare
-        const cartiToate = await Carte.findAll({
-            where: {
-                id: { [Sequelize.Op.notIn]: idCartiExclude }
-            }
-        });//Se extrag toate cărțile care nu sunt deja citite/favorite, acestea sunt candidate pentru recomandar
-
-        //Calculez scoruri de similaritate (pt fiecare carte se cauta scorul genului si autorului in preferintele utilizatorului si se calculeaza scor total)
-        const cartiRecomandate = cartiToate
-            .map(carte => {
-                const scorGen = scoruriGen[carte.gen] || 0;
-                const scorAutor = scoruriAutori[carte.autor] || 0;
-                const scorTotal = scorGen * 2 + scorAutor * 3; // ponderăm autorul mai mult (Autorul e mai important decât genul, deci are o pondere mai mare)
-                return { ...carte.toJSON(), scorTotal };
-            })
-            .filter(c => c.scorTotal > 0) //Se păstrează doar cărțile cu scor pozitiv (carti relevante)
-            .sort((a, b) => b.scorTotal - a.scorTotal || b.rating - a.rating) //se sorteaza in primul rand dupa scor si daca sunt scoruri egale atunci dupa rating
-            .slice(0, 20); // top 20 recomandări
-
-        res.json(cartiRecomandate);
-    } catch (err) {
-        console.error("❌ Eroare la generarea recomandărilor:", err);
-        res.status(500).json({ message: "Eroare la server!" });
-    }
-});
 
 
 
