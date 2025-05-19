@@ -1,43 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import './aspect/Welcome.css';
+import "./aspect/Welcome.css";
 
 function Welcome() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [showDeletedMessage, setShowDeletedMessage] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showDeletedMessage, setShowDeletedMessage] = useState(false);
 
-    useEffect(() => {
-        if (location.state?.showDeletedMessage) {
-            setShowDeletedMessage(true);
-            const timer = setTimeout(() => setShowDeletedMessage(false), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [location.state]);
+  useEffect(() => {
+    if (location.state?.showDeletedMessage) {
+      setShowDeletedMessage(true);
+      const timer = setTimeout(() => setShowDeletedMessage(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
-    return (
-        <div className="welcome-container">
-            {/* Imagine pe tot ecranul */}
-            <img src="/images/cozy-background.jpg" className="background-image" />
+  return (
+    <div className="welcome-container">
+      <div className="welcome-overlay"></div>
 
-            <div className="welcome-overlay"></div>
-
-            <div className="welcome-content">
-                <h1 className="welcome-title">Bun venit!</h1>
-                <p className="welcome-subtitle">
-                    Descoperă, împrumută și bucură-te de cărți din confortul casei tale.
-                </p>
-                <div className="welcome-buttons">
-                    <button id='btnAuth' onClick={() => navigate('/login')}>Autentificare</button>
-                    <button id='btnCreareCont' onClick={() => navigate('/signup')}>Creare cont</button>
-                </div>
-            </div>
-
-            {showDeletedMessage && (
-                <div className="floating-success">Contul a fost șters cu succes!</div>
-            )}
+      <div className="welcome-content">
+        <h1 className="welcome-title">Bun venit!</h1>
+        <p className="welcome-subtitle">
+          Descoperă, împrumută și bucură-te de cărți din confortul casei tale.
+        </p>
+        <div className="welcome-buttons">
+          <button id="btnAuth" onClick={() => navigate("/login")}>
+            Autentificare
+          </button>
+          <button id="btnCreareCont" onClick={() => navigate("/signup")}>
+            Creare cont
+          </button>
         </div>
-    );
+      </div>
+
+      {showDeletedMessage && (
+        <div className="floating-success">Contul a fost șters cu succes!</div>
+      )}
+    </div>
+  );
 }
 
 export default Welcome;

@@ -1,22 +1,5 @@
 /* Caseta de înregistrare */
 .signup-box {
-    border: 1.5px solid rgb(255, 209, 220);
-    border-radius: 12px;
-    padding: 30px 30px;
-    padding-left: 90px;
-    padding-bottom: 50px;
-    text-align: center;
-    box-shadow: 0px 5px 17px rgba(139, 69, 19, 0.5);
-    transition: box-shadow 0.8s ease-in-out;
-    display: inline-block;
-    margin-top: 100px;
-    background-color: rgb(252, 244, 235);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 400px;
     margin-top: 10px;
@@ -31,20 +14,21 @@
 
 /* Input-urile */
 .signup-input {
-    width: 100%; 
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    box-shadow: 0 0 5px #92829e;
     border-radius: 8px;
-    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: rgb(252, 224, 230);
-    color: #3B3A4F;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
 }
 
 .signup-input:focus {
     outline: none;
-    border-color: rgb(225, 199, 205);
-    box-shadow: 0px 0px 5px rgb(89, 74, 77);
+    border-color: #b8a3c850;
+    box-shadow: 0 0 5px #38254790;
 }
 
 /* Checkbox + label */
@@ -54,27 +38,33 @@
     gap: 10px;
     margin-top: 10px;
     margin-bottom: 20px;
+    justify-content: center;
 }
 
 /* Butonul de creare cont */
 #btnCreazaCont {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
+    color: #ffffff;
+    padding: 12px 24px;
     margin-top: 10px;
-    margin-right: 5px;
-    padding: 10px 15px;
-    border: none;
+    height: 40px;
     border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;   
+    margin: 10px auto 0 auto;
 }
 
 /* Efect hover */
 #btnCreazaCont:hover {
-    background-color: rgb(255, 209, 220);
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 /* Mesaj de eroare */
@@ -82,3 +72,72 @@
     color: red;
     margin-top: 10px;
 }
+
+.signup-wrapper {
+  display: flex;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Imagine pe stânga */
+.signup-left {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.signup-background-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(2.5px);
+  transform: scale(1.05);
+}
+
+.signup-quote {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 1.5rem;
+  max-width: 500px;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+  padding: 0 20px;
+  animation: floatSlow 3s ease-in-out infinite;
+}
+
+/* Formul pe dreapta */
+.signup-right {
+  flex: 1;
+  background: linear-gradient(to bottom right, #220a41, #efac8b);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.signup-container-new {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 40px 30px;
+  border: 1px solid rgba(1, 50, 12, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(1, 50, 12, 0.3);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.signup-container-new h2 {
+  margin-bottom: 25px;
+  color: #ffffff;
+}
+
+/* restul input-urilor și butonul păstrează stilurile existente */

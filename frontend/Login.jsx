@@ -75,10 +75,14 @@ function Login() {
       </div>
       <div className="login-right">
         <img
-          src="../images/login_pic.jpg"
+          src="../images/background9.jpg"
           alt="library"
           className="login-background-img"
         />
+        <div className="login-quote">
+          „O cameră fără cărți este ca un trup fără suflet.”
+          <br />— Cicero
+        </div>
       </div>
     </div>
   );

@@ -23,6 +23,10 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    /* Gradient fundal */
+    background: linear-gradient(to bottom right, #220a41, #efac8b); 
+    background-size: cover;
+    background-position: center;
 }
 
 .welcome-content {
@@ -54,7 +58,6 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 18, 20, 0.55); /* Overlay pentru lizibilitate */
     z-index: 0;
 }
 
@@ -62,7 +65,7 @@ body {
 
 .welcome-title {
     font-size: 42px;
-    color: #f0f4f8;
+    color: #ffffff;
     margin-bottom: 20px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -70,7 +73,7 @@ body {
 
 .welcome-subtitle {
     font-size: 18px;
-    color: #cbd5e1;
+    color: #ffffff;
     margin-bottom: 35px;
 }
 
@@ -81,20 +84,21 @@ body {
 }
 
 #btnAuth, #btnCreareCont {
-    background-color: #8d6d4a;
-    box-shadow: 0 0 5px #472e23;
     color: #ffffff;
     padding: 12px 24px;
-    border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #cbd5e143;
 }
 
 #btnAuth:hover, #btnCreareCont:hover {
-    background-color: #917a61;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }

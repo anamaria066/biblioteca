@@ -7,7 +7,7 @@
 /* Nou: imaginea mutată în dreapta */
 .login-left {
     flex: 1;
-    background: linear-gradient(to bottom right, #0b351a, #c6e4b8); /* navy → bej */
+    background: linear-gradient(to bottom right, #220a41, #efac8b); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,7 +47,7 @@
 
 .login-container-new h2 {
     margin-bottom: 25px;
-    color: #3b3a3a;
+    color: #ffffff;
 }
 
 .login-form-new {
@@ -61,7 +61,7 @@
     padding: 12px;
     margin: 10px 0;
     border: none;
-    box-shadow: 0 0 5px #234719;
+    box-shadow: 0 0 5px #92829e;
     border-radius: 8px;
     background-color: #f9f4ef;
     color: #3b3a3a;
@@ -70,25 +70,29 @@
 
 .login-form-new input:focus {
     outline: none;
-    border-color: #2a4725;
-    box-shadow: 0 0 5px #234719;
+    border-color: #b8a3c850;
+    box-shadow: 0 0 5px #38254790;
 }
 
 .login-form-new button {
-    background-color: #8d6d4a;
-    box-shadow: 0 0 5px #472e23;
     color: #ffffff;
     padding: 12px 24px;
-    border: none;
+    margin-top: 10px;
+    height: 40px;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
 }
 
 .login-form-new button:hover {
-    background-color: #917a61;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
@@ -124,3 +128,35 @@
     color: red;
     margin-top: 10px;
 }
+
+
+.login-quote {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 1.5rem;
+  max-width: 500px;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+  padding: 0 20px;
+
+  /* Efect de plutire */
+  animation: floatSlow 3s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, -65%);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
+
