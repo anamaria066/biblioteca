@@ -87,12 +87,6 @@ def recomanda_carti(utilizator_id, numar_recomandari=15, cu_scoruri=False):
 
 
 
-# Test:
-# recomandari = recomanda_carti(utilizator_id=2, numar_recomandari=15, cu_scoruri=True)
-# print("\n📚 Recomandări pentru utilizatorul 2:")
-# print(recomandari[['titlu', 'autor', 'gen', 'scor']])
-
-
 def salveaza_recomandari_in_db(utilizator_id, recomandari_df):
     conn = mysql.connector.connect(
         host="localhost",

@@ -19,7 +19,6 @@ const ChatWidget = () => {
   const generateBotResponse = async (history) => {
     const lastUserMessage = history[history.length - 1]?.text;
 
-    // Pas 1: încearcă să obții un răspuns de la server
     try {
       const userId = localStorage.getItem("utilizator_id");
       const res = await fetch("http://localhost:3000/chatbot-query", {
@@ -30,7 +29,6 @@ const ChatWidget = () => {
 
       const serverReply = await res.json();
 
-      // Dacă serverul a răspuns cu informații dinamice (ex: din DB)
       if (serverReply.type === "dynamic") {
         setChatHistory((prev) => [
           ...prev.filter((msg) => msg.text !== "Se gândește..."),
@@ -38,24 +36,27 @@ const ChatWidget = () => {
         ]);
         return;
       }
-
-      // Dacă serverul nu a găsit un răspuns, continuăm spre fallback AI
     } catch (err) {
       console.error("Eroare la interogarea serverului:", err);
     }
 
-    // Pas 2: fallback – AI-ul răspunde folosind istoricul (inclusiv basic_info)
-    const updateHistory = (text, isError = false) => {
-      setChatHistory((prev) => [
-        ...prev.filter((msg) => msg.text !== "Se gândește..."),
-        { role: "model", text, isError },
-      ]);
+    // 🔍 Trimitem basic_info DOAR o dată, dacă nu a fost deja trimis
+    const basicInfoMessage = {
+      role: "model",
+      parts: [{ text: basic_info }],
     };
 
-    const formattedHistory = history.map(({ role, text }) => ({
+    const visibleHistory = history.filter(
+      (msg) => !msg.hideInChat && msg.text !== "Se gândește..."
+    );
+
+    const lastTwo = visibleHistory.slice(-2).map(({ role, text }) => ({
       role,
       parts: [{ text }],
     }));
+
+    const formattedHistory =
+      visibleHistory.length <= 2 ? [basicInfoMessage, ...lastTwo] : lastTwo;
 
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, {
@@ -68,9 +69,16 @@ const ChatWidget = () => {
       if (!response.ok) throw new Error(data.error?.message || "Eroare AI");
 
       const aiResponse = data.candidates[0].content.parts[0].text.trim();
-      updateHistory(aiResponse);
+
+      setChatHistory((prev) => [
+        ...prev.filter((msg) => msg.text !== "Se gândește..."),
+        { role: "model", text: aiResponse },
+      ]);
     } catch (err) {
-      updateHistory(err.message, true);
+      setChatHistory((prev) => [
+        ...prev.filter((msg) => msg.text !== "Se gândește..."),
+        { role: "model", text: err.message, isError: true },
+      ]);
     }
   };
 
