@@ -1,10 +1,10 @@
-.header {
+.header-client {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 25px;
-    background-color: rgb(255, 209, 220);
+    height: 30px;
+    background: linear-gradient(to bottom right, #2e0f58, #f3b494); 
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -13,22 +13,23 @@
     z-index: 1000;
 }
 
-.nav-buttons {
+.nav-buttons-client {
     display: flex;
     gap: 15px;
 }
 
-.nav-button {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
+.nav-button-client {
+    background-color: transparent;
+    color: rgb(240, 226, 253);
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 17px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
-.nav-button:hover {
+.nav-button-client:hover {
     transform: scale(1.05);
 }
 
@@ -36,15 +37,16 @@
     display: flex;
     gap: 8px;
     margin-right: 80px;
+    align-items: center;
 }
 
 .favorite-icon {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     cursor: pointer;
     margin-right: 10px;
     margin-left: 10px;
-    margin-top: 15px;
+    align-self: center;
     transition: transform 0.2s ease;
 }
 
@@ -52,12 +54,25 @@
     transform: scale(1.1);
 }
 
-.profile-img-small {
+.user-info-client {
+  align-self: center;
+  font-size: 17px;
+  margin: 0 10px;
+  font-family: 'Times New Roman', Times, serif;
+  color: #ffe4d6;
+}
+
+.profile-img-small-client {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    object-fit: cover;
     cursor: pointer;
-    margin-top: 8px;
+    align-self: center;
     margin-left: 5px;
+    object-fit: cover; 
+    transition: transform 0.2s ease;
+}
+
+.profile-img-small-client:hover {
+    transform: scale(1.1);
 }

@@ -28,7 +28,8 @@ body {
     display: flex;
     cursor: pointer;
     border-radius: 50%;
-    background: #6D4FC2;
+    /* background: #6D4FC2; */
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
@@ -82,7 +83,8 @@ body {
     padding: 15px 22px;
     align-items: center;
     justify-content: space-between;
-    background: #6D4FC2;
+    /* background: #6D4FC2; */
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
     height: 60px;
 }
 
@@ -97,7 +99,8 @@ body {
     width: 35px;
     padding: 6px;
     flex-shrink: 0;
-    fill: #6D4FC2;
+    /* fill: #6D4FC2; */
+    fill: linear-gradient(to bottom right, #381268, #f7b898); 
     background: #fff;
     border-radius: 50%;
 }
@@ -124,7 +127,8 @@ body {
 }
 
 .chat-header button:hover {
-    background: #593bab;
+    /* background: #593bab; */
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
 }
 
 .chat-body {
@@ -158,7 +162,8 @@ body {
     fill: #fff;
     align-self: flex-end;
     margin-bottom: 2px;
-    background: #6D4FC2;
+    /* background: #6D4FC2; */
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
     border-radius: 50%;
 }
 
@@ -182,7 +187,8 @@ body {
 
 .chat-body .user-message .message-text {
     color: #fff;
-    background: #6D4FC2;
+    /* background: #6D4FC2; */
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
     border-radius: 13px 13px 3px 13px;
 }
 
@@ -204,7 +210,7 @@ body {
 }
 
 .chat-footer .chat-form:focus-within {
-    outline: 2px solid #6D4FC2;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .chat-form .message-input {
@@ -229,12 +235,12 @@ body {
     flex-shrink: 0;
     margin-right: 6px;
     border-radius: 50%;
-    background: #6D4FC2;
+    background: linear-gradient(to bottom right, #381268, #f7b898); 
     transition: 0.2s ease;
 }
 
 .chat-form button:hover {
-    background: #593bab;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .chat-form .message-input:valid ~ button {

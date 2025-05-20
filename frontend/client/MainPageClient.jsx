@@ -73,9 +73,9 @@ function MainPageClient() {
     const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <span className="rating-stars">
+      <span className="rating-stars-client">
         {"★".repeat(fullStars)}
-        {hasHalfStar && <span className="half-star">★</span>}
+        {hasHalfStar && <span className="half-star-client">★</span>}
         {"☆".repeat(emptyStars)}
       </span>
     );
@@ -152,7 +152,12 @@ function MainPageClient() {
   const cartiComplete = [...cartiAfisate, ...Array(spatiiGoale).fill(null)];
 
   return (
-    <div className="main-container">
+    <div className="main-container-client">
+      {/* <img
+        src="/images/beige_gradient.jpg"
+        alt="background"
+        className="background-image"
+      /> */}
       {/* ======= Header fixat sus ======= */}
       <HeaderClient />
 
@@ -251,27 +256,27 @@ function MainPageClient() {
       )}
 
       {/* ======= Căutare ======= */}
-      <div className="search-container">
+      <div className="search-container-client">
         <input
-          className="search-bar"
+          className="search-bar-client"
           type="text"
           placeholder="🔍 Căutare"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <img
-          src="/images/filter.png"
+          src="/images/filtering.png"
           alt="Filtru"
-          className="filter-icon"
+          className="filter-icon-client"
           onClick={() => setShowFilterPopup((prev) => !prev)}
         />
       </div>
 
       {/* ======= Afișarea cărților ======= */}
-      <div className="book-grid">
+      <div className="book-grid-client">
         {cartiComplete.map((carte, index) => (
           <div
-            className={`book-card ${carte ? "" : "hidden"}`}
+            className={`book-card-client ${carte ? "" : "hidden"}`}
             key={index}
             onClick={carte ? () => handleClick(carte.id) : null} // Asigură clic doar pe cărți valide
           >
@@ -284,9 +289,9 @@ function MainPageClient() {
                       : carte.imagine
                   }
                   alt={carte.titlu}
-                  className="book-image"
+                  className="book-image-client"
                 />
-                <p className="book-title">
+                <p className="book-title-client">
                   {carte.titlu} - {carte.autor}
                 </p>
                 <div className="book-spacer"></div>
@@ -298,24 +303,81 @@ function MainPageClient() {
       </div>
 
       {/* ======= Butoane pentru paginare ======= */}
-      <div className="pagination-container">
-        <button
-          className="pagination-button"
-          onClick={paginaAnterioara}
-          disabled={paginaCurenta === 1}
-        >
-          ◀
-        </button>
-        <span className="pagina-info">
-          Pagina {paginaCurenta} din {numarTotalPagini}
-        </span>
-        <button
-          className="pagination-button"
-          onClick={paginaUrmatoare}
-          disabled={paginaCurenta === numarTotalPagini}
-        >
-          ▶
-        </button>
+      <div className="pagination-container-client">
+        {paginaCurenta > 1 && (
+          <button
+            className="pagination-prev"
+            onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+          >
+            &laquo;
+          </button>
+        )}
+
+        {Array.from({ length: numarTotalPagini }, (_, i) => i + 1)
+          .filter((pagina) => {
+            if (numarTotalPagini <= 5) return true;
+            if (
+              pagina === 1 ||
+              pagina === numarTotalPagini ||
+              Math.abs(pagina - paginaCurenta) <= 1
+            )
+              return true;
+            if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+              return "dots";
+            return false;
+          })
+          .map((pagina, i, arr) => {
+            if (pagina === "dots") {
+              return (
+                <span key={`dots-${i}`} className="pagination-dots">
+                  ...
+                </span>
+              );
+            }
+
+            // Evită dublarea punctelor
+            if (
+              i > 0 &&
+              typeof pagina === "number" &&
+              typeof arr[i - 1] === "number" &&
+              pagina - arr[i - 1] > 1
+            ) {
+              return (
+                <React.Fragment key={pagina}>
+                  <span className="pagination-dots">...</span>
+                  <button
+                    className={`pagination-number ${
+                      pagina === paginaCurenta ? "active" : ""
+                    }`}
+                    onClick={() => setPaginaCurenta(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <button
+                key={pagina}
+                className={`pagination-number ${
+                  pagina === paginaCurenta ? "active" : ""
+                }`}
+                onClick={() => setPaginaCurenta(pagina)}
+              >
+                {pagina}
+              </button>
+            );
+          })}
+
+        {paginaCurenta < numarTotalPagini && (
+          <button
+            className="pagination-next"
+            onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+          >
+            &raquo;
+          </button>
+        )}
       </div>
       <ChatWidget />
     </div>

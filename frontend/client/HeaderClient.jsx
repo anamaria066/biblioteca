@@ -32,31 +32,40 @@ const HeaderClient = () => {
   }, []);
 
   return (
-    <header className="header">
-      <div className="nav-buttons">
-        <button className="nav-button" onClick={() => navigate("/client")}>
+    <header className="header-client">
+      <div className="nav-buttons-client">
+        <button
+          className="nav-button-client"
+          onClick={() => navigate("/client")}
+        >
           Explorează
         </button>
-        <button className="nav-button" onClick={() => navigate("/recomandate")}>
+        <button
+          className="nav-button-client"
+          onClick={() => navigate("/recomandate")}
+        >
           Recomandate
         </button>
         <button
-          className="nav-button"
+          className="nav-button-client"
           onClick={() => navigate("/imprumuturi-curente")}
         >
           Împrumuturi curente
         </button>
-        <button className="nav-button" onClick={() => navigate("/istoric")}>
+        <button
+          className="nav-button-client"
+          onClick={() => navigate("/istoric")}
+        >
           Istoric
         </button>
       </div>
 
       <div className="right-buttons">
-        <p className="user-info">
+        <p className="user-info-client">
           Bun venit, {user.nume} {user.prenume}!
         </p>
         <img
-          src="/images/favorite.png"
+          src="/images/white_bookmark.png"
           alt="Favorite"
           className="icon-button favorite-icon"
           onClick={() => navigate("/favorite")}
@@ -64,7 +73,7 @@ const HeaderClient = () => {
         <img
           src={user.pozaProfil}
           alt="Poza de profil"
-          className="profile-img-small"
+          className="profile-img-small-client"
           onClick={() => navigate("/profil-client")}
         />
       </div>

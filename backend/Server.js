@@ -703,6 +703,65 @@ app.put("/schimba-parola/:id", async (req, res) => {
 });
 
 
+const coduriResetare = new Map(); // Map: email -> cod
+app.post('/trimite-cod-resetare', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await Utilizator.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ message: "Email inexistent!" });
+    }
+
+    const cod = Math.floor(10000 + Math.random() * 90000).toString();
+
+    coduriResetare.set(email, cod);
+
+    await transporter.sendMail({
+      from: 'bibliotecaonlinesystem@gmail.com',
+      to: email,
+      subject: 'Cod de resetare parolă',
+      text: `Codul tău de resetare este: ${cod}`
+    });
+
+    res.json({ message: "Cod trimis!" });
+  } catch (err) {
+    res.status(500).json({ message: "Eroare server!" });
+  }
+});
+
+app.post('/verifica-cod-resetare', (req, res) => {
+  const { email, cod } = req.body;
+
+  const codSalvat = coduriResetare.get(email);
+
+  if (!codSalvat || codSalvat !== cod) {
+    return res.status(400).json({ message: "Cod invalid!" });
+  }
+
+  res.json({ message: "Cod valid!" });
+});
+
+app.put('/reseteaza-parola', async (req, res) => {
+  const { email, parolaNoua } = req.body;
+
+  try {
+    const user = await Utilizator.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "Utilizator inexistent!" });
+
+    user.parola = parolaNoua;
+    await user.save();
+
+    coduriResetare.delete(email); // șterge codul din memorie
+
+    res.json({ message: "Parola schimbată cu succes!" });
+  } catch (err) {
+    res.status(500).json({ message: "Eroare server!" });
+  }
+});
+
+
 // Endpoint pentru login
 app.post('/login', async (req, res) => {
     const { email, parola } = req.body;
