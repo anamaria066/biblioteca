@@ -4,7 +4,6 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Nou: imaginea mutată în dreapta */
 .login-left {
     flex: 1;
     background: linear-gradient(to bottom right, #220a41, #efac8b); 
@@ -14,7 +13,6 @@
     position: relative;
 }
 
-/* Container login pe partea stângă */
 .login-right {
     flex: 1;
     overflow: hidden;
@@ -48,6 +46,8 @@
 .login-container-new h2 {
     margin-bottom: 25px;
     color: #ffffff;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 37px;
 }
 
 .login-form-new {
@@ -66,6 +66,8 @@
     background-color: #f9f4ef;
     color: #3b3a3a;
     text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
 }
 
 .login-form-new input:focus {
@@ -80,8 +82,8 @@
     margin-top: 10px;
     height: 40px;
     border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 18px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: rgba(255, 255, 255, 0.05);
@@ -100,8 +102,10 @@
 .forgot-link {
     display: block;
     margin-top: 20px;
-    color: #7b6e63;
+    color: #f6f4f2;
     text-decoration: none;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px;
 }
 
 .forgot-link:hover {
@@ -160,3 +164,131 @@
   }
 }
 
+
+
+.popup-overlay-cod {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content-sch-parola {
+  height: 200px; 
+  width: 350px;
+  background: linear-gradient(to bottom right, #220a4166, #efac8b6a); 
+  backdrop-filter: blur(10px);          /* efect de blur */
+  -webkit-backdrop-filter: blur(10px);  /* compatibilitate Safari */
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(19, 21, 20, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popup-content-sch-parola p {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 20px;
+    color: white;
+}
+
+.popup-content-sch-parola input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    box-shadow: 0 0 5px #8a858e;
+    border-radius: 8px;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+}
+.popup-content-sch-parola input:focus {
+    outline: none;
+    border-color: #b8a3c850;
+    box-shadow: 0 0 5px #38254790;
+}
+
+.popup-content-sch-parola button {
+    color: #ffffff;
+    padding: 12px 24px;
+    height: 37px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+}
+
+.popup-content-sch-parola button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.btns-sch-parola {
+  display: flex;
+  justify-content: center;
+  gap: 50px; 
+  margin-top: 18px;
+}
+
+#btnConfirmaSchPsw,
+#btnAnuleazaSchPsw {
+  padding: 8px 14px;
+  font-size: 16px;
+  cursor: pointer;
+  height: 40px;
+  width: 100px;
+  border-radius: 8px;
+  font-family: 'Times New Roman', Times, serif;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: center;
+}
+
+#btnConfirmaSchPsw:hover,
+#btnAnuleazaSchPsw:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+} 
+
+.floating-success-sch-parola, .floating-error-sch-parola {
+  position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 10000;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.floating-success-sch-parola {
+  background: #7af97e8f;
+  font-family: 'Times New Roman', Times, serif;
+  color: rgb(255, 255, 255);
+}
+
+.floating-error-sch-parola {
+  background: #ff5877a3;
+  font-family: 'Times New Roman', Times, serif;
+  color: rgb(255, 255, 255);
+}

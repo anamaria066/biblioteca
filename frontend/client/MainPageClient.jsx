@@ -162,7 +162,7 @@ function MainPageClient() {
       <HeaderClient />
 
       {showFilterPopup && (
-        <div className="popup-filtru" ref={popupRef}>
+        <div className="popup-filtru-client" ref={popupRef}>
           <h4>Filtrează cărțile</h4>
           <select
             value={genSelectat}
@@ -200,7 +200,7 @@ function MainPageClient() {
             placeholder="Ex: 1999"
             value={anManual}
             onChange={(e) => setAnManual(e.target.value)}
-            className="input-an"
+            className="input-an-client"
           />
 
           <label>Interval:</label>
@@ -217,7 +217,7 @@ function MainPageClient() {
             <option value="gt2000">&gt; 2000</option>
           </select>
 
-          <div className="butoane-filtru">
+          <div className="butoane-filtru-client">
             <button
               onClick={() => {
                 setFiltruGen(genSelectat);

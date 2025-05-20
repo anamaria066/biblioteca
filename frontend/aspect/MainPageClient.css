@@ -6,8 +6,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    /* background: linear-gradient(to bottom right, #f3eaff, #fed7c6);  */
-    background: white;
+    background: rgb(247, 242, 237);
 }
 
 /* Căutare */
@@ -47,47 +46,95 @@
 }
 
 /* Popup pentru filtre */
-.popup-filtru {
+.popup-filtru-client {
     position: absolute;
     top: 110px;
     right: 20px;
-    background: white;
+    background: linear-gradient(to bottom right, #220a41c5, #efac8bc8); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.192);
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 9px;
     width: 200px;
 }
 
-.popup-filtru select {
-    padding: 6px;
-    border-radius: 4px;
+.popup-filtru-client h4 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 17px;
+  font-weight: 100;
+  color: rgb(243, 242, 242);
+  display: flex;
+  align-self: center;
+} 
+
+.popup-filtru-client label {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 16px;
+  font-weight: 100;
+  color: rgb(243, 242, 242);
 }
 
-.input-an {
+.popup-filtru-client select {
+    padding: 6px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 0 5px #8a858e;
+    border-radius: 6px;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+}
+
+.popup-filtru-client select:focus, .popup-filtru-client select:hover, .input-an-client:focus, .input-an-client:hover {
+  outline: none;
+}
+
+.input-an-client {
     margin-bottom: 8px;
     padding: 6px;
     width: 100%;
+    height: 30px;
     box-sizing: border-box;
+    padding: 12px;
+    border: none;
+    box-shadow: 0 0 5px #8a858e;
+    border-radius: 8px;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
 }
 
-.butoane-filtru {
+.butoane-filtru-client {
     display: flex;
     justify-content: space-between;
     gap: 8px;
 }
 
-.butoane-filtru button {
-    flex: 1;
-    padding: 6px 8px;
-    border: none;
-    border-radius: 4px;
-    background-color: #eb7d7d;
-    color: white;
+.butoane-filtru-client button {
+    color: #ffffff;
+    padding: 12px 24px;
+    height: 37px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.338);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
 }
 
 .butoane-filtru button:hover {
@@ -109,8 +156,8 @@
 .book-card-client {
     width: 160px;
     height: 270px;
-    background: rgba(255, 255, 255, 0.459); 
-     backdrop-filter: blur(10px);          
+    background: rgba(252, 249, 247, 0.459); 
+    backdrop-filter: blur(10px);          
     -webkit-backdrop-filter: blur(10px);   
     border-radius: 10px;
     padding: 15px;
@@ -190,7 +237,7 @@
   justify-content: center;
   align-items: center;
   padding-top: 10px;
-  background-color: white;
+  background-color: transparent;
   gap: 8px;
   font-family: 'Inter', sans-serif;
   margin-bottom: 30px;

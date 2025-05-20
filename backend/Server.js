@@ -702,64 +702,62 @@ app.put("/schimba-parola/:id", async (req, res) => {
     }
 });
 
+const coduriReset = new Map();
 
-const coduriResetare = new Map(); // Map: email -> cod
-app.post('/trimite-cod-resetare', async (req, res) => {
+app.post("/trimite-cod-resetare", async (req, res) => {
   const { email } = req.body;
-
   try {
-    const user = await Utilizator.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ message: "Email inexistent!" });
+    const utilizator = await Utilizator.findOne({ where: { email } });
+    if (!utilizator) {
+      return res.status(404).json({ message: "Email-ul nu este înregistrat!" });
     }
 
     const cod = Math.floor(10000 + Math.random() * 90000).toString();
-
-    coduriResetare.set(email, cod);
+    coduriReset.set(email, cod);
 
     await transporter.sendMail({
-      from: 'bibliotecaonlinesystem@gmail.com',
+      from: "bibliotecaonlinesystem@gmail.com",
       to: email,
-      subject: 'Cod de resetare parolă',
-      text: `Codul tău de resetare este: ${cod}`
+      subject: "Cod resetare parolă",
+      text: `Codul tău de resetare este: ${cod}`,
     });
 
-    res.json({ message: "Cod trimis!" });
+    res.status(200).json({ message: "Cod trimis cu succes!" });
   } catch (err) {
+    console.error("Eroare resetare:", err);
     res.status(500).json({ message: "Eroare server!" });
   }
 });
 
-app.post('/verifica-cod-resetare', (req, res) => {
+app.post("/verifica-cod-resetare", (req, res) => {
   const { email, cod } = req.body;
+  const codCorect = coduriReset.get(email);
 
-  const codSalvat = coduriResetare.get(email);
-
-  if (!codSalvat || codSalvat !== cod) {
+  if (codCorect && codCorect === cod) {
+    return res.status(200).json({ message: "Cod valid!" });
+  } else {
     return res.status(400).json({ message: "Cod invalid!" });
   }
-
-  res.json({ message: "Cod valid!" });
 });
 
-app.put('/reseteaza-parola', async (req, res) => {
+app.put("/resetare-parola", async (req, res) => {
   const { email, parolaNoua } = req.body;
-
   try {
-    const user = await Utilizator.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "Utilizator inexistent!" });
+    const utilizator = await Utilizator.findOne({ where: { email } });
+    if (!utilizator) {
+      return res.status(404).json({ message: "Utilizatorul nu a fost găsit!" });
+    }
 
-    user.parola = parolaNoua;
-    await user.save();
+    utilizator.parola = parolaNoua;
+    await utilizator.save();
+    coduriReset.delete(email);
 
-    coduriResetare.delete(email); // șterge codul din memorie
-
-    res.json({ message: "Parola schimbată cu succes!" });
+    res.status(200).json({ message: "Parola schimbată cu succes!" });
   } catch (err) {
-    res.status(500).json({ message: "Eroare server!" });
+    res.status(500).json({ message: "Eroare la server!" });
   }
 });
+
 
 
 // Endpoint pentru login
