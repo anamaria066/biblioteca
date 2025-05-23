@@ -250,93 +250,96 @@ function DetaliiCarte() {
   };
 
   return (
-    <div className="detalii-container">
-      {/* ======= Header fixat sus ======= */}
+    <div className="detalii-container-client">
       <HeaderClient />
+      <div className="columns">
+        <div className="left-column">
+          <img
+            src={
+              esteFavorita ? "/images/full_heart.png" : "/images/empy_heart.png"
+            }
+            alt="Favorite"
+            className="icon-favorite"
+            onClick={handleFavorite}
+          />
+          <div className="detalii-imagine-client">
+            <img
+              src={
+                carte.imagine
+                  ? carte.imagine.startsWith("/uploads")
+                    ? `http://localhost:3000${carte.imagine}`
+                    : carte.imagine
+                  : "/images/default-book.png"
+              }
+              alt={carte.titlu}
+              className="coperta-mare-client"
+            />
+          </div>
+          <div className="detalii-text">
+            <button className="btn-recenzie" onClick={() => setShowPopup(true)}>
+              Lasă o recenzie
+            </button>
+            <button
+              className="btnImprumuta"
+              onClick={() => setShowPopupImprumut(true)}
+            >
+              Împrumută
+            </button>
+          </div>
+        </div>
 
-      <div className="detalii-carte">
-        <img
-          src={
-            esteFavorita ? "/images/full_heart.png" : "/images/empy_heart.png"
-          }
-          alt="Favorite"
-          className="icon-favorite"
-          onClick={handleFavorite}
-        />
-        <div className="detalii-text">
+        {/* COLOANA DREAPTA */}
+        <div className="right-column">
           <h2>{carte.titlu}</h2>
           <p>
             <strong>Autor:</strong> {carte.autor}
           </p>
           <p>
-            <strong>An publicare:</strong> {carte.an_publicatie}
-          </p>
-          <p>
-            <strong>Limba:</strong> {carte.limba}
-          </p>
-          <p>
-            <strong>Gen:</strong> {carte.gen}
+            <strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}
+            /5)
           </p>
           <p>
             <strong>Descriere:</strong> {carte.descriere}
           </p>
           <p>
-            <strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}
-            /5)
+            <strong>Gen:</strong> {carte.gen}
           </p>
+          <p>
+            <strong>Limba:</strong> {carte.limba}
+          </p>
+          <p>
+            <strong>An publicare:</strong> {carte.an_publicatie}
+          </p>
+          <div className="recenzii-container-client">
+            <h3>Recenzii</h3>
 
-          <button className="btn-recenzie" onClick={() => setShowPopup(true)}>
-            Lasă o recenzie
-          </button>
-          <button
-            className="btnImprumuta"
-            onClick={() => setShowPopupImprumut(true)}
-          >
-            Împrumută
-          </button>
-        </div>
-        <div className="detalii-imagine">
-          <img
-            src={
-              carte.imagine
-                ? carte.imagine.startsWith("/uploads")
-                  ? `http://localhost:3000${carte.imagine}`
-                  : carte.imagine
-                : "/images/default-book.png"
-            }
-            alt={carte.titlu}
-            className="coperta-mare"
-          />
-        </div>
-      </div>
-
-      {/* ✅ Recenziile sunt PĂSTRATE complet */}
-      <div className="recenzii-container">
-        <h3>Recenzii</h3>
-
-        {recenzii.length === 0 ? (
-          <p className="fara-recenzii">Nu există recenzii momentan!</p>
-        ) : (
-          <div className="recenzii-box">
-            {recenzii.map((recenzie, index) => (
-              <div className="recenzie-card" key={index}>
-                <p>
-                  <strong>
-                    {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
-                    Nota: {recenzie.rating}/5 ⭐
-                  </strong>
-                </p>
-                <p className="recenzie-text">{recenzie.comentariu}</p>
-                <p>
-                  <small>
-                    Data:{" "}
-                    {new Date(recenzie.data_recenzie).toLocaleDateString()}
-                  </small>
-                </p>
+            {recenzii.length === 0 ? (
+              <p className="fara-recenzii-client">
+                Nu există recenzii momentan!
+              </p>
+            ) : (
+              <div className="recenzii-box-client">
+                {recenzii.map((recenzie, index) => (
+                  <div className="recenzie-card-client" key={index}>
+                    <p>
+                      <strong>
+                        {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume}
+                        , Nota: {recenzie.rating}/5 ⭐
+                      </strong>
+                    </p>
+                    <p className="recenzie-text">{recenzie.comentariu}</p>
+                    <p>
+                      <small>
+                        Data:{" "}
+                        {new Date(recenzie.data_recenzie).toLocaleDateString()}
+                      </small>
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {afiseazaMesajFavorit && (
@@ -348,7 +351,6 @@ function DetaliiCarte() {
           {mesajImprumut}
         </div>
       )}
-      {/*  */}
       {showPopupImprumut && (
         <div className="popup-imprumut">
           <div className="popup-content">
@@ -408,8 +410,41 @@ function DetaliiCarte() {
           </div>
         </div>
       )}
-      {/*  */}
       <ChatWidget />
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h3>Adaugă recenzie</h3>
+            <form onSubmit={handleSubmitRecenzie}>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                placeholder="Rating (0-5)"
+                value={recenzie.rating}
+                onChange={(e) =>
+                  setRecenzie({ ...recenzie, rating: e.target.value })
+                }
+              />
+              <textarea
+                placeholder="Comentariu"
+                value={recenzie.comentariu}
+                onChange={(e) =>
+                  setRecenzie({ ...recenzie, comentariu: e.target.value })
+                }
+              ></textarea>
+              <div className="butoane-popup">
+                <button type="submit">Trimite</button>
+                <button type="button" onClick={() => setShowPopup(false)}>
+                  Anulează
+                </button>
+              </div>
+              {mesaj && <p className="mesaj-eroare">{mesaj}</p>}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

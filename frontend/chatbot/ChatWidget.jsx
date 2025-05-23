@@ -6,15 +6,11 @@ import ChatMessage from "./ChatMessage";
 import { basic_info } from "./basic_info";
 
 const ChatWidget = () => {
-  const [chatHistory, setChatHistory] = useState([
-    {
-      hideInChat: true,
-      role: "model",
-      text: basic_info,
-    },
-  ]);
+  const [chatHistory, setChatHistory] = useState([]);
   const [showChatbot, setShowChatbot] = useState(false);
   const chatBodyRef = useRef();
+
+  const sentIntroRef = useRef(false); // Adăugat în componentă, în afara funcției
 
   const generateBotResponse = async (history) => {
     const lastUserMessage = history[history.length - 1]?.text;
@@ -40,12 +36,6 @@ const ChatWidget = () => {
       console.error("Eroare la interogarea serverului:", err);
     }
 
-    // 🔍 Trimitem basic_info DOAR o dată, dacă nu a fost deja trimis
-    const basicInfoMessage = {
-      role: "model",
-      parts: [{ text: basic_info }],
-    };
-
     const visibleHistory = history.filter(
       (msg) => !msg.hideInChat && msg.text !== "Se gândește..."
     );
@@ -55,8 +45,16 @@ const ChatWidget = () => {
       parts: [{ text }],
     }));
 
-    const formattedHistory =
-      visibleHistory.length <= 2 ? [basicInfoMessage, ...lastTwo] : lastTwo;
+    const formattedHistory = [...lastTwo];
+
+    // Trimite basic_info o singură dată (doar la prima întrebare)
+    if (!sentIntroRef.current) {
+      formattedHistory.unshift({
+        role: "user",
+        parts: [{ text: basic_info }],
+      });
+      sentIntroRef.current = true;
+    }
 
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, {
