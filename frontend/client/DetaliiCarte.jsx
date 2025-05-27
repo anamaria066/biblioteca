@@ -275,7 +275,7 @@ function DetaliiCarte() {
               className="coperta-mare-client"
             />
           </div>
-          <div className="detalii-text">
+          <div className="wrapper-butoane">
             <button className="btn-recenzie" onClick={() => setShowPopup(true)}>
               Lasă o recenzie
             </button>
@@ -290,26 +290,28 @@ function DetaliiCarte() {
 
         {/* COLOANA DREAPTA */}
         <div className="right-column">
-          <h2>{carte.titlu}</h2>
-          <p>
-            <strong>Autor:</strong> {carte.autor}
-          </p>
-          <p>
-            <strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}
-            /5)
-          </p>
-          <p>
-            <strong>Descriere:</strong> {carte.descriere}
-          </p>
-          <p>
-            <strong>Gen:</strong> {carte.gen}
-          </p>
-          <p>
-            <strong>Limba:</strong> {carte.limba}
-          </p>
-          <p>
-            <strong>An publicare:</strong> {carte.an_publicatie}
-          </p>
+          <div className="detalii-carte-client">
+            <h2>{carte.titlu}</h2>
+            <p>
+              <strong>Autor:</strong> {carte.autor}
+            </p>
+            <p>
+              <strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}
+              /5)
+            </p>
+            <p>
+              <strong>Descriere:</strong> {carte.descriere}
+            </p>
+            <p>
+              <strong>Gen:</strong> {carte.gen}
+            </p>
+            <p>
+              <strong>Limba:</strong> {carte.limba}
+            </p>
+            <p>
+              <strong>An publicare:</strong> {carte.an_publicatie}
+            </p>
+          </div>
           <div className="recenzii-container-client">
             <h3>Recenzii</h3>
 
