@@ -6,7 +6,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    background: rgb(247, 242, 237);
+    background: rgb(253, 252, 251);
 }
 
 /* Căutare */
@@ -153,13 +153,13 @@
 }
 
 
-.book-card-client {
+.book-card-client-main {
     width: 160px;
     height: 270px;
     background: rgba(252, 249, 247, 0.459); 
     backdrop-filter: blur(10px);          
     -webkit-backdrop-filter: blur(10px);   
-    border-radius: 10px;
+    border-radius: 7px;
     padding: 15px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -173,11 +173,11 @@
     height: 10px;
   }
 
-.book-card-client:hover {
+.book-card-client-main:hover {
     transform: scale(1.05);
 }
 
-.book-card-client.hidden {
+.book-card-client-main.hidden {
     visibility: hidden;
     pointer-events: none;
 }

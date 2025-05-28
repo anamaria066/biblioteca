@@ -276,7 +276,7 @@ function MainPageClient() {
       <div className="book-grid-client">
         {cartiComplete.map((carte, index) => (
           <div
-            className={`book-card-client ${carte ? "" : "hidden"}`}
+            className={`book-card-client-main ${carte ? "" : "hidden"}`}
             key={index}
             onClick={carte ? () => handleClick(carte.id) : null} // Asigură clic doar pe cărți valide
           >

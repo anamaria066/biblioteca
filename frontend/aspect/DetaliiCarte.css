@@ -1,10 +1,14 @@
+body, html {
+  overflow-y: hidden;
+}
+
+
 .detalii-container-client {
     display: flex;
     width: 100%;
     margin-top: 40px;
     padding: 0 20px;
-    background: rgb(247, 242, 237);
-
+    background: rgb(253, 252, 251);
 }
 
 .detalii-carte-client {
@@ -87,16 +91,22 @@
 .recenzii-container-client {
     margin-top: 30px;
     padding: 15px;
-    background: rgb(250, 246, 243);
-    border-radius: 6px;
-    width: 800px;
+    background: rgba(255, 255, 255, 0.389);
+    border-radius: 5px;
+    width: 870px;
     height: 320px;
     box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
     overflow: hidden;
 }
 
+.recenzii-container-client h3 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 25px;
+}
+
 .recenzii-box-client {
     display: grid;
+    background: rgba(255, 255, 255, 0.389);
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, auto);
     gap: 10px;
@@ -106,24 +116,32 @@
 }
 
 .recenzie-card-client {
-    width: 200px;
+    width: 240px;
     padding: 15px;
     background: white;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 5px;
     height: 180px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
+#detalii-utilizator-recenzie {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 16px;
+}
+
 .recenzie-text {
     max-height: 100px;
     overflow-y: auto;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .fara-recenzii-client {
     text-align: center;
     color: gray;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 /* Mesaje de succes sau eroare plutitoare */
@@ -298,20 +316,23 @@
   justify-content: space-between;
   gap: 50px;
   max-width: 1100px;
-  /* margin: 40px auto; */
   margin-top: 50px;
   margin-left: 50px;
   padding: 0 20px;
+
+  /*  */
+  height: calc(100vh - 80px); /* scroll pe ecran complet - 80px pentru header aproximativ */
 }
 
 
 .left-column {
   width: 500px;
-  height: 480px;
+  height: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+
 }
 
 .left-column .coperta-mare {
@@ -326,8 +347,103 @@
   width: 900px;
   background-color: transparent;
   padding: 25px;
+
+  /*  */
+  overflow-y: auto;
+  min-width: 900px;
+}
+
+.right-column::-webkit-scrollbar {
+  display: none;
 }
 
 .right-column h2 {
   margin-top: 0;
+}
+
+.carti-similare-section {
+    margin-top: 30px;
+}
+
+.carti-similare-section h3 {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.carti-similare-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 20px; 
+}
+
+.book-card-similare {
+    width: 160px;
+    height: 270px;
+    background: rgba(252, 249, 247, 0.459); 
+    backdrop-filter: blur(10px);          
+    -webkit-backdrop-filter: blur(10px);   
+    border-radius: 7px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.book-spacer {
+    flex-grow: 1;
+    width: 100%;
+    height: 10px;
+  }
+
+.book-card-similare:hover {
+    transform: scale(1.05);
+}
+
+
+.book-image-client {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.book-title-client {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 500;
+    margin-top: 10px;
+    color: #3B3A4F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.book-rating {
+    font-size: 18px;
+    color: gold;
+}
+
+.rating-stars-client {
+    font-size: 24px;
+    color: rgb(255, 221, 26);
+    background-color: rgba(255, 255, 255, 0.1); /* fundal subtil */
+    border-radius: 6px;
+    padding: 4px 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.half-star-client {
+    position: relative;
+    display: inline-block;
+    color: lightgray;
+}
+
+.half-star-client::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: gold;
 }

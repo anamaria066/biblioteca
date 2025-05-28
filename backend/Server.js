@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { Sequelize, DataTypes } from 'sequelize';
+import { Op } from 'sequelize';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli, getTaxeIntarziereLunare } from './Statistici.js';
@@ -2167,6 +2168,134 @@ app.post('/adauga-cheltuiala', async (req, res) => {
     }
 });
 
+
+
+// app.get("/carti-similare/:carteId", async (req, res) => {
+//   const carteId = parseInt(req.params.carteId);
+
+//   try {
+//     const carte = await Carte.findByPk(carteId);
+//     if (!carte) return res.status(404).json({ message: "Carte inexistentă" });
+
+//     const [cartiAutorGen, cartiAutor, cartiGen] = await Promise.all([
+//       // autor + gen
+//       Carte.findAll({
+//         where: {
+//           id: { [Op.ne]: carteId },
+//           autor: carte.autor,
+//           gen: carte.gen
+//         }
+//       }),
+//       // autor
+//       Carte.findAll({
+//         where: {
+//           id: { [Op.ne]: carteId },
+//           autor: carte.autor
+//         }
+//       }),
+//       // gen
+//       Carte.findAll({
+//         where: {
+//           id: { [Op.ne]: carteId },
+//           gen: carte.gen
+//         }
+//       }),
+//     ]);
+
+//     // Concatenează și elimină duplicatele
+//     const toateCartile = [...cartiAutorGen, ...cartiAutor, ...cartiGen];
+//     const cartiUnice = [];
+//     const idsVazute = new Set();
+
+//     for (const c of toateCartile) {
+//       if (!idsVazute.has(c.id)) {
+//         cartiUnice.push(c);
+//         idsVazute.add(c.id);
+//       }
+//     }
+
+//     // Returnează maxim 6
+//     res.json(cartiUnice.slice(0, 6));
+//   } catch (error) {
+//     console.error("Eroare la obținerea cărților similare:", error);
+//     res.status(500).json({ message: "Eroare internă la server." });
+//   }
+// });
+
+
+app.get("/carti-similare/:carteId", async (req, res) => {
+  const carteId = parseInt(req.params.carteId);
+
+  try {
+    const carte = await Carte.findByPk(carteId);
+    if (!carte) return res.status(404).json({ message: "Carte inexistentă" });
+
+    const [cartiAutorGen, cartiAutor, cartiGen] = await Promise.all([
+      // autor + gen
+      Carte.findAll({
+        where: {
+          id: { [Op.ne]: carteId },
+          autor: carte.autor,
+          gen: carte.gen
+        },
+        include: [{ model: Recenzie, attributes: ["rating"] }]
+      }),
+      // autor
+      Carte.findAll({
+        where: {
+          id: { [Op.ne]: carteId },
+          autor: carte.autor
+        },
+        include: [{ model: Recenzie, attributes: ["rating"] }]
+      }),
+      // gen
+      Carte.findAll({
+        where: {
+          id: { [Op.ne]: carteId },
+          gen: carte.gen
+        },
+        include: [{ model: Recenzie, attributes: ["rating"] }]
+      }),
+    ]);
+
+    // Concatenează și elimină duplicatele
+    const toateCartile = [...cartiAutorGen, ...cartiAutor, ...cartiGen];
+    const cartiUnice = [];
+    const idsVazute = new Set();
+
+    for (const c of toateCartile) {
+      if (!idsVazute.has(c.id)) {
+        cartiUnice.push(c);
+        idsVazute.add(c.id);
+      }
+    }
+
+    // Calculează ratingul mediu pentru fiecare carte
+    const cartiCuRating = cartiUnice.slice(0, 6).map((carte) => {
+      const recenzii = carte.Recenzies || [];
+      const ratingMediu = recenzii.length
+        ? recenzii.reduce((sum, r) => sum + r.rating, 0) / recenzii.length
+        : 0;
+
+      return {
+        id: carte.id,
+        titlu: carte.titlu,
+        autor: carte.autor,
+        an_publicatie: carte.an_publicatie,
+        gen: carte.gen,
+        pret: carte.pret,
+        imagine: carte.imagine,
+        limba: carte.limba,
+        rating: parseFloat(ratingMediu.toFixed(1))
+      };
+    });
+
+    res.status(200).json(cartiCuRating);
+  } catch (error) {
+    console.error("Eroare la obținerea cărților similare:", error);
+    res.status(500).json({ message: "Eroare internă la server." });
+  }
+});
 
 app.post("/chatbot-query", async (req, res) => {
     const { userId, question } = req.body;

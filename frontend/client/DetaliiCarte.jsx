@@ -31,6 +31,7 @@ function DetaliiCarte() {
   const [mesajImprumut, setMesajImprumut] = useState("");
   const [afiseazaMesajImprumut, setAfiseazaMesajImprumut] = useState(false);
   const [esteSucces, setEsteSucces] = useState(false);
+  const [cartiSimilare, setCartiSimilare] = useState([]);
 
   // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
   const userId = localStorage.getItem("utilizator_id");
@@ -104,6 +105,16 @@ function DetaliiCarte() {
       incarcaZileIndisponibile();
     }
   }, [showPopupImprumut, id]);
+
+  useEffect(() => {
+    fetch(`http://localhost:3000/carti-similare/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Cărți similare primite din backend:", data);
+        setCartiSimilare(data);
+      })
+      .catch((err) => console.error("Eroare la cărți similare:", err));
+  }, [id]);
 
   // ✅ Calcularea rating-ului mediu
   const calculeazaRatingMediu = () => {
@@ -323,11 +334,9 @@ function DetaliiCarte() {
               <div className="recenzii-box-client">
                 {recenzii.map((recenzie, index) => (
                   <div className="recenzie-card-client" key={index}>
-                    <p>
-                      <strong>
-                        {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume}
-                        , Nota: {recenzie.rating}/5 ⭐
-                      </strong>
+                    <p id="detalii-utilizator-recenzie">
+                      {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
+                      Nota: {recenzie.rating}/5 ⭐
                     </p>
                     <p className="recenzie-text">{recenzie.comentariu}</p>
                     <p>
@@ -341,6 +350,37 @@ function DetaliiCarte() {
               </div>
             )}
           </div>
+          {/*  */}
+          {cartiSimilare.length > 0 && (
+            <div className="carti-similare-section">
+              <h3>Te-ar putea interesa și...</h3>
+              <div className="carti-similare-grid">
+                {cartiSimilare.map((carte) => (
+                  <div
+                    key={carte.id}
+                    className="book-card-similare"
+                    onClick={() => navigate(`/detalii/${carte.id}`)}
+                  >
+                    <img
+                      src={
+                        carte.imagine?.startsWith("/uploads")
+                          ? `http://localhost:3000${carte.imagine}`
+                          : carte.imagine
+                      }
+                      alt={carte.titlu}
+                      className="book-image-client"
+                    />
+                    <p className="book-title-client">
+                      {carte.titlu} - {carte.autor}
+                    </p>
+                    <div className="book-spacer"></div>
+                    <p className="book-rating">{renderStars(carte.rating)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/*  */}
         </div>
       </div>
 
@@ -412,6 +452,7 @@ function DetaliiCarte() {
           </div>
         </div>
       )}
+
       <ChatWidget />
       {showPopup && (
         <div className="popup-overlay">
