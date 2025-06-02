@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../aspect/ImprumuturiClient.css";
 import HeaderClient from "./HeaderClient";
@@ -21,13 +21,13 @@ function ImprumuturiClient() {
   const [zileIndisponibile, setZileIndisponibile] = useState([]);
   const [mesajPrelungire, setMesajPrelungire] = useState("");
   const [succesPrelungire, setSuccesPrelungire] = useState(false);
-  // const [showPopupTaxa, setShowPopupTaxa] = useState(false);
   const [taxaCalculata, setTaxaCalculata] = useState(0);
   const [imprumutCuTaxa, setImprumutCuTaxa] = useState(null);
-
-  // Paginare
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const [paginaCurenta, setPaginaCurenta] = useState(1);
+  const randuriPerPagina = 10;
+  const [randSelectat, setRandSelectat] = useState(null);
+  const dropdownRef = useRef(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const userId = localStorage.getItem("utilizator_id");
@@ -54,21 +54,32 @@ function ImprumuturiClient() {
     }
   }, []);
 
-  // Paginare logică
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
-  const currentRows = cartiImprumutate.slice(indexOfFirst, indexOfLast);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setRandSelectat(null);
+      }
+    };
 
-  const nextPage = () => {
-    if (currentPage < Math.ceil(cartiImprumutate.length / rowsPerPage)) {
-      setCurrentPage((prev) => prev + 1);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Calculăm numărul total de pagini
+  const numarTotalPagini = Math.ceil(
+    cartiImprumutate.length / randuriPerPagina
+  );
+
+  // Selectăm cărțile pentru pagina curentă
+  const indexStart = (paginaCurenta - 1) * randuriPerPagina;
+
+  // Funcții pentru navigarea între pagini
+  const paginaAnterioara = () => {
+    if (paginaCurenta > 1) setPaginaCurenta(paginaCurenta - 1);
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
+  const paginaUrmatoare = () => {
+    if (paginaCurenta < numarTotalPagini) setPaginaCurenta(paginaCurenta + 1);
   };
 
   const deschidePopupConfirmare = (id) => {
@@ -233,15 +244,19 @@ function ImprumuturiClient() {
     }
   };
 
+  const indexOfFirst = (paginaCurenta - 1) * randuriPerPagina;
+  const indexOfLast = indexOfFirst + randuriPerPagina;
+  const currentRows = cartiImprumutate.slice(indexOfFirst, indexOfLast);
+
   return (
-    <div className="admin-container">
+    <div className="imprumuturile-mele-container">
       {/* ======= HEADER ======= */}
       <HeaderClient />
 
       {/* ======= TABEL CĂRȚI ÎMPRUMUTATE ======= */}
-      <div className="user-table-container">
+      <div className="imprumuturile-mele-subcontainer">
         <h2>Împrumuturile mele curente</h2>
-        <table className="user-table">
+        <table className="imprumuturi-curente-table">
           <thead>
             <tr>
               <th>#</th>
@@ -250,7 +265,7 @@ function ImprumuturiClient() {
               <th>Data Împrumut</th>
               <th>Data Returnare</th>
               {currentRows.length > 0 && <th>Status</th>}
-              <th>Acțiune</th>
+              {/* <th>Actiune</th> */}
             </tr>
           </thead>
           <tbody>
@@ -264,6 +279,10 @@ function ImprumuturiClient() {
               currentRows.map((carte, index) => (
                 <tr
                   key={carte.id}
+                  onClick={(e) => {
+                    setRandSelectat(carte.id);
+                    setDropdownPosition({ x: e.clientX, y: e.clientY });
+                  }}
                   className={(() => {
                     const azi = new Date();
                     const dataReturnare = new Date(carte.dataReturnare);
@@ -290,55 +309,6 @@ function ImprumuturiClient() {
                   <td>{new Date(carte.dataImprumut).toLocaleDateString()}</td>
                   <td>{new Date(carte.dataReturnare).toLocaleDateString()}</td>
                   <td>{carte.status}</td>
-                  <td>
-                    {(() => {
-                      const azi = new Date();
-                      const dataReturnare = new Date(carte.dataReturnare);
-
-                      const aziNormalizat = new Date(
-                        azi.getFullYear(),
-                        azi.getMonth(),
-                        azi.getDate()
-                      );
-                      const returnareNormalizata = new Date(
-                        dataReturnare.getFullYear(),
-                        dataReturnare.getMonth(),
-                        dataReturnare.getDate()
-                      );
-
-                      if (carte.status === "în așteptare") {
-                        return (
-                          <button
-                            className="btnAnuleazaImprumut"
-                            onClick={() => deschidePopupConfirmare(carte.id)}
-                          >
-                            Anulează
-                          </button>
-                        );
-                      } else if (
-                        aziNormalizat > returnareNormalizata &&
-                        carte.status === "activ"
-                      ) {
-                        return (
-                          <button
-                            className="btnVeziTaxa"
-                            onClick={() => deschidePopupTaxa(carte)}
-                          >
-                            Vezi taxa
-                          </button>
-                        );
-                      } else {
-                        return (
-                          <button
-                            className="btnPrelungesteImprumut"
-                            onClick={() => deschidePopupPrelungire(carte)}
-                          >
-                            Prelungește
-                          </button>
-                        );
-                      }
-                    })()}
-                  </td>
                 </tr>
               ))
             )}
@@ -347,10 +317,10 @@ function ImprumuturiClient() {
 
         {/* POPUP CONFIRMARE ANULARE */}
         {showPopupConfirmare && (
-          <div className="popup-overlay">
-            <div className="popup-content">
+          <div className="popup-overlay-confirmare">
+            <div className="popup-confirmare-anulare">
               <p>Sunteți sigur că doriți anularea împrumutului?</p>
-              <div className="popup-buttons">
+              <div className="popup-buttons-anulare">
                 <button id="btnDa" onClick={anuleazaImprumut}>
                   DA
                 </button>
@@ -364,28 +334,127 @@ function ImprumuturiClient() {
 
         {/* POPUP SUCCES */}
         {showPopupSucces && (
-          <div className="floating-success">Anulare efectuată cu succes!</div>
+          <div className="floating-success-anulare">
+            Anulare efectuată cu succes!
+          </div>
         )}
 
         {/* Navigare pagini */}
-        <div className="pagination">
-          <button onClick={prevPage} disabled={currentPage === 1}>
-            ◀
-          </button>
-          <span>
-            Pagina {currentPage} din{" "}
-            {Math.max(1, Math.ceil(cartiImprumutate.length / rowsPerPage))}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={
-              currentPage ===
-              Math.max(1, Math.ceil(cartiImprumutate.length / rowsPerPage))
-            }
-          >
-            ▶
-          </button>
+        <div className="pagination-container-imprumuturile-mele">
+          {paginaCurenta > 1 && (
+            <button
+              className="pagination-prev"
+              onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+            >
+              &laquo;
+            </button>
+          )}
+
+          {Array.from({ length: numarTotalPagini }, (_, i) => i + 1)
+            .filter((pagina) => {
+              if (numarTotalPagini <= 5) return true;
+              if (
+                pagina === 1 ||
+                pagina === numarTotalPagini ||
+                Math.abs(pagina - paginaCurenta) <= 1
+              )
+                return true;
+              if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+                return "dots";
+              return false;
+            })
+            .map((pagina, i, arr) => {
+              if (pagina === "dots") {
+                return (
+                  <span key={`dots-${i}`} className="pagination-dots">
+                    ...
+                  </span>
+                );
+              }
+
+              // Evită dublarea punctelor
+              if (
+                i > 0 &&
+                typeof pagina === "number" &&
+                typeof arr[i - 1] === "number" &&
+                pagina - arr[i - 1] > 1
+              ) {
+                return (
+                  <React.Fragment key={pagina}>
+                    <span className="pagination-dots">...</span>
+                    <button
+                      className={`pagination-number ${
+                        pagina === paginaCurenta ? "active" : ""
+                      }`}
+                      onClick={() => setPaginaCurenta(pagina)}
+                    >
+                      {pagina}
+                    </button>
+                  </React.Fragment>
+                );
+              }
+
+              return (
+                <button
+                  key={pagina}
+                  className={`pagination-number ${
+                    pagina === paginaCurenta ? "active" : ""
+                  }`}
+                  onClick={() => setPaginaCurenta(pagina)}
+                >
+                  {pagina}
+                </button>
+              );
+            })}
+
+          {paginaCurenta < numarTotalPagini && (
+            <button
+              className="pagination-next"
+              onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+            >
+              &raquo;
+            </button>
+          )}
         </div>
+        {randSelectat && (
+          <div
+            ref={dropdownRef}
+            className="dropdown-actiuni"
+            style={{
+              position: "absolute",
+              top: dropdownPosition.y + window.scrollY,
+              left: dropdownPosition.x,
+              zIndex: 1000,
+            }}
+          >
+            {(() => {
+              const carte = currentRows.find((c) => c.id === randSelectat);
+              if (!carte) return null;
+
+              return (
+                <>
+                  {carte.status === "în așteptare" && (
+                    <button onClick={() => deschidePopupConfirmare(carte.id)}>
+                      Anulează
+                    </button>
+                  )}
+                  {carte.status === "activ" &&
+                    new Date() > new Date(carte.dataReturnare) && (
+                      <button onClick={() => deschidePopupTaxa(carte)}>
+                        Vezi taxa
+                      </button>
+                    )}
+                  {carte.status === "activ" &&
+                    new Date() <= new Date(carte.dataReturnare) && (
+                      <button onClick={() => deschidePopupPrelungire(carte)}>
+                        Prelungește
+                      </button>
+                    )}
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {showPopupPrelungire && (
@@ -424,14 +493,21 @@ function ImprumuturiClient() {
 
       {mesajPrelungire && (
         <div
-          className={succesPrelungire ? "floating-success" : "floating-error"}
+          className={
+            succesPrelungire
+              ? "floating-success-prelungire"
+              : "floating-error-prelungire"
+          }
         >
           {mesajPrelungire}
         </div>
       )}
 
       {imprumutCuTaxa && (
-        <div className="popup-overlay" onClick={() => setImprumutCuTaxa(null)}>
+        <div
+          className="popup-overlay-taxa"
+          onClick={() => setImprumutCuTaxa(null)}
+        >
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>
             <h3>Împrumut expirat</h3>
             <p>

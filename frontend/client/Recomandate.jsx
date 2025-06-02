@@ -47,9 +47,9 @@ function Recomandate() {
     const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <span className="rating-stars">
+      <span className="rating-stars-recomandate">
         {"★".repeat(fullStars)}
-        {hasHalfStar && <span className="half-star">★</span>}
+        {hasHalfStar && <span className="half-star-recomandate">★</span>}
         {"☆".repeat(emptyStars)}
       </span>
     );
@@ -75,20 +75,20 @@ function Recomandate() {
   };
 
   return (
-    <div className="main-container">
+    <div className="main-container-recomandate">
       {/* ======= HEADER ======= */}
       <HeaderClient />
 
       <div className="titluRecomandate">Cărți recomandate pentru tine</div>
 
-      <div className="book-grid">
+      <div className="book-grid-recomandate">
         {carti.length === 0 ? (
           <p className="lipsaFavorite">Nu am găsit recomandări momentan.</p>
         ) : (
           cartiComplete.map((carte, index) => (
             <div
               key={index}
-              className={`book-card ${carte ? "" : "hidden"}`}
+              className={`book-card-recomandate ${carte ? "" : "hidden"}`}
               onClick={carte ? () => handleClick(carte.id) : null}
             >
               {carte && (
@@ -102,7 +102,7 @@ function Recomandate() {
                     alt={carte.titlu}
                     className="book-image"
                   />
-                  <p className="book-title">
+                  <p className="book-title-recomandate">
                     {carte.titlu} - {carte.autor}
                   </p>
                   <div className="book-spacer"></div>
@@ -119,24 +119,81 @@ function Recomandate() {
       </div>
 
       {/* ======= Paginare ======= */}
-      <div className="pagination-container">
-        <button
-          className="pagination-button"
-          onClick={paginaAnterioara}
-          disabled={paginaCurenta === 1}
-        >
-          ◀
-        </button>
-        <span className="pagina-info">
-          Pagina {paginaCurenta} din {numarTotalPagini}
-        </span>
-        <button
-          className="pagination-button"
-          onClick={paginaUrmatoare}
-          disabled={paginaCurenta === numarTotalPagini}
-        >
-          ▶
-        </button>
+      <div className="pagination-container-recomandate">
+        {paginaCurenta > 1 && (
+          <button
+            className="pagination-prev"
+            onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+          >
+            &laquo;
+          </button>
+        )}
+
+        {Array.from({ length: numarTotalPagini }, (_, i) => i + 1)
+          .filter((pagina) => {
+            if (numarTotalPagini <= 5) return true;
+            if (
+              pagina === 1 ||
+              pagina === numarTotalPagini ||
+              Math.abs(pagina - paginaCurenta) <= 1
+            )
+              return true;
+            if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+              return "dots";
+            return false;
+          })
+          .map((pagina, i, arr) => {
+            if (pagina === "dots") {
+              return (
+                <span key={`dots-${i}`} className="pagination-dots">
+                  ...
+                </span>
+              );
+            }
+
+            // Evită dublarea punctelor
+            if (
+              i > 0 &&
+              typeof pagina === "number" &&
+              typeof arr[i - 1] === "number" &&
+              pagina - arr[i - 1] > 1
+            ) {
+              return (
+                <React.Fragment key={pagina}>
+                  <span className="pagination-dots">...</span>
+                  <button
+                    className={`pagination-number ${
+                      pagina === paginaCurenta ? "active" : ""
+                    }`}
+                    onClick={() => setPaginaCurenta(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <button
+                key={pagina}
+                className={`pagination-number ${
+                  pagina === paginaCurenta ? "active" : ""
+                }`}
+                onClick={() => setPaginaCurenta(pagina)}
+              >
+                {pagina}
+              </button>
+            );
+          })}
+
+        {paginaCurenta < numarTotalPagini && (
+          <button
+            className="pagination-next"
+            onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+          >
+            &raquo;
+          </button>
+        )}
       </div>
       <ChatWidget />
     </div>

@@ -51,14 +51,14 @@ function Istoric() {
   };
 
   return (
-    <div className="admin-container">
+    <div className="istoric-client-container">
       {/* ======= HEADER CLIENT ======= */}
       <HeaderClient />
 
       {/* ======= TABEL ISTORIC ÎMPRUMUTURI ======= */}
-      <div className="user-table-container">
+      <div className="istoric-client-subcontainer">
         <h2>Istoric Împrumuturi</h2>
-        <table className="user-table">
+        <table className="istoric-client-table">
           <thead>
             <tr>
               <th>#</th>
@@ -90,20 +90,85 @@ function Istoric() {
         </table>
 
         {/* Navigare paginare */}
-        <div className="pagination">
-          <button onClick={prevPage} disabled={paginaCurenta === 1}>
-            ◀
-          </button>
-          <span>
-            Pagina {paginaCurenta} din{" "}
-            {Math.max(1, Math.ceil(istoric.length / rowsPerPage))}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={paginaCurenta === Math.ceil(istoric.length / rowsPerPage)}
-          >
-            ▶
-          </button>
+        <div className="pagination-container-istoric">
+          {paginaCurenta > 1 && (
+            <button
+              className="pagination-prev"
+              onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+            >
+              &laquo;
+            </button>
+          )}
+
+          {Array.from(
+            { length: Math.ceil(istoric.length / rowsPerPage) },
+            (_, i) => i + 1
+          )
+            .filter((pagina) => {
+              const total = Math.ceil(istoric.length / rowsPerPage);
+              if (total <= 5) return true;
+              if (
+                pagina === 1 ||
+                pagina === total ||
+                Math.abs(pagina - paginaCurenta) <= 1
+              )
+                return true;
+              if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+                return "dots";
+              return false;
+            })
+            .map((pagina, i, arr) => {
+              if (pagina === "dots") {
+                return (
+                  <span key={`dots-${i}`} className="pagination-dots">
+                    ...
+                  </span>
+                );
+              }
+
+              // Evită dublarea punctelor
+              if (
+                i > 0 &&
+                typeof pagina === "number" &&
+                typeof arr[i - 1] === "number" &&
+                pagina - arr[i - 1] > 1
+              ) {
+                return (
+                  <React.Fragment key={pagina}>
+                    <span className="pagination-dots">...</span>
+                    <button
+                      className={`pagination-number ${
+                        pagina === paginaCurenta ? "active" : ""
+                      }`}
+                      onClick={() => setPaginaCurenta(pagina)}
+                    >
+                      {pagina}
+                    </button>
+                  </React.Fragment>
+                );
+              }
+
+              return (
+                <button
+                  key={pagina}
+                  className={`pagination-number ${
+                    pagina === paginaCurenta ? "active" : ""
+                  }`}
+                  onClick={() => setPaginaCurenta(pagina)}
+                >
+                  {pagina}
+                </button>
+              );
+            })}
+
+          {paginaCurenta < Math.ceil(istoric.length / rowsPerPage) && (
+            <button
+              className="pagination-next"
+              onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+            >
+              &raquo;
+            </button>
+          )}
         </div>
       </div>
       <ChatWidget />

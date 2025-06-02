@@ -33,6 +33,10 @@
   transition: box-shadow 0.3s ease;
 }
 
+.search-bar-client:focus {
+  outline: none;
+}
+
 .filter-icon-client {
     width: 35px;
     height: 37px;
@@ -182,16 +186,16 @@
     pointer-events: none;
 }
 
-.book-image-client {
+.book-image-client-mp {
     width: 100%;
     height: 210px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
-.book-title-client {
+.book-title-client-mp {
     font-family: 'Times New Roman', Times, serif;
-    font-weight: 500;
+    font-weight: 800;
     margin-top: 10px;
     color: #3B3A4F;
     white-space: nowrap;

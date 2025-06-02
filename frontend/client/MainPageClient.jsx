@@ -153,11 +153,6 @@ function MainPageClient() {
 
   return (
     <div className="main-container-client">
-      {/* <img
-        src="/images/beige_gradient.jpg"
-        alt="background"
-        className="background-image"
-      /> */}
       {/* ======= Header fixat sus ======= */}
       <HeaderClient />
 
@@ -289,9 +284,9 @@ function MainPageClient() {
                       : carte.imagine
                   }
                   alt={carte.titlu}
-                  className="book-image-client"
+                  className="book-image-client-mp"
                 />
-                <p className="book-title-client">
+                <p className="book-title-client-mp">
                   {carte.titlu} - {carte.autor}
                 </p>
                 <div className="book-spacer"></div>

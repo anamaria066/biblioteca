@@ -66,6 +66,14 @@ function DetaliiCarte() {
   };
 
   useEffect(() => {
+    document.body.classList.add("no-scroll");
+
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  useEffect(() => {
     fetchData();
 
     const incarcaZileIndisponibile = async () => {
@@ -385,17 +393,21 @@ function DetaliiCarte() {
       </div>
 
       {afiseazaMesajFavorit && (
-        <div className="floating-success">{mesajFavorit}</div>
+        <div className="floating-adauga-favorite">{mesajFavorit}</div>
       )}
 
       {afiseazaMesajImprumut && (
-        <div className={esteSucces ? "floating-success" : "floating-error"}>
+        <div
+          className={
+            esteSucces ? "floating-success-imprumut" : "floating-error-imprumut"
+          }
+        >
           {mesajImprumut}
         </div>
       )}
       {showPopupImprumut && (
         <div className="popup-imprumut">
-          <div className="popup-content">
+          <div className="popup-imprumuta">
             <h3>Rezervare carte</h3>
             <DatePicker
               selected={startDate ? new Date(startDate) : null}
@@ -438,7 +450,7 @@ function DetaliiCarte() {
               placeholderText="Selectează data de retur"
             />
 
-            <div className="butoane-popup">
+            <div className="butoane-imprumuta">
               <button id="btnConfirmaImprumut" onClick={handleConfirmImprumut}>
                 Confirmă
               </button>
@@ -456,7 +468,7 @@ function DetaliiCarte() {
       <ChatWidget />
       {showPopup && (
         <div className="popup-overlay">
-          <div className="popup-content">
+          <div className="popup-adauga-recenzie">
             <h3>Adaugă recenzie</h3>
             <form onSubmit={handleSubmitRecenzie}>
               <input
@@ -477,7 +489,7 @@ function DetaliiCarte() {
                   setRecenzie({ ...recenzie, comentariu: e.target.value })
                 }
               ></textarea>
-              <div className="butoane-popup">
+              <div className="butoane-adauga-recenzie">
                 <button type="submit">Trimite</button>
                 <button type="button" onClick={() => setShowPopup(false)}>
                   Anulează
