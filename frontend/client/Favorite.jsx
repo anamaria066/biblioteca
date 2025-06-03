@@ -46,9 +46,9 @@ function Favorite() {
     const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <span className="rating-stars">
+      <span className="rating-stars-favorite">
         {"★".repeat(fullStars)}
-        {hasHalfStar && <span className="half-star">★</span>}
+        {hasHalfStar && <span className="half-star-favorite">★</span>}
         {"☆".repeat(emptyStars)}
       </span>
     );
@@ -58,32 +58,34 @@ function Favorite() {
     <div className="favorite-container">
       {/* ✅ Header-ul fix de sus */}
       <HeaderClient />
+      <div className="favorite-subcontainer">
+        <h2 className="titluFavorite">Cărți favorite</h2>
 
-      <h2 className="titluFavorite">Cărți favorite</h2>
-
-      <div className="book-grid">
-        {favorite.length === 0 ? (
-          <p className="lipsaFavorite">Nu ai cărți favorite încă!</p>
-        ) : (
-          favorite.map((carte) => (
-            <div
-              key={carte.id}
-              className="book-card"
-              onClick={() => navigate(`/detalii/${carte.id}`)}
-            >
-              <img
-                src={carte.imagine}
-                alt={carte.titlu}
-                className="book-image"
-              />
-              <p className="book-title">
-                {carte.titlu} - {carte.autor}
-              </p>
-              <p className="book-rating">{renderStars(carte.rating)}</p>{" "}
-              {/* ✅ Afișare rating */}
-            </div>
-          ))
-        )}
+        <div className="book-grid-favorite">
+          {favorite.length === 0 ? (
+            <p className="lipsaFavorite">Nu ai cărți favorite încă!</p>
+          ) : (
+            favorite.map((carte) => (
+              <div
+                key={carte.id}
+                className="book-card-favorite"
+                onClick={() => navigate(`/detalii/${carte.id}`)}
+              >
+                <img
+                  src={carte.imagine}
+                  alt={carte.titlu}
+                  className="book-image-favorite"
+                />
+                <p className="book-title-favorite">
+                  {carte.titlu} - {carte.autor}
+                </p>
+                <div className="book-spacer"></div>
+                <p className="book-rating">{renderStars(carte.rating)}</p>{" "}
+                {/* ✅ Afișare rating */}
+              </div>
+            ))
+          )}
+        </div>
       </div>
       <ChatWidget />
     </div>

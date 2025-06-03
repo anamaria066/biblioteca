@@ -34,6 +34,7 @@ function ProfilClient() {
   const [showFloatingError, setShowFloatingError] = useState(false);
   const [floatingErrorMessage, setFloatingErrorMessage] = useState("");
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
 
   const userId = localStorage.getItem("utilizator_id");
 
@@ -254,6 +255,16 @@ function ProfilClient() {
       : userData.pozaProfil
     : null;
 
+  useEffect(() => {
+    // Blochează scroll-ul la mount
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      // Permite scroll-ul din nou la unmount
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   return (
     <div className="profil-container">
       <HeaderClient />
@@ -265,19 +276,26 @@ function ProfilClient() {
               src={pozaAfisata}
               alt="Poza profil"
               className="profile-img"
-              onClick={() => {
+              onClick={(e) => {
                 if (userData.pozaProfil !== "/images/default-avatar.jpg") {
+                  setDropdownPosition({ x: e.clientX, y: e.clientY + 10 });
                   setPozaMareDropdownDeschis((prev) => !prev);
                 }
               }}
             />
-            {pozaMareDropdownDeschis &&
-              userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                <div className="dropdown-poza-mare">
-                  <button onClick={handleSelectPoza}>Schimbă poza</button>
-                  <button onClick={handleDeletePicture}>Șterge poza</button>
-                </div>
-              )}
+            {pozaMareDropdownDeschis && (
+              <div
+                className="dropdown-poza-client"
+                style={{
+                  top: `${dropdownPosition.y}px`,
+                  left: `${dropdownPosition.x}px`,
+                  position: "fixed",
+                }}
+              >
+                <button onClick={handleSelectPoza}>Schimbă poza</button>
+                <button onClick={handleDeletePicture}>Șterge poza</button>
+              </div>
+            )}
           </div>
 
           {previewPoza && (
@@ -341,6 +359,16 @@ function ProfilClient() {
             )}
           </div>
 
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+        </div>
+
+        <div className="zona-butoane-profil">
           {isEditing ? (
             <>
               <button
@@ -367,13 +395,6 @@ function ProfilClient() {
               >
                 Schimbă parola
               </button>
-              {pozaAfisata &&
-                pozaAfisata.includes("/images/default-avatar.jpg") &&
-                !previewPoza && (
-                  <button id="btnAdaugaPoza" onClick={handleSelectPoza}>
-                    Adaugă poză
-                  </button>
-                )}
               <button
                 id="btnDelogare"
                 onClick={() => {
@@ -386,18 +407,14 @@ function ProfilClient() {
             </>
           )}
 
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
+          <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+            Șterge cont
+          </button>
         </div>
 
-        <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+        {/* <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
           Șterge cont
-        </button>
+        </button> */}
       </div>
 
       {isChangingPassword && (

@@ -1,20 +1,21 @@
 
 /* ======= CONȚINUT PROFIL ======= */
 .profil-container {
-    margin-top: 90px;
-    padding: 20px;
-    background-color: rgb(252, 240, 224);
     min-height: 100vh;
+  display: flex;
+  justify-content: center; /* pe orizontală */
+  align-items: center;     /* pe verticală */
+  background: rgb(253, 252, 251);
 }
 
 .profil-content {
     width: 800px;
     height: 450px;
     max-width: 1000px;
-    background-color: rgb(251, 249, 245);
-    border-radius: 15px;
+    background-color: rgb(251, 250, 248);
+    border-radius: 7px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 6px 14px 4px rgba(44, 35, 98, 0.511), 2px 8px 22px 4px rgba(224, 145, 49, 0.402);
     display: flex;
     align-items: center;
     position: relative;
@@ -38,33 +39,31 @@
 }
 
 
-.dropdown-poza-mare {
-    margin-top: 10px;
+.dropdown-poza-client {
     background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
     display: flex;
     flex-direction: column;
     position: absolute;
     z-index: 100;
-    padding: 5px 0;
-    margin-left: -80px;
 }
 
-.dropdown-poza-mare button {
+.dropdown-poza-client button {
     background: none;
     border: none;
-    padding: 8px 16px;
+    padding: 8px;
     text-align: left;
     width: 100%;
-    font-size: 14px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
     color: rgb(62, 45, 36);
 }
 
-.dropdown-poza-mare button:hover {
-    background-color: rgb(255, 209, 220);
+.dropdown-poza-client button:hover {
+    background-color: #f1f1f1;
 }
 
 .butoane-previzualizare {
@@ -91,7 +90,7 @@
 }
 
 .profile-details {
-    margin-left: 80px;
+    margin-left: 60px;
     flex-direction: column;
 }
 
@@ -101,15 +100,18 @@
 }
 
 .profile-details h2 {
-    margin: 0;
     font-size: 28px;
     color: #333;
+    font-family: 'Times New Roman', Times, serif;
+    margin-bottom: 20px;
 }
 
 .profile-details p {
     color: #777;
-    font-size: 16px;
+    font-size: 18px;
     margin: 5px 0;
+    margin-bottom: 10px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 #inputNume, #inputPrenume, #inputMail {
@@ -133,6 +135,25 @@
     height: 27px;
 }
 
+.butoane-profil-inline {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.zona-butoane-profil {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    z-index: 10;
+}
+
 #btnsalveazaModificarile,
 #btnAnuleazaModificarile,
 #btnEditProfil,
@@ -142,22 +163,21 @@
 #btnStergeCont,
 #btnConfirmaSchimbParola,
 #btnAnuleazaSchimbParola {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    padding: 10px 15px;
-    margin-right: 10px;
-    margin-top: 10px;
-    border: none;
+    color: #ffffff;
+    padding: 10px 22px;
+    height: 40px;
     border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
-}
-
-#btnStergeCont {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
 }
 
 #btnsalveazaModificarile:hover,
@@ -169,8 +189,7 @@
 #btnStergeCont:hover,
 #btnConfirmaSchimbParola:hover,
 #btnAnuleazaSchimbParola:hover {
-    background-color: rgb(255, 209, 220);
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transform: translateY(-2px);
 }
 
