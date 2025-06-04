@@ -462,10 +462,10 @@ function ProfilClient() {
       )}
 
       {showFloatingMessage && (
-        <div className="floating-success">Modificări salvate!</div>
+        <div className="floating-success-modificari">Modificări salvate!</div>
       )}
       {showFloatingError && (
-        <div className="floating-error">{floatingErrorMessage}</div>
+        <div className="floating-error-modificari">{floatingErrorMessage}</div>
       )}
 
       {showDeletePopup && (
