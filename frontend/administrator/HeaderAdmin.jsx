@@ -97,21 +97,24 @@ const HeaderAdmin = () => {
   };
 
   return (
-    <header className="header">
-      <div className="nav-buttons" ref={dropdownRef}>
-        <button className="nav-button" onClick={() => navigate("/admin")}>
+    <header className="header-admin">
+      <div className="nav-buttons-admin" ref={dropdownRef}>
+        <button className="nav-button-admin" onClick={() => navigate("/admin")}>
           Pagina Principală
         </button>
-        <button className="nav-button" onClick={() => navigate("/carti")}>
+        <button className="nav-button-admin" onClick={() => navigate("/carti")}>
           Cărți
         </button>
-        <button className="nav-button" onClick={() => navigate("/utilizatori")}>
+        <button
+          className="nav-button-admin"
+          onClick={() => navigate("/utilizatori")}
+        >
           Utilizatori
         </button>
 
         <div className="dropdown">
           <button
-            className="nav-button"
+            className="nav-button-admin"
             onClick={() =>
               setMenuOpen(menuOpen === "imprumuturi" ? null : "imprumuturi")
             }
@@ -119,17 +122,9 @@ const HeaderAdmin = () => {
             Împrumuturi...
           </button>
           {menuOpen === "imprumuturi" && (
-            <div className="dropdown-menu show">
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/imprumuturi")}
-              >
-                Active
-              </button>
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/istoric-imprumuturi")}
-              >
+            <div className="dropdown-menu-header-admin show">
+              <button onClick={() => navigate("/imprumuturi")}>Active</button>
+              <button onClick={() => navigate("/istoric-imprumuturi")}>
                 Istoric
               </button>
             </div>
@@ -138,38 +133,28 @@ const HeaderAdmin = () => {
 
         <div className="dropdown">
           <button
-            className="nav-button"
+            className="nav-button-admin"
             onClick={() => setMenuOpen(menuOpen === "adauga" ? null : "adauga")}
           >
             Adaugă...
           </button>
           {menuOpen === "adauga" && (
-            <div className="dropdown-menu show">
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/adauga-carte")}
-              >
-                Carte
-              </button>
-              <button
-                className="dropdown-item"
-                onClick={() => setShowPopupCod(true)}
-              >
-                Împrumut
-              </button>
+            <div className="dropdown-menu-header-admin show">
+              <button onClick={() => navigate("/adauga-carte")}>Carte</button>
+              <button onClick={() => setShowPopupCod(true)}>Împrumut</button>
             </div>
           )}
         </div>
       </div>
 
       <div className="right-buttons">
-        <p className="user-info">
+        <p className="user-info-admin">
           Bun venit, {user.nume} {user.prenume}!
         </p>
         <img
           src={user.pozaProfil}
           alt="Poza de profil"
-          className="profile-img-small"
+          className="profile-img-small-admin"
           onClick={() => navigate("/profil-admin")}
         />
       </div>

@@ -141,14 +141,14 @@ function MainPageAdmin() {
   };
 
   return (
-    <div className="admin-container">
+    <div className="main-container-admin">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
       {/* ======= GRID CU STATISTICI ======= */}
-      <div className="dashboard-grid">
+      <div className="dashboard-grid-admin">
         {/* Cheltuieli lunare */}
-        <div className="chart-container">
+        <div className="chart-container-cheltuieli-lunare">
           <h3>Cheltuieli lunare</h3>
           <Bar
             data={{
@@ -165,12 +165,17 @@ function MainPageAdmin() {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   position: "top",
                   labels: {
                     font: { size: 14 },
                     color: "#444",
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {
@@ -208,7 +213,7 @@ function MainPageAdmin() {
         </div>
 
         {/* Taxe întârziere lunare */}
-        <div className="chart-container">
+        <div className="chart-container-taxe-lunare">
           <h3>Taxe de întârziere plătite</h3>
           <Line
             data={{
@@ -228,6 +233,7 @@ function MainPageAdmin() {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   display: true,
@@ -235,6 +241,10 @@ function MainPageAdmin() {
                   labels: {
                     font: { size: 14 },
                     color: "#444",
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {
@@ -269,7 +279,7 @@ function MainPageAdmin() {
         </div>
 
         {/* Împrumuturi lunare */}
-        <div className="chart-container">
+        <div className="chart-container-imprumuturi-lunare">
           <h3>Împrumuturi lunare</h3>
           <Bar
             data={{
@@ -286,6 +296,7 @@ function MainPageAdmin() {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   display: true,
@@ -293,6 +304,10 @@ function MainPageAdmin() {
                   labels: {
                     font: { size: 14 },
                     color: "#444",
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {
@@ -327,7 +342,7 @@ function MainPageAdmin() {
         </div>
 
         {/* Utilizatori noi lunari */}
-        <div className="chart-container">
+        <div className="chart-container-utilizatori-noi">
           <h3>Utilizatori noi lunari</h3>
           <Bar
             data={{
@@ -344,6 +359,7 @@ function MainPageAdmin() {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   display: true,
@@ -351,6 +367,10 @@ function MainPageAdmin() {
                   labels: {
                     color: "#444",
                     font: { size: 14 },
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {
@@ -385,7 +405,7 @@ function MainPageAdmin() {
         </div>
 
         {/* Tipuri de cheltuieli */}
-        <div className="chart-container">
+        <div className="chart-container-tipuri-cheltuieli">
           <h3>Tipuri de cheltuieli</h3>
           <Pie
             data={{
@@ -406,12 +426,17 @@ function MainPageAdmin() {
               ],
             }}
             options={{
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   position: "top",
                   labels: {
                     color: "#333",
                     font: { size: 14 },
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {
@@ -433,7 +458,7 @@ function MainPageAdmin() {
         </div>
 
         {/* Popularitatea genurilor literare */}
-        <div className="chart-container">
+        <div className="chart-container-popularitate-genuri">
           <h3>Popularitatea genurilor</h3>
           <Pie
             data={{
@@ -458,6 +483,7 @@ function MainPageAdmin() {
             }}
             options={{
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   position: "bottom",
@@ -465,6 +491,10 @@ function MainPageAdmin() {
                     font: { size: 13 },
                     color: "#333",
                     padding: 10,
+                  },
+                  font: {
+                    family: "'Times New Roman', Times, serif",
+                    size: 16,
                   },
                 },
                 tooltip: {

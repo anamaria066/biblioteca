@@ -66,6 +66,7 @@
 
 .dropdown-poza-client button:hover {
     background-color: #f1f1f1;
+    border-radius: 5px;
 }
 
 .butoane-previzualizare {
