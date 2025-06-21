@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import HeaderAdmin from "./HeaderAdmin";
 
 import "../aspect/Exemplare.css";
 
@@ -212,95 +213,10 @@ function Exemplare() {
   return (
     <div className="exemplare-container">
       {/* ======= HEADER ======= */}
-      <header className="header">
-        <div className="nav-buttons">
-          <button className="nav-button" onClick={() => navigate("/admin")}>
-            Pagina Principală
-          </button>
-          <button className="nav-button" onClick={() => navigate("/carti")}>
-            Cărți
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => navigate("/utilizatori")}
-          >
-            Utilizatori
-          </button>
-          <div className="dropdown" ref={dropdownRef}>
-            <button
-              className="nav-button"
-              onClick={() =>
-                setMenuOpen(menuOpen === "imprumuturi" ? null : "imprumuturi")
-              }
-            >
-              Împrumuturi...
-            </button>
-            {menuOpen === "imprumuturi" && (
-              <div className="dropdown-menu show">
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/imprumuturi")}
-                >
-                  Active
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/istoric-imprumuturi")}
-                >
-                  Istoric
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="dropdown" ref={dropdownRef}>
-            <button
-              className="nav-button"
-              onClick={() =>
-                setMenuOpen(menuOpen === "adauga" ? null : "adauga")
-              }
-            >
-              Adaugă...
-            </button>
-            {menuOpen === "adauga" && (
-              <div className="dropdown-menu show">
-                <button className="dropdown-item">Cheltuială</button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/adauga-carte")}
-                >
-                  Carte
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setShowPopupCod(true)}
-                >
-                  Împrumut
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="right-buttons">
-          <p className="user-info">
-            Bun venit, {user.nume} {user.prenume}!
-          </p>
-          <img
-            src={
-              user.pozaProfil
-                ? user.pozaProfil.startsWith("/uploads")
-                  ? `http://localhost:3000${user.pozaProfil}`
-                  : user.pozaProfil
-                : "/images/default-avatar.jpg"
-            }
-            alt="Poza de profil"
-            className="profile-img-small"
-            onClick={() => navigate("/profil-admin")}
-          />
-        </div>
-      </header>
+      <HeaderAdmin />
 
       {/* Tabelul cu exemplare */}
-      <div className="exemplare-content">
+      <div className="exemplare-subcontainer">
         <h2>
           Exemplare pentru cartea: {carte ? carte.titlu : "Se încarcă..."}
         </h2>
@@ -318,8 +234,10 @@ function Exemplare() {
           </thead>
           <tbody>
             {exemplare.length === 0 ? (
-              <tr>
-                <td colSpan="6">Nu există exemplare pentru această carte.</td>
+              <tr className="empty-row">
+                <td colSpan="6" className="empty-message">
+                  Nu există exemplare pentru această carte.
+                </td>
               </tr>
             ) : (
               exemplare.map((exemplar) => {
@@ -375,7 +293,7 @@ function Exemplare() {
                           &#8942;
                         </button>
                         {rowMenuOpen === exemplar.id && (
-                          <div className="dropdown-menu show">
+                          <div className="dropdown-menu-exemplare show">
                             <button
                               className="dropdown-item"
                               onClick={() => {
@@ -502,8 +420,8 @@ function Exemplare() {
       )}
 
       {popupRentabilitate && (
-        <div className="confirm-modal">
-          <div className="modal-content">
+        <div className="popup-rentabilitate">
+          <div className="rentabilitate-content">
             <h3>Rentabilitate exemplar ID: {popupRentabilitate.id}</h3>
             <p>
               Număr împrumuturi:{" "}
@@ -513,7 +431,7 @@ function Exemplare() {
               Rentabilitate: <strong>{popupRentabilitate.rentabilitate}</strong>{" "}
               ({popupRentabilitate.eticheta})
             </p>
-            <div className="popup-buttons">
+            <div className="rentabilitate-button">
               <button onClick={() => setPopupRentabilitate(null)}>
                 Închide
               </button>

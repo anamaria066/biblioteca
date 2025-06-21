@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../aspect/DetaliiCarteAdmin.css";
 import { useLocation } from "react-router-dom";
+import HeaderAdmin from "./HeaderAdmin";
 
 function DetaliiCarteAdmin() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ function DetaliiCarteAdmin() {
   const [showPopup, setShowPopup] = useState(false);
   const [mesaj, setMesaj] = useState("");
   const [menuOpen, setMenuOpen] = useState(null);
+  const [cartiSimilare, setCartiSimilare] = useState([]);
   const [user, setUser] = useState({
     nume: "",
     prenume: "",
@@ -48,6 +50,32 @@ function DetaliiCarteAdmin() {
     }
   };
 
+  const calculeazaRatingMediu = () => {
+    if (recenzii.length === 0) return 0;
+    const sumaRatinguri = recenzii.reduce(
+      (sum, recenzie) => sum + parseFloat(recenzie.rating),
+      0
+    );
+    return (sumaRatinguri / recenzii.length).toFixed(1);
+  };
+
+  const renderStars = (rating) => {
+    const maxStars = 5;
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.3 && rating % 1 <= 0.7;
+    const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <span className="rating-stars">
+        {"★".repeat(fullStars)}
+        {hasHalfStar && <span className="half-star">★</span>}
+        {"☆".repeat(emptyStars)}
+      </span>
+    );
+  };
+
+  const ratingMediu = calculeazaRatingMediu();
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -63,6 +91,16 @@ function DetaliiCarteAdmin() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost:3000/carti-similare/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Cărți similare primite din backend:", data);
+        setCartiSimilare(data);
+      })
+      .catch((err) => console.error("Eroare la cărți similare:", err));
+  }, [id]);
 
   useEffect(() => {
     fetchData();
@@ -156,153 +194,136 @@ function DetaliiCarteAdmin() {
   };
 
   return (
-    <div className="detalii-container">
+    <div className="detalii-container-admin">
       {/* ======= HEADER ======= */}
-      <header className="header">
-        <div className="nav-buttons">
-          <button className="nav-button" onClick={() => navigate("/admin")}>
-            Pagina Principală
-          </button>
-          <button className="nav-button" onClick={() => navigate("/carti")}>
-            Cărți
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => navigate("/utilizatori")}
-          >
-            Utilizatori
-          </button>
-          <div className="dropdown">
-            <button
-              className="nav-button"
-              onClick={() =>
-                setMenuOpen(menuOpen === "imprumuturi" ? null : "imprumuturi")
-              }
-            >
-              Împrumuturi...
-            </button>
-            {menuOpen === "imprumuturi" && (
-              <div className="dropdown-menu show">
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/imprumuturi")}
-                >
-                  Active
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/istoric-imprumuturi")}
-                >
-                  Istoric
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="dropdown">
-            <button
-              className="nav-button"
-              onClick={() =>
-                setMenuOpen(menuOpen === "adauga" ? null : "adauga")
-              }
-            >
-              Adaugă...
-            </button>
-            {menuOpen === "adauga" && (
-              <div className="dropdown-menu show">
-                <button className="dropdown-item">Cheltuială</button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/adauga-carte")}
-                >
-                  Carte
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setShowPopupCod(true)}
-                >
-                  Împrumut
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="right-buttons">
-          <p className="user-info">
-            Bun venit, {user.nume} {user.prenume}!
-          </p>
-          <img
-            src={
-              user.pozaProfil
-                ? user.pozaProfil.startsWith("/uploads")
-                  ? `http://localhost:3000${user.pozaProfil}`
-                  : user.pozaProfil
-                : "/images/default-avatar.jpg"
-            }
-            alt="Poza de profil"
-            className="profile-img-small"
-            onClick={() => navigate("/profil-admin")}
-          />
-        </div>
-      </header>
+      <HeaderAdmin />
 
-      <div className="detalii-carte">
-        <div className="detalii-text">
-          <h2>{carte.titlu}</h2>
-          <p>
-            <strong>Autor:</strong> {carte.autor}
-          </p>
-          <p>
-            <strong>An publicare:</strong> {carte.an_publicatie}
-          </p>
-          <p>
-            <strong>Limba:</strong> {carte.limba}
-          </p>
-          <p>
-            <strong>Gen:</strong> {carte.gen}
-          </p>
-          <p>
-            <strong>Descriere:</strong> {carte.descriere}
-          </p>
-
-          {/* Butoane de gestionare */}
-          <button className="btnDelete" onClick={confirmDelete}>
-            Șterge cartea
-          </button>
-          <button
-            className="btnEdit"
-            onClick={() => navigate(`/editeaza-carte/${id}`)}
-          >
-            Editează
-          </button>
-          <button className="btnExemplare" onClick={handleViewExemplare}>
-            Vezi exemplare
-          </button>
-          <button
-            className="btnAdaugaExemplar"
-            onClick={() => setShowAddExemplarPopup(true)}
-          >
-            Adaugă exemplar
-          </button>
-        </div>
-        <div className="detalii-imagine">
-          <img
-            src={
-              carte.imagine
-                ? carte.imagine.startsWith("/uploads")
+      <div className="columns-admin">
+        <div className="left-column-admin">
+          <div className="detalii-imagine-admin">
+            <img
+              src={
+                carte.imagine?.startsWith("/uploads")
                   ? `http://localhost:3000${carte.imagine}`
-                  : carte.imagine
-                : "/images/default-book.png"
-            }
-            alt={carte.titlu}
-            className="coperta-mare"
-          />
+                  : carte.imagine || "/images/default-book.png"
+              }
+              alt={carte.titlu}
+              className="coperta-mare-admin"
+            />
+          </div>
+          <div className="wrapper-butoane-admin">
+            <div className="buton-row">
+              <button className="btnDelete" onClick={confirmDelete}>
+                Șterge cartea
+              </button>
+              <button
+                className="btnEdit"
+                onClick={() => navigate(`/editeaza-carte/${id}`)}
+              >
+                Editează
+              </button>
+            </div>
+            <div className="buton-row">
+              <button className="btnExemplare" onClick={handleViewExemplare}>
+                Vezi exemplare
+              </button>
+              <button
+                className="btnAdaugaExemplar"
+                onClick={() => setShowAddExemplarPopup(true)}
+              >
+                Adaugă exemplar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="right-column-admin">
+          <div className="detalii-carte-admin">
+            <h2>{carte.titlu}</h2>
+            <p>
+              <strong>Autor:</strong> {carte.autor}
+            </p>
+            <p>
+              <strong>Rating:</strong> {renderStars(ratingMediu)} ({ratingMediu}
+              /5)
+            </p>
+            <p>
+              <strong>An publicare:</strong> {carte.an_publicatie}
+            </p>
+            <p>
+              <strong>Limba:</strong> {carte.limba}
+            </p>
+            <p>
+              <strong>Gen:</strong> {carte.gen}
+            </p>
+            <p>
+              <strong>Descriere:</strong> {carte.descriere}
+            </p>
+          </div>
+
+          <div className="recenzii-container-admin">
+            <h3>Recenzii</h3>
+            {recenzii.length === 0 ? (
+              <p className="fara-recenzii-admin">
+                Nu există recenzii momentan!
+              </p>
+            ) : (
+              <div className="recenzii-box-admin">
+                {recenzii.map((recenzie, index) => (
+                  <div className="recenzie-card-admin" key={index}>
+                    <p id="detalii-utilizator-recenzie">
+                      {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
+                      Nota: {recenzie.rating}/5 ⭐
+                    </p>
+                    <p className="recenzie-text">{recenzie.comentariu}</p>
+                    <p>
+                      <small>
+                        Data:{" "}
+                        {new Date(recenzie.data_recenzie).toLocaleDateString()}
+                      </small>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {cartiSimilare.length > 0 && (
+            <div className="carti-similare-section">
+              <h3>Te-ar putea interesa și...</h3>
+              <div className="carti-similare-grid">
+                {cartiSimilare.map((carte) => (
+                  <div
+                    key={carte.id}
+                    className="book-card-similare"
+                    onClick={() => navigate(`/detalii/${carte.id}`)}
+                  >
+                    <img
+                      src={
+                        carte.imagine?.startsWith("/uploads")
+                          ? `http://localhost:3000${carte.imagine}`
+                          : carte.imagine
+                      }
+                      alt={carte.titlu}
+                      className="book-image-client"
+                    />
+                    <p className="book-title-client">
+                      {carte.titlu} - {carte.autor}
+                    </p>
+                    <div className="book-spacer"></div>
+                    <p className="book-rating">{renderStars(carte.rating)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Pop-up pentru confirmarea ștergerii */}
       {showPopup && (
-        <div className="confirm-modal">
-          <div className="modal-content">
+        <div className="popup-confirma-stergere">
+          <div className="content-confirma-stergere">
             <h3>Confirmați ștergerea cărții?</h3>
             <p>Odată ștearsă, cartea nu va mai fi disponibilă!</p>
             <button className="confirm-button" onClick={handleDelete}>
@@ -315,38 +336,10 @@ function DetaliiCarteAdmin() {
         </div>
       )}
 
-      {/* Recenziile */}
-      <div className="recenzii-container">
-        <h3>Recenzii</h3>
-        {recenzii.length === 0 ? (
-          <p className="fara-recenzii">Nu există recenzii momentan!</p>
-        ) : (
-          <div className="recenzii-box">
-            {recenzii.map((recenzie, index) => (
-              <div className="recenzie-card" key={index}>
-                <p>
-                  <strong>
-                    {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
-                    Nota: {recenzie.rating}/5 ⭐
-                  </strong>
-                </p>
-                <p className="recenzie-text">{recenzie.comentariu}</p>
-                <p>
-                  <small>
-                    Data:{" "}
-                    {new Date(recenzie.data_recenzie).toLocaleDateString()}
-                  </small>
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/*  */}
       {showAddExemplarPopup && (
         <div className="popup-overlay">
-          <div className="popup">
+          <div className="popup-adauga-exemplar">
             <h3>Adaugă exemplar</h3>
 
             <label>Stare:</label>
@@ -390,13 +383,13 @@ function DetaliiCarteAdmin() {
       {/*  */}
 
       {showExemplarSuccess && (
-        <div className="floating-success">
+        <div className="floating-success-adauga-exemplar">
           Exemplarul a fost adăugat cu succes!
         </div>
       )}
 
       {showEditSuccess && (
-        <div className="floating-success">Modificări salvate!</div>
+        <div className="floating-success-modificari">Modificări salvate!</div>
       )}
     </div>
   );

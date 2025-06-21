@@ -141,8 +141,8 @@
     align-items: center;
 }
 
-.butoane-filtru button:hover {
-    background-color: #d16262;
+.butoane-filtru-client button:hover {
+    background-color: rgba(233, 233, 233, 0.338);
 }
 
 /* Grid pentru cărți */

@@ -105,9 +105,9 @@ function CartiAdmin() {
     const emptyStars = maxStars - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <span className="rating-stars">
+      <span className="rating-stars-admin">
         {"★".repeat(fullStars)}
-        {hasHalfStar && <span className="half-star">★</span>}
+        {hasHalfStar && <span className="half-star-admin">★</span>}
         {"☆".repeat(emptyStars)}
       </span>
     );
@@ -228,12 +228,12 @@ function CartiAdmin() {
   };
 
   return (
-    <div className="main-container">
+    <div className="main-container-carti-admin">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
       {showFilterPopup && (
-        <div className="popup-filtru" ref={popupRef}>
+        <div className="popup-filtru-admin" ref={popupRef}>
           <h4>Filtrează cărțile</h4>
           <select
             value={genSelectat}
@@ -272,7 +272,7 @@ function CartiAdmin() {
             placeholder="Ex: 1999"
             value={anManual}
             onChange={(e) => setAnManual(e.target.value)}
-            className="input-an"
+            className="input-an-admin"
           />
 
           <label>Interval:</label>
@@ -289,7 +289,7 @@ function CartiAdmin() {
             <option value="gt2000">&gt; 2000</option>
           </select>
 
-          <div className="butoane-filtru">
+          <div className="butoane-filtru-admin">
             <button
               onClick={() => {
                 setFiltruGen(genSelectat);
@@ -328,27 +328,27 @@ function CartiAdmin() {
       )}
 
       {/* ======= Căutare ======= */}
-      <div className="search-container">
+      <div className="search-container-admin">
         <input
-          className="search-bar"
+          className="search-bar-admin"
           type="text"
           placeholder="🔍 Căutare"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <img
-          src="/images/filter.png"
+          src="/images/filtering.png"
           alt="Filtru"
-          className="filter-icon"
+          className="filter-icon-admin"
           onClick={() => setShowFilterPopup((prev) => !prev)}
         />
       </div>
 
       {/* ======= Afișarea cărților ======= */}
-      <div className="book-grid">
+      <div className="book-grid-admin">
         {cartiComplete.map((carte, index) => (
           <div
-            className={`book-card ${carte ? "" : "hidden"}`}
+            className={`book-card-admin ${carte ? "" : "hidden"}`}
             key={index}
             onClick={carte ? () => handleClick(carte.id) : null} // Asigură clic doar pe cărți valide
           >
@@ -375,24 +375,80 @@ function CartiAdmin() {
       </div>
 
       {/* ======= Butoane pentru paginare ======= */}
-      <div className="pagination-container">
-        <button
-          className="pagination-button"
-          onClick={paginaAnterioara}
-          disabled={paginaCurenta === 1}
-        >
-          ◀
-        </button>
-        <span className="pagina-info">
-          Pagina {paginaCurenta} din {numarTotalPagini}
-        </span>
-        <button
-          className="pagination-button"
-          onClick={paginaUrmatoare}
-          disabled={paginaCurenta === numarTotalPagini}
-        >
-          ▶
-        </button>
+      <div className="pagination-container-admin">
+        {paginaCurenta > 1 && (
+          <button
+            className="pagination-prev"
+            onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+          >
+            &laquo;
+          </button>
+        )}
+
+        {Array.from({ length: numarTotalPagini }, (_, i) => i + 1)
+          .filter((pagina) => {
+            if (numarTotalPagini <= 5) return true;
+            if (
+              pagina === 1 ||
+              pagina === numarTotalPagini ||
+              Math.abs(pagina - paginaCurenta) <= 1
+            )
+              return true;
+            if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+              return "dots";
+            return false;
+          })
+          .map((pagina, i, arr) => {
+            if (pagina === "dots") {
+              return (
+                <span key={`dots-${i}`} className="pagination-dots">
+                  ...
+                </span>
+              );
+            }
+
+            if (
+              i > 0 &&
+              typeof pagina === "number" &&
+              typeof arr[i - 1] === "number" &&
+              pagina - arr[i - 1] > 1
+            ) {
+              return (
+                <React.Fragment key={pagina}>
+                  <span className="pagination-dots">...</span>
+                  <button
+                    className={`pagination-number ${
+                      pagina === paginaCurenta ? "active" : ""
+                    }`}
+                    onClick={() => setPaginaCurenta(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <button
+                key={pagina}
+                className={`pagination-number ${
+                  pagina === paginaCurenta ? "active" : ""
+                }`}
+                onClick={() => setPaginaCurenta(pagina)}
+              >
+                {pagina}
+              </button>
+            );
+          })}
+
+        {paginaCurenta < numarTotalPagini && (
+          <button
+            className="pagination-next"
+            onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+          >
+            &raquo;
+          </button>
+        )}
       </div>
 
       {showDeleteSuccess && (
