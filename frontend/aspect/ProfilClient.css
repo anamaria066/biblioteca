@@ -139,12 +139,7 @@
     outline: none;
 }
 
-.butoane-profil-inline {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-}
+
 
 .zona-butoane-profil {
     position: absolute;

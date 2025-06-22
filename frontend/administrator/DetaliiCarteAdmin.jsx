@@ -326,10 +326,10 @@ function DetaliiCarteAdmin() {
           <div className="content-confirma-stergere">
             <h3>Confirmați ștergerea cărții?</h3>
             <p>Odată ștearsă, cartea nu va mai fi disponibilă!</p>
-            <button className="confirm-button" onClick={handleDelete}>
+            <button className="confirm-sterge-carte" onClick={handleDelete}>
               Da, șterge cartea
             </button>
-            <button className="cancel-button" onClick={cancelDelete}>
+            <button className="cancel-sterge-carte" onClick={cancelDelete}>
               Anulează
             </button>
           </div>

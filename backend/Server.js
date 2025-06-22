@@ -1998,6 +1998,58 @@ app.get('/imprumuturi-incheiate', async (req, res) => {
 });
 
 
+// Endpoint pentru a obține istoricul de împrumuturi pentru un utilizator specific
+app.get("/istoric-utilizator/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const imprumuturi = await Imprumut.findAll({
+      where: {
+        utilizator_id: id,
+        status: 'returnat'
+      },
+      include: [
+        {
+          model: Utilizator,
+          attributes: ["nume", "prenume", "email"]
+        },
+        {
+          model: ExemplarCarte,
+          include: [
+            {
+              model: Carte,
+              attributes: ["titlu"]
+            }
+          ]
+        },
+        {
+          model: TaxaIntarziere,
+          attributes: ["suma", "platita"]
+        }
+      ],
+      order: [["data_returnare", "DESC"]]
+    });
+
+    const rezultat = imprumuturi.map((imp) => ({
+      id: imp.id,
+      numeUtilizator: imp.Utilizator.nume,
+      prenumeUtilizator: imp.Utilizator.prenume,
+      emailUtilizator: imp.Utilizator.email,
+      titluCarte: imp.ExemplarCarte.Carte.titlu,
+      dataImprumut: imp.data_imprumut,
+      dataReturnare: imp.data_returnare,
+      taxa: imp.TaxaIntarziere?.suma
+        ? `${imp.TaxaIntarziere.suma.toFixed(2)} RON`
+        : "Fără taxă"
+    }));
+
+    res.status(200).json(rezultat);
+  } catch (error) {
+    console.error("Eroare la preluarea istoricului utilizatorului:", error);
+    res.status(500).json({ message: "Eroare la server!" });
+  }
+});
+
 
 // Functie pentru expirarea împrumuturilor în așteptare după 48 de ore/dupa termenul limita
 const verificaImprumuturiExpirate = async () => {

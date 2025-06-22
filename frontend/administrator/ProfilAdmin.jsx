@@ -331,13 +331,13 @@ function ProfilAdmin() {
     : "/images/default-avatar.jpg";
 
   return (
-    <div className="profil-container">
+    <div className="profil-container-admin">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
-      <div className="profil-content">
+      <div className="profil-content-admin">
         <div className="poza-cu-butoane">
-          <div className="profile-picture">
+          <div className="profile-picture-admin">
             <img
               src={pozaAfisata}
               alt="Poza profil"
@@ -351,7 +351,7 @@ function ProfilAdmin() {
 
             {pozaMareDropdownDeschis &&
               userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                <div className="dropdown-poza-mare">
+                <div className="dropdown-poza-admin">
                   <button onClick={handleSelectPoza}>Schimbă poza</button>
                   <button onClick={handleDeletePicture}>Șterge poza</button>
                 </div>
@@ -397,7 +397,6 @@ function ProfilAdmin() {
                   placeholder="Email"
                   className="input-edit"
                 />
-                <p>{userData.numarRecenzii} recenzii</p>
                 <p>Cont creat la: {userData.dataCreare}</p>
               </>
             ) : (
@@ -405,13 +404,21 @@ function ProfilAdmin() {
                 <h2>
                   {userData.nume} {userData.prenume}
                 </h2>
-                <p>{userData.numarRecenzii} recenzii</p>
                 <p>{userData.email}</p>
                 <p>Cont creat la: {userData.dataCreare}</p>
               </>
             )}
           </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+        </div>
 
+        <div className="zona-butoane-profil">
           {isEditing ? (
             <>
               <button
@@ -447,34 +454,24 @@ function ProfilAdmin() {
               >
                 Deloghează-te
               </button>
-              {/* nou */}
               {pozaAfisata.includes("/images/default-avatar.jpg") &&
                 !previewPoza && (
                   <button id="btnAdaugaPoza" onClick={handleSelectPoza}>
                     Adaugă poză
                   </button>
                 )}
-              {/*  */}
             </>
           )}
 
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
+          <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+            Șterge cont
+          </button>
         </div>
-
-        <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
-          Șterge cont
-        </button>
       </div>
 
       {isChangingPassword && (
-        <div className="popup-overlay">
-          <div className="popup">
+        <div className="popup-overlay-schimba-parola">
+          <div className="popup-schimba-parola">
             <h3>Schimbă parola</h3>
             <input
               type="password"
@@ -488,15 +485,20 @@ function ProfilAdmin() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <button id="btnConfirmaSchimbParola" onClick={handleChangePassword}>
-              Confirmă schimbarea
-            </button>
-            <button
-              id="btnAnuleazaSchimbParola"
-              onClick={handleCloseChangePassword}
-            >
-              Anulează
-            </button>
+            <div className="popup-buttons-schimba-parola">
+              <button
+                id="btnConfirmaSchimbParola"
+                onClick={handleChangePassword}
+              >
+                Confirmă schimbarea
+              </button>
+              <button
+                id="btnAnuleazaSchimbParola"
+                onClick={handleCloseChangePassword}
+              >
+                Anulează
+              </button>
+            </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
           </div>
         </div>

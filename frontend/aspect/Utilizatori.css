@@ -1,78 +1,116 @@
-.admin-container {
-    width: 100%;
-    min-height: 100vh;
-    padding: 20px;
-}
 
 
 /* === Tabel utilizatori === */
-.user-table-container {
+.utilizatori-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: rgb(253, 252, 251);
+}
+
+.utilizatori-subcontainer {
     min-height: 400px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding: 20px;
-    margin-top: 80px;
+    margin-top: 70px;
 }
 
-.user-table {
-    width: 100%;
+.utilizatori-subcontainer h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(62, 45, 36);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 1;
+}
+
+.utilizatori-table {
+    width: 900px;
     border-collapse: collapse;
-    margin-top: 20px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
 }
 
-.user-table th,
-.user-table td {
+.utilizatori-table th,
+.utilizatori-table td {
     padding: 10px;
     text-align: left;
     border: 1px solid #ddd;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 17px;
 }
 
-.user-table th {
-    background-color: #5a9a6e;
-    color: white;
+.utilizatori-table thead tr {
+  background: linear-gradient(to bottom right, #2e0f58, #f3b494);
+  color: white;
 }
 
-.user-table tr:nth-child(even) {
+.utilizatori-table th {
+  background: none;
+  font-weight: 150;
+}
+
+.utilizatori-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.user-table tr:nth-child(odd) {
+.utilizatori-table tr:nth-child(odd) {
     background-color: #f1eee4;
 }
 
-.user-table tr:hover {
+.utilizatori-table tr:hover {
     background-color: #e4e4e4;
 }
 
 .delete-button {
-    background-color: #923131;
-    color: white;
+    padding: 8px;
     border: none;
-    padding: 5px 10px;
-    cursor: pointer;
     border-radius: 5px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    background-image: linear-gradient(to bottom right, #751c1cea, #c8b4ade1);
+    backdrop-filter: blur(10px);
 }
 
 .delete-button:hover {
-    background-color: rgb(120, 41, 41);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
 }
 
 .istoric-button {
-    background-color: #527e53;
-    color: white;
+    padding: 8px;
     border: none;
-    padding: 5px 10px;
-    cursor: pointer;
     border-radius: 5px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
 }
 
 .istoric-button:hover {
-    background-color: rgb(42, 105, 46);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
 }
 
 /* Confirm modal */
-.confirm-modal {
+.confirm-stergere-utilizator {
     position: fixed;
     top: 0;
     left: 0;
@@ -84,7 +122,7 @@
     align-items: center;
 }
 
-.modal-content {
+.content-stergere-utilizator {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
@@ -93,63 +131,50 @@
     color: rgb(62, 45, 36);
 }
 
-.confirm-button,
-.cancel-button {
+.content-stergere-utilizator h3 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 19px;
+}
+
+.content-stergere-utilizator p {
+    font-family: 'Times New Roman', Times, serif;
+    margin-top: 10px;
+    font-size: 17px;
+    margin-bottom: 7px;
+}
+
+.confirm-sterge-utilizator,
+.cancel-sterge-utilizator {
     padding: 10px;
     margin: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
-
-.confirm-button {
-    background-color: #527e53;
-    color: white;
-}
-
-.cancel-button {
-    background-color: #923131;
-    color: white;
-}
-
-.confirm-button:hover {
-    background-color: rgb(42, 105, 46);
-}
-
-.cancel-button:hover {
-    background-color: rgb(120, 41, 41);
-}
-
-/* Paginare */
-.pagination {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    margin-bottom: 10px;
-    width: 100%;
-    padding: 10px 0;
-}
-
-.pagination button {
-    padding: 10px;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     border: none;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    margin: 0 5px;
 }
 
-.pagination button:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
+.confirm-sterge-utilizator {
+    background-image: linear-gradient(to bottom right, #305c31ee, #ccc7c5d5);
+    backdrop-filter: blur(10px);
 }
 
-.pagination span {
-    margin: 0 10px;
-    font-size: 16px;
+.cancel-sterge-utilizator {
+    background-image: linear-gradient(to bottom right, #8c2929eb, #ccc7c5dc);
+    backdrop-filter: blur(10px);
 }
+
+.confirm-sterge-utilizator:hover, .cancel-sterge-utilizator:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+}
+
+
 
 /* Cod împrumut popups */
 .popup-overlay-cod,
@@ -190,8 +215,7 @@
     width: 100%;
 }
 
-#btnOkCod,
-#btnAnuleazaCod,
+
 #btnEfectuat,
 #btnAnuleaza {
     background-color: rgb(255, 209, 220);
@@ -204,8 +228,7 @@
     box-shadow: 0px 2px 6px;
 }
 
-#btnOkCod:hover,
-#btnAnuleazaCod:hover,
+
 #btnEfectuat:hover,
 #btnAnuleaza:hover {
     box-shadow: 0px 4px 10px rgb(62, 45, 36);
@@ -231,4 +254,70 @@
     10% { opacity: 1; transform: translateY(0); }
     90% { opacity: 1; }
     100% { opacity: 0; transform: translateY(20px); }
+}
+
+
+.pagination-container-admin {
+    height: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+  background-color: transparent;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 30px;
+}
+
+.pagination-number {
+  background: none;
+  border: none;
+  font-size: 15px;
+  padding: 6px 10px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.pagination-number:hover {
+  color: #000;
+}
+
+.pagination-number.active {
+  font-weight: bold;
+  text-decoration: underline;
+  color: #000;
+}
+
+.pagination-dots {
+  font-size: 15px;
+  color: #aaa;
+}
+
+.pagination-next {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  padding: 0 6px;
+  margin-left: 4px;
+}
+
+.pagination-next:hover {
+  color: #444;
+}
+
+.pagination-prev {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  padding: 0 6px;
+  margin-right: 4px;
+}
+
+.pagination-prev:hover {
+  color: #444;
 }

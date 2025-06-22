@@ -103,6 +103,59 @@
     transform: scale(1.1);
 }
 
+.popup-adauga-imprumut {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    height: 130px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+    text-align: center;
+}
+
+.popup-adauga-imprumut p {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.popup-adauga-imprumut input {
+    width: 200px;
+    padding: 8px;
+    margin-top: 15px;
+    border: none;
+    box-shadow: 0 0 5px #92829e;
+    border-radius: 8px;
+    background-color: #f9f4ef;
+    color: #3b3a3a;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+}
+
+#btnOkCod, #btnAnuleazaCod {
+    margin-top: 10px;
+    color: #ffffff;
+    padding: 12px 24px;
+    height: 35px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+}
+
+#btnOkCod:hover, #btnAnuleazaCod:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+}
+
 .floating-success, .floating-error {
     position: fixed;
     bottom: 30px;

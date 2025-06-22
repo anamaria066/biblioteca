@@ -65,41 +65,41 @@
 }
 
 
-.istoric-imp-admin-table {
+.istoric-imp-table {
     width: 800px;
     border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
 }
 
-.istoric-imp-admin-table th,
-.istoric-imp-admin-table td {
-    padding: 11px;
+.istoric-imp-table th,
+.istoric-imp-table td {
+    padding: 10px;
     text-align: left;
     border: 1px solid #ddd;
     font-family: 'Times New Roman', Times, serif;
     font-size: 17px;
 }
 
-.istoric-imp-admin-table thead tr {
+.istoric-imp-table thead tr {
   background: linear-gradient(to bottom right, #2e0f58, #f3b494);
   color: white;
 }
 
-.istoric-imp-admin-table th {
+.istoric-imp-table th {
   background: none;
   font-weight: 150;
 }
 
-.istoric-imp-admin-table tr:nth-child(even) {
+.istoric-imp-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.istoric-imp-admin-table tr:nth-child(odd) {
+.istoric-imp-table tr:nth-child(odd) {
     background-color: #f1eee4;
 }
 
-.istoric-imp-admin-table tr:hover {
+.istoric-imp-table tr:hover {
     background-color: #e4e4e4;
 }
 

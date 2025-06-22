@@ -171,14 +171,14 @@ function Utilizatori() {
   };
 
   return (
-    <div className="admin-container">
+    <div className="utilizatori-container">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
       {/* ======= TABEL UTILIZATORI ======= */}
-      <div className="user-table-container">
+      <div className="utilizatori-subcontainer">
         <h2>Lista Utilizatorilor</h2>
-        <table className="user-table">
+        <table className="utilizatori-table">
           <thead>
             <tr>
               <th>Tip</th>
@@ -202,7 +202,7 @@ function Utilizatori() {
                   <button
                     className="istoric-button"
                     onClick={() =>
-                      alert("Funcția de istoric nu este implementată.")
+                      navigate(`/istoric-utilizator/${utilizator.id}`)
                     }
                   >
                     Istoric
@@ -224,17 +224,17 @@ function Utilizatori() {
 
       {/* Modal de confirmare pentru ștergerea utilizatorului */}
       {showConfirmModal && (
-        <div className="confirm-modal">
-          <div className="modal-content">
+        <div className="confirm-stergere-utilizator">
+          <div className="content-stergere-utilizator">
             <h3>Confirmă ștergerea utilizatorului</h3>
             <p>Vrei să ștergi acest utilizator?</p>
             <button
-              className="confirm-button"
+              className="confirm-sterge-utilizator"
               onClick={() => handleDelete(userToDelete)}
             >
               Da, șterge
             </button>
-            <button className="cancel-button" onClick={cancelDelete}>
+            <button className="cancel-sterge-utilizator" onClick={cancelDelete}>
               Anulează
             </button>
           </div>
@@ -242,79 +242,85 @@ function Utilizatori() {
       )}
 
       {/* Butoane de navigare pentru pagini */}
-      <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>
-          ◀
-        </button>
-        <span>
-          Pagina {currentPage} din{" "}
-          {Math.ceil(utilizatori.length / usersPerPage)}
-        </span>
-        <button
-          onClick={nextPage}
-          disabled={
-            currentPage === Math.ceil(utilizatori.length / usersPerPage)
-          }
-        >
-          ▶
-        </button>
+      <div className="pagination-container-admin">
+        {currentPage > 1 && (
+          <button
+            className="pagination-prev"
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            &laquo;
+          </button>
+        )}
+
+        {Array.from(
+          { length: Math.ceil(utilizatori.length / usersPerPage) },
+          (_, i) => i + 1
+        )
+          .filter((pagina) => {
+            const totalPages = Math.ceil(utilizatori.length / usersPerPage);
+            if (totalPages <= 5) return true;
+            if (
+              pagina === 1 ||
+              pagina === totalPages ||
+              Math.abs(pagina - currentPage) <= 1
+            )
+              return true;
+            if (pagina === currentPage - 2 || pagina === currentPage + 2)
+              return "dots";
+            return false;
+          })
+          .map((pagina, i, arr) => {
+            if (pagina === "dots") {
+              return (
+                <span key={`dots-${i}`} className="pagination-dots">
+                  ...
+                </span>
+              );
+            }
+
+            if (
+              i > 0 &&
+              typeof pagina === "number" &&
+              typeof arr[i - 1] === "number" &&
+              pagina - arr[i - 1] > 1
+            ) {
+              return (
+                <React.Fragment key={pagina}>
+                  <span className="pagination-dots">...</span>
+                  <button
+                    className={`pagination-number ${
+                      pagina === currentPage ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <button
+                key={pagina}
+                className={`pagination-number ${
+                  pagina === currentPage ? "active" : ""
+                }`}
+                onClick={() => setCurrentPage(pagina)}
+              >
+                {pagina}
+              </button>
+            );
+          })}
+
+        {currentPage < Math.ceil(utilizatori.length / usersPerPage) && (
+          <button
+            className="pagination-next"
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            &raquo;
+          </button>
+        )}
       </div>
-
-      {/* ====== POPUP COD ÎMPRUMUT ====== */}
-      {showPopupCod && (
-        <div className="popup-overlay-cod">
-          <div className="popup-content">
-            <p>Introduceți cod împrumut:</p>
-            <input
-              id="inputCod"
-              type="text"
-              value={codImprumut}
-              onChange={(e) => setCodImprumut(e.target.value)}
-              maxLength={6}
-            />
-            <div className="popup-buttons">
-              <button id="btnOkCod" onClick={verificaCod}>
-                OK
-              </button>
-              <button
-                id="btnAnuleazaCod"
-                onClick={() => setShowPopupCod(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-          {mesajEroareCod && (
-            <div className="floating-error">{mesajEroareCod}</div>
-          )}
-        </div>
-      )}
-
-      {/* ====== POPUP CONFIRMARE IMPRUMUT ====== */}
-      {showPopupConfirmare && detaliiImprumut && (
-        <div className="popup-overlay-confirmare">
-          <div className="popup-content">
-            <p>
-              <strong>Cod corect!</strong>
-            </p>
-            <p>
-              A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>,
-              exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong>
-            </p>
-            <div className="popup-buttons">
-              <button id="btnEfectuat" onClick={finalizeazaImprumut}>
-                Efectuat
-              </button>
-              <button
-                id="btnAnuleaza"
-                onClick={() => setShowPopupConfirmare(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -14,6 +14,9 @@ const HeaderAdmin = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const [mesajFlotant, setMesajFlotant] = useState(null);
+  const [codImprumut, setCodImprumut] = useState("");
+  const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
+  const [detaliiImprumut, setDetaliiImprumut] = useState(null);
 
   useEffect(() => {
     const userId = localStorage.getItem("utilizator_id");
@@ -49,42 +52,49 @@ const HeaderAdmin = () => {
 
   const handleConfirmareCod = async () => {
     const cod = document.getElementById("inputCod").value.trim();
-
     if (!cod) return;
 
     try {
-      // Verificăm dacă codul e valid
       const res = await fetch(`http://localhost:3000/verifica-cod/${cod}`);
       const data = await res.json();
 
-      if (!res.ok) {
+      if (res.ok) {
+        setDetaliiImprumut(data); // setăm detaliile în stare
+        setCodImprumut(cod);
+        setShowPopupCod(false);
+        setShowPopupConfirmare(true);
+      } else {
         setMesajFlotant({
           mesaj: data.message || "Cod invalid!",
           tip: "eroare",
         });
         setTimeout(() => setMesajFlotant(null), 3000);
-        return;
       }
+    } catch (err) {
+      setMesajFlotant({ mesaj: "Eroare la rețea!", tip: "eroare" });
+      setTimeout(() => setMesajFlotant(null), 3000);
+    }
+  };
 
-      // Finalizăm împrumutul
-      const res2 = await fetch(
-        `http://localhost:3000/finalizeaza-imprumut/${cod}`,
-        {
-          method: "PUT",
-        }
+  const finalizeazaImprumut = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/finalizeaza-imprumut/${codImprumut}`,
+        { method: "PUT" }
       );
 
-      const data2 = await res2.json();
-
-      if (res2.ok) {
+      if (res.ok) {
         setMesajFlotant({
-          mesaj: "Împrumutul a fost activat cu succes!",
+          mesaj: "Împrumut activat cu succes!",
           tip: "succes",
         });
-        setShowPopupCod(false); // închide popup
+        setShowPopupConfirmare(false);
+        setCodImprumut("");
+        setDetaliiImprumut(null);
       } else {
+        const data = await res.json();
         setMesajFlotant({
-          mesaj: data2.message || "Eroare la activare!",
+          mesaj: data.message || "Eroare la activare!",
           tip: "eroare",
         });
       }
@@ -161,14 +171,9 @@ const HeaderAdmin = () => {
 
       {showPopupCod && (
         <div className="popup-overlay-cod">
-          <div className="popup-content">
+          <div className="popup-adauga-imprumut">
             <p>Introduceți cod împrumut:</p>
-            <input
-              id="inputCod"
-              type="text"
-              maxLength={6}
-              placeholder="123456"
-            />
+            <input type="text" maxLength={6} placeholder="123456" />
             <div className="popup-buttons">
               <button id="btnOkCod" onClick={handleConfirmareCod}>
                 OK
@@ -176,6 +181,30 @@ const HeaderAdmin = () => {
               <button
                 id="btnAnuleazaCod"
                 onClick={() => setShowPopupCod(false)}
+              >
+                Anulează
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPopupConfirmare && detaliiImprumut && (
+        <div className="popup-overlay-confirmare">
+          <div className="popup-content">
+            <p>
+              <strong>Cod corect!</strong>
+            </p>
+            <p>
+              A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>,
+              exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong>
+            </p>
+            <div className="popup-buttons">
+              <button id="btnEfectuat" onClick={finalizeazaImprumut}>
+                Efectuat
+              </button>
+              <button
+                id="btnAnuleaza"
+                onClick={() => setShowPopupConfirmare(false)}
               >
                 Anulează
               </button>

@@ -12,8 +12,8 @@ function Imprumuturi() {
     prenume: "",
     pozaProfil: "",
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const [paginaCurenta, setPaginaCurenta] = useState(1);
+  const randuriPePagina = 10;
   const [showPopupCod, setShowPopupCod] = useState(false);
   const [codImprumut, setCodImprumut] = useState("");
   const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
@@ -51,21 +51,12 @@ function Imprumuturi() {
     }
   }, []);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
-  const currentRows = imprumuturi.slice(indexOfFirst, indexOfLast);
-
-  const nextPage = () => {
-    if (currentPage < Math.ceil(imprumuturi.length / rowsPerPage)) {
-      setCurrentPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
-  };
+  const totalPagini = Math.ceil(imprumuturi.length / randuriPePagina);
+  const indexStart = (paginaCurenta - 1) * randuriPePagina;
+  const currentRows = imprumuturi.slice(
+    indexStart,
+    indexStart + randuriPePagina
+  );
 
   //sa se inchida meniul dropdown din cadrul header-ului
   useEffect(() => {
@@ -166,14 +157,14 @@ function Imprumuturi() {
   };
 
   return (
-    <div className="admin-container">
+    <div className="imprumuturi-container">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
       {/* ======= TABEL ÎMPRUMUTURI ======= */}
-      <div className="user-table-container">
+      <div className="imprumuturi-subcontainer">
         <h2>Împrumuturi Active</h2>
-        <table className="user-table">
+        <table className="imprumuturi-table">
           <thead>
             <tr>
               <th>#</th>
@@ -190,8 +181,7 @@ function Imprumuturi() {
               <tr className="empty-row">
                 <td colSpan="7" className="empty-message">
                   Niciun împrumut activ
-                </td>{" "}
-                {/* 7 coloane acum */}
+                </td>
               </tr>
             ) : (
               currentRows.map((imprumut, index) => (
@@ -203,7 +193,7 @@ function Imprumuturi() {
                       : ""
                   }
                 >
-                  <td>{indexOfFirst + index + 1}</td>
+                  <td>{indexStart + index + 1}</td>
                   <td>{imprumut.numeUtilizator}</td>
                   <td>{imprumut.emailUtilizator}</td>
                   <td>{imprumut.titluCarte}</td>
@@ -259,32 +249,80 @@ function Imprumuturi() {
         </table>
       </div>
 
-      {/* Buton de adăugare */}
-      <button
-        className="btnInregistreazaImprumut"
-        onClick={() => console.log("Butonul de adăugare a fost apăsat.")}
-      >
-        +
-      </button>
+      <div className="pagination-container-imprumuturi-admin">
+        {paginaCurenta > 1 && (
+          <button
+            className="pagination-prev"
+            onClick={() => setPaginaCurenta(paginaCurenta - 1)}
+          >
+            &laquo;
+          </button>
+        )}
 
-      {/* Navigare pagini */}
-      <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>
-          ◀
-        </button>
-        <span>
-          Pagina {currentPage} din{" "}
-          {Math.max(1, Math.ceil(imprumuturi.length / rowsPerPage))}
-        </span>
-        <button
-          onClick={nextPage}
-          disabled={
-            currentPage ===
-            Math.max(1, Math.ceil(imprumuturi.length / rowsPerPage))
-          }
-        >
-          ▶
-        </button>
+        {Array.from({ length: totalPagini }, (_, i) => i + 1)
+          .filter((pagina) => {
+            if (totalPagini <= 5) return true;
+            if (
+              pagina === 1 ||
+              pagina === totalPagini ||
+              Math.abs(pagina - paginaCurenta) <= 1
+            )
+              return true;
+            if (pagina === paginaCurenta - 2 || pagina === paginaCurenta + 2)
+              return "dots";
+            return false;
+          })
+          .map((pagina, i, arr) => {
+            if (pagina === "dots") {
+              return (
+                <span key={`dots-${i}`} className="pagination-dots">
+                  ...
+                </span>
+              );
+            }
+
+            if (
+              i > 0 &&
+              typeof pagina === "number" &&
+              typeof arr[i - 1] === "number" &&
+              pagina - arr[i - 1] > 1
+            ) {
+              return (
+                <React.Fragment key={pagina}>
+                  <span className="pagination-dots">...</span>
+                  <button
+                    className={`pagination-number ${
+                      pagina === paginaCurenta ? "active" : ""
+                    }`}
+                    onClick={() => setPaginaCurenta(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <button
+                key={pagina}
+                className={`pagination-number ${
+                  pagina === paginaCurenta ? "active" : ""
+                }`}
+                onClick={() => setPaginaCurenta(pagina)}
+              >
+                {pagina}
+              </button>
+            );
+          })}
+
+        {paginaCurenta < totalPagini && (
+          <button
+            className="pagination-next"
+            onClick={() => setPaginaCurenta(paginaCurenta + 1)}
+          >
+            &raquo;
+          </button>
+        )}
       </div>
 
       {/* ====== POPUP COD ÎMPRUMUT ====== */}

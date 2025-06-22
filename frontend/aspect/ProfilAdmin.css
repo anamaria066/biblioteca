@@ -1,21 +1,26 @@
-.profil-container {
-    padding: 40px;
-    background-color: rgb(252, 240, 224);
+.profil-container-admin {
     min-height: 100vh;
+  display: flex;
+  justify-content: center; /* pe orizontală */
+  align-items: center;     /* pe verticală */
+  background: rgb(253, 252, 251);
   }
   
-  .profil-content {
-    width: 800px;
+  .profil-content-admin {
+    width: 700px;
+    height: 400px;
     max-width: 1000px;
-    background-color: rgb(251, 249, 245);
-    border-radius: 15px;
+    background-color: rgb(251, 250, 248);
+    border-radius: 7px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 6px 14px 4px rgba(44, 35, 98, 0.511), 2px 8px 22px 4px rgba(224, 145, 49, 0.402);
     display: flex;
     align-items: center;
+    position: relative;
+    margin-bottom: 40px;
   }
 
-  .profile-picture {
+  .profile-picture-admin {
     width: 200px;
     height: 200px;
     border-radius: 50%;
@@ -23,76 +28,69 @@
     margin-right: 20px;
     margin-left: 40px;
     flex-shrink: 0;
+    margin-bottom: 50px;
   }
   
-  .profile-picture img {
+  .profile-picture-admin img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     cursor: pointer;
   }
-  
-  .profile-img-small {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    margin-top: 8px;
-    margin-left: 5px;
-  }
-  
-  .dropdown-poza-mare {
-    margin-top: 10px;
+
+  .dropdown-poza-admin {
     background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
     display: flex;
     flex-direction: column;
     position: absolute;
     z-index: 100;
-    padding: 5px 0;
-    margin-top: -260px;
-    margin-left: -80px;
   }
   
-  .dropdown-poza-mare button {
+  .dropdown-poza-admin button {
     background: none;
     border: none;
-    padding: 8px 16px;
+    padding: 8px;
     text-align: left;
     width: 100%;
-    font-size: 14px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
     color: rgb(62, 45, 36);
   }
   
-  .dropdown-poza-mare button:hover {
-    background-color: rgb(255, 209, 220);
+  .dropdown-poza-admin button:hover {
+    background-color: #f1f1f1;
+    border-radius: 5px;
   }
 
   .profile-details {
-    margin-left: 80px;
+    margin-left: 60px;
     flex-direction: column;
+    margin-bottom: 50px;
   }
   
-  .informatii-basic {
+ .informatii-basic {
     margin-right: 100px;
     margin-bottom: 20px;
-  }
-  
-  .profile-details h2 {
-    margin: 0;
+}
+
+.profile-details h2 {
     font-size: 28px;
     color: #333;
-  }
-  
-  .profile-details p {
+    font-family: 'Times New Roman', Times, serif;
+    margin-bottom: 20px;
+}
+
+.profile-details p {
     color: #777;
-    font-size: 16px;
+    font-size: 18px;
     margin: 5px 0;
-  }
+    margin-bottom: 10px;
+    font-family: 'Times New Roman', Times, serif;
+}
   
   #inputNume, #inputPrenume {
     color: rgb(62, 45, 36);
@@ -146,42 +144,65 @@
     transform: translateY(-2px);
   }
 
-  .popup-overlay, .popup-overlay-cod, .popup-overlay-confirmare {
+  .popup-overlay-schimba-parola {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 15, 15, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
   }
   
-  .popup {
-    background-color: white;
+  .popup-schimba-parola {
+    background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 380px;
+    height: 230px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
     text-align: center;
+    display: flex;
+  flex-direction: column;
+  gap: 16px;
+  }
+
+  .popup-schimba-parola h3 {
+    font-size: 22px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(62, 45, 36);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 1;
   }
   
+ .popup-schimba-parola input {
+  width: 350px;
+  padding: 10px;
+  font-size: 16px;
+  font-family: 'Times New Roman', Times, serif;
+  border: none;
+  box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+  border-radius: 6px;
+  background-color: #fdf6f0;
+  resize: vertical;
+ }
+
+  .popup-schimba-parola input:focus {
+    outline: none;
+  }
+
   .popup-buttons {
     display: flex;
     justify-content: space-around;
     margin-top: 20px;
   }
+
   
-  .popup-content input,
-  .popup-content select {
-    padding: 8px;
-    margin: 10px 0;
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: #f4f4f4;
-  }
-  
-  #btnOkCod, #btnAnuleazaCod, #btnEfectuat, #btnAnuleaza, #btnConfirmaSchimbParola, #btnAnuleazaSchimbParola, #confirmStergerePfp {
+ #btnEfectuat, #btnAnuleaza, #btnConfirmaSchimbParola, #btnAnuleazaSchimbParola, #confirmStergerePfp {
     background-color: rgb(255, 209, 220);
     color: rgb(62, 45, 36);
     padding: 10px 15px;
@@ -192,10 +213,17 @@
     box-shadow: 0px 2px 6px;
   }
   
-  #btnOkCod:hover, #btnAnuleazaCod:hover, #btnEfectuat:hover, #btnAnuleaza:hover, #btnConfirmaSchimbParola:hover, #btnAnuleazaSchimbParola:hover, #confirmStergerePfp:hover {
+ #btnEfectuat:hover, #btnAnuleaza:hover, #btnConfirmaSchimbParola:hover, #btnAnuleazaSchimbParola:hover, #confirmStergerePfp:hover {
     box-shadow: 0px 4px 10px rgb(62, 45, 36);
     transform: translateY(-2px);
   }
+
+  .popup-buttons-schimba-parola {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
 
   .floating-success {
     position: fixed;

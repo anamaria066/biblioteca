@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../aspect/EditeazaCarte.css";
+import HeaderAdmin from "./HeaderAdmin";
 
 function EditeazaCarte() {
   const navigate = useNavigate();
@@ -98,70 +99,13 @@ function EditeazaCarte() {
   };
 
   return (
-    <div className="adauga-carte-container">
-      <header className="header">
-        <div className="nav-buttons">
-          <button className="nav-button" onClick={() => navigate("/admin")}>
-            Pagina Principală
-          </button>
-          <button className="nav-button" onClick={() => navigate("/carti")}>
-            Cărți
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => navigate("/utilizatori")}
-          >
-            Utilizatori
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => navigate("/imprumuturi")}
-          >
-            Împrumuturi
-          </button>
-          <div className="dropdown">
-            <button
-              className="nav-button"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              Adaugă...
-            </button>
-            {menuOpen && (
-              <div className="dropdown-menu show">
-                <button className="dropdown-item">Cheltuială</button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => navigate("/adauga-carte")}
-                >
-                  Carte
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="right-buttons">
-          <p className="user-info">
-            Bun venit, {user.nume} {user.prenume}!
-          </p>
-          <img
-            src={
-              user.pozaProfil
-                ? user.pozaProfil.startsWith("/uploads")
-                  ? `http://localhost:3000${user.pozaProfil}`
-                  : user.pozaProfil
-                : "/images/default-avatar.jpg"
-            }
-            alt="Poza de profil"
-            className="profile-img-small"
-            onClick={() => navigate("/profil-admin")}
-          />
-        </div>
-      </header>
+    <div className="editeaza-carte-container">
+      <HeaderAdmin />
 
-      <div className="adauga-carte-content">
+      <div className="editeaza-carte-subcontainer">
         <h2>Editează cartea</h2>
-        <div className="form-preview-wrapper">
-          <div className="formular">
+        <div className="form-editeaza-carte-wrapper">
+          <div className="form-editeaza-carte">
             <input
               type="text"
               placeholder="Titlu"
@@ -198,11 +142,16 @@ function EditeazaCarte() {
               onChange={(e) => setPret(e.target.value)}
             />
             <label>Alege imagine nouă (opțional):</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <input
+              id="chooseCoperta"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </div>
 
-          <div className="preview-section">
-            <div className="preview-wrapper">
+          <div className="preview-section-coperta">
+            <div className="preview-wrapper-coperta">
               <img
                 src={preview || "/images/default-book.png"}
                 alt="Coperta"
@@ -210,7 +159,7 @@ function EditeazaCarte() {
               />
               {preview && (
                 <button
-                  className="remove-preview-btn"
+                  className="sterge-preview-btn"
                   onClick={() => {
                     setPreview(null);
                     setFile(null);
@@ -224,7 +173,7 @@ function EditeazaCarte() {
           </div>
         </div>
 
-        <div className="form-buttons">
+        <div className="butoane-form-editeaza-carte">
           <button id="btnConfirmaCarte" onClick={handleConfirm}>
             Confirmă modificările
           </button>

@@ -1,42 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../aspect/IstoricImprumuturiAdmin.css";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "../aspect/IstoricUtilizator.css";
 import HeaderAdmin from "./HeaderAdmin";
 
-function IstoricImprumuturiAdmin() {
+function IstoricUtilizator() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [imprumuturi, setImprumuturi] = useState([]);
-  const [user, setUser] = useState({
-    nume: "",
-    prenume: "",
-    pozaProfil: "",
-  });
-  const [menuOpen, setMenuOpen] = useState(null);
   const [paginaCurenta, setPaginaCurenta] = useState(1);
   const randuriPePagina = 10;
 
   useEffect(() => {
-    fetch("http://localhost:3000/imprumuturi-incheiate") // Endpoint-ul pentru împrumuturi încheiate
+    fetch(`http://localhost:3000/istoric-utilizator/${id}`)
       .then((res) => res.json())
       .then((data) => setImprumuturi(data))
-      .catch((error) =>
-        console.error("Eroare la încărcarea istoricului:", error)
+      .catch((err) =>
+        console.error("Eroare la încărcarea istoricului utilizatorului:", err)
       );
-
-    const userId = localStorage.getItem("utilizator_id");
-    if (userId) {
-      fetch(`http://localhost:3000/profil/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setUser({
-            nume: data.nume,
-            prenume: data.prenume,
-            pozaProfil: data.pozaProfil || "/images/default-avatar.jpg",
-          });
-        })
-        .catch((err) => console.error("Eroare profil:", err));
-    }
-  }, []);
+  }, [id]);
 
   const totalPagini = Math.ceil(imprumuturi.length / randuriPePagina);
   const indexStart = (paginaCurenta - 1) * randuriPePagina;
@@ -45,37 +26,21 @@ function IstoricImprumuturiAdmin() {
     indexStart + randuriPePagina
   );
 
-  useEffect(() => {
-    const handleClickOutsideDropdown = (e) => {
-      if (
-        !e.target.closest(".dropdown") &&
-        !e.target.closest(".dropdown-menu")
-      ) {
-        setMenuOpen(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutsideDropdown);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutsideDropdown);
-  }, []);
-
   return (
     <div className="istoric-imprumuturi-admin-container">
-      {/* Header */}
       <HeaderAdmin />
-
-      {/* Tabel */}
       <div className="istoric-imprumuturi-admin-subcontainer">
-        <h2>Istoric Împrumuturi</h2>
-        <table className="istoric-imp-admin-table">
+        <h2>Istoric Împrumuturi Utilizator</h2>
+        <table className="istoric-imp-table">
           <thead>
             <tr>
               <th>#</th>
-              <th>Utilizator</th>
+              <th>Nume</th>
               <th>Email</th>
               <th>Carte</th>
               <th>Data Împrumut</th>
               <th>Data Returnare</th>
+              <th>Taxa de întârziere</th>
             </tr>
           </thead>
           <tbody>
@@ -89,17 +54,21 @@ function IstoricImprumuturiAdmin() {
               imprumuturiAfisate.map((imp, index) => (
                 <tr key={imp.id}>
                   <td>{indexStart + index + 1}</td>
-                  <td>{imp.numeUtilizator}</td>
+                  <td>
+                    {imp.numeUtilizator} {imp.prenumeUtilizator}
+                  </td>
                   <td>{imp.emailUtilizator}</td>
                   <td>{imp.titluCarte}</td>
                   <td>{new Date(imp.dataImprumut).toLocaleDateString()}</td>
                   <td>{new Date(imp.dataReturnare).toLocaleDateString()}</td>
+                  <td>{imp.taxa}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
       <div className="pagination-container-istoric">
         {paginaCurenta > 1 && (
           <button
@@ -179,4 +148,4 @@ function IstoricImprumuturiAdmin() {
   );
 }
 
-export default IstoricImprumuturiAdmin;
+export default IstoricUtilizator;

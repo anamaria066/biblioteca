@@ -1,8 +1,30 @@
 /* === Layout General === */
-.adauga-carte-container {
+.adauga-carte-admin-container {
     min-height: 100vh;
-    background-color: rgb(252, 240, 224);
-    padding-top: 90px; /* spațiu pentru header fix */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: rgb(253, 252, 251);
+}
+
+.adauga-carte-admin-subcontainer {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px;
+    margin-top: 70px;
+}
+
+.adauga-carte-admin-subcontainer h2 {
+    font-size: 28px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(62, 45, 36);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 1;
 }
 
 
@@ -39,57 +61,68 @@
     background-color: rgb(255, 209, 220);
 }
 
-/* === Conținutul principal === */
-.adauga-carte-content {
-    width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
 
-.adauga-carte-content h2 {
-    margin-bottom: 20px;
-    text-align: center;
-    color: rgb(62, 45, 36);
-}
-
-/* === Formular + Preview imagine === */
-.form-preview-wrapper {
+.form-adauga-carte-wrapper {
+    margin-top: 10px;
+    width: 700px;
     display: flex;
     gap: 70px;
     align-items: flex-start;
+    background-color: #fbfaf8;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
 }
 
-.formular {
+.formular-adauga-carte {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
-.formular input,
-.formular textarea,
-.formular select {
-    padding: 10px;
-    background-color: #f8efde;
-    color: rgb(62, 45, 36);
-    font-size: 14px;
+.formular-adauga-carte input,
+.formular-adauga-carte textarea,
+.formular-adauga-carte select {
+    width: 350px;
+    padding: 8px;
+    margin: 10px 0;
+    border: none;
+    box-shadow: 0 0 5px #92829e;
     border-radius: 8px;
-    border: 1px solid #ccc;
-    width: 100%;
-    resize: none;
+    background-color: #ffffff;
+    color: #3b3a3a;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px; 
 }
 
-.formular input[type="file"] {
+.formular-adauga-carte input:focus,
+.formular-adauga-carte textarea:focus,
+.formular-adauga-carte select:focus {
+    outline: none;
+    border-color: #b8a3c850;
+    box-shadow: 0 0 5px #38254790;
+}
+
+.formular-adauga-carte input[type="file"] {
     background: none;
     padding: 0;
     border: none;
+    box-shadow: none;
+}
+
+.formular-adauga-carte label {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+}
+
+#chooseCoperta {
+    border-radius: 0%;
 }
 
 /* === Preview imagine carte === */
-.preview-section {
+.preview-section-coperta {
     width: 250px;
     display: flex;
     justify-content: center;
@@ -99,12 +132,16 @@
     border-radius: 10px;
     min-height: 300px;
     background-color: #fff;
+    margin-top: 40px;
 }
 
-.preview-wrapper {
+.preview-wrapper-coperta {
     position: relative;
     width: 100%;
     max-width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .preview-image-full {
@@ -114,13 +151,13 @@
     object-fit: contain;
 }
 
-.remove-preview-btn {
+.sterge-preview-btn {
     position: absolute;
-    top: 5px;
+    top: -10px;
     right: 5px;
     background: rgba(255, 255, 255, 0.8);
     border: none;
-    border-radius: 50%;
+    border-radius: 50px;
     color: #333;
     cursor: pointer;
     font-size: 16px;
@@ -128,36 +165,42 @@
     transition: background-color 0.2s ease-in-out;
 }
 
-.remove-preview-btn:hover {
+.sterge-preview-btn:hover {
     background: rgba(255, 0, 0, 0.8);
     color: white;
 }
 
 /* === Butoane formular === */
-.form-buttons {
+.butoane-form-adauga-carte {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
 }
 
-#btnConfirmaCarte,
-#btnAnuleazaCarte {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    padding: 10px 15px;
-    border: none;
+#btnConfirmaAdaugaCarte, #btnAnuleazaAdaugaCarte {
+  color: #ffffff;
+    padding: 12px 24px;
+    height: 40px;
     border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 27px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
 }
 
-#btnConfirmaCarte:hover,
-#btnAnuleazaCarte:hover {
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
+#btnConfirmaAdaugaCarte:hover, #btnAnuleazaAdaugaCarte:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
+
 
 /* === Popup-uri === */
 .popup-overlay-cod,
@@ -194,28 +237,6 @@
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
-}
-
-#btnOkCod,
-#btnAnuleazaCod,
-#btnEfectuat,
-#btnAnuleaza {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0px 2px 6px;
-    transition: background 0.3s, transform 0.2s;
-}
-
-#btnOkCod:hover,
-#btnAnuleazaCod:hover,
-#btnEfectuat:hover,
-#btnAnuleaza:hover {
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
-    transform: translateY(-2px);
 }
 
 /* === Floating Success / Error === */

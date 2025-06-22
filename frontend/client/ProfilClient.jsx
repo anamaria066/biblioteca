@@ -411,10 +411,6 @@ function ProfilClient() {
             Șterge cont
           </button>
         </div>
-
-        {/* <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
-          Șterge cont
-        </button> */}
       </div>
 
       {isChangingPassword && (

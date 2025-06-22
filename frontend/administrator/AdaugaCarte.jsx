@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../aspect/AdaugaCarte.css";
 import HeaderAdmin from "./HeaderAdmin";
@@ -22,6 +22,7 @@ function AdaugaCarte() {
   const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
   const [mesajEroareCod, setMesajEroareCod] = useState("");
   const [detaliiImprumut, setDetaliiImprumut] = useState(null);
+  const fileInputRef = useRef(null);
 
   const [user, setUser] = useState({
     nume: "",
@@ -154,16 +155,16 @@ function AdaugaCarte() {
   };
 
   return (
-    <div className="adauga-carte-container">
+    <div className="adauga-carte-admin-container">
       {/* ======= HEADER ======= */}
       <HeaderAdmin />
 
       {/* ======= FORMULAR ADĂUGARE ======= */}
-      <div className="adauga-carte-content">
+      <div className="adauga-carte-admin-subcontainer">
         <h2>Adaugă o carte nouă</h2>
-        <div className="form-preview-wrapper">
+        <div className="form-adauga-carte-wrapper">
           {/* FORMULAR */}
-          <div className="formular">
+          <div className="formular-adauga-carte">
             <input
               type="text"
               placeholder="Titlu"
@@ -210,12 +211,18 @@ function AdaugaCarte() {
             />
 
             <label>Alege imagine:</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <input
+              id="chooseCoperta"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              ref={fileInputRef}
+            />
           </div>
 
           {/* PREVIEW IMAGINE */}
-          <div className="preview-section">
-            <div className="preview-wrapper">
+          <div className="preview-section-coperta">
+            <div className="preview-wrapper-coperta">
               <img
                 src={preview || "/images/default-book.png"}
                 alt="Coperta"
@@ -223,10 +230,13 @@ function AdaugaCarte() {
               />
               {preview && (
                 <button
-                  className="remove-preview-btn"
+                  className="sterge-preview-btn"
                   onClick={() => {
                     setPreview(null);
                     setFile(null);
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = ""; // Resetează inputul
+                    }
                   }}
                   title="Șterge imaginea"
                 >
@@ -238,11 +248,11 @@ function AdaugaCarte() {
         </div>
 
         {/* BUTOANE */}
-        <div className="form-buttons">
-          <button id="btnConfirmaCarte" onClick={handleConfirm}>
-            Confirmă adăugare
+        <div className="butoane-form-adauga-carte">
+          <button id="btnConfirmaAdaugaCarte" onClick={handleConfirm}>
+            Adaugă
           </button>
-          <button id="btnAnuleazaCarte" onClick={handleCancel}>
+          <button id="btnAnuleazaAdaugaCarte" onClick={handleCancel}>
             Anulează
           </button>
         </div>
@@ -250,60 +260,6 @@ function AdaugaCarte() {
 
       {successMessage && (
         <div className="floating-success">Carte adăugată cu succes!</div>
-      )}
-
-      {showPopupCod && (
-        <div className="popup-overlay-cod">
-          <div className="popup-content">
-            <p>Introduceți cod împrumut:</p>
-            <input
-              id="inputCod"
-              type="text"
-              value={codImprumut}
-              onChange={(e) => setCodImprumut(e.target.value)}
-              maxLength={6}
-            />
-            <div className="popup-buttons">
-              <button id="btnOkCod" onClick={verificaCod}>
-                OK
-              </button>
-              <button
-                id="btnAnuleazaCod"
-                onClick={() => setShowPopupCod(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-          {mesajEroareCod && (
-            <div className="floating-error">{mesajEroareCod}</div>
-          )}
-        </div>
-      )}
-
-      {showPopupConfirmare && detaliiImprumut && (
-        <div className="popup-overlay-confirmare">
-          <div className="popup-content">
-            <p>
-              <strong>Cod corect!</strong>
-            </p>
-            <p>
-              A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>,
-              exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong>
-            </p>
-            <div className="popup-buttons">
-              <button id="btnEfectuat" onClick={finalizeazaImprumut}>
-                Efectuat
-              </button>
-              <button
-                id="btnAnuleaza"
-                onClick={() => setShowPopupConfirmare(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

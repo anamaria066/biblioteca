@@ -20,6 +20,7 @@ import Istoric from "./client/Istoric";
 import IstoricImprumuturiAdmin from "./administrator/IstoricImprumuturiAdmin";
 import Recomandate from "./client/Recomandate";
 import ChatWidget from "./chatbot/ChatWidget";
+import IstoricUtilizator from "./administrator/IstoricUtilizator";
 
 const App = () => {
   return (
@@ -49,6 +50,7 @@ const App = () => {
         />
         <Route path="/recomandate" element={<Recomandate />} />
         <Route path="/chat" element={<ChatWidget />} />
+        <Route path="/istoric-utilizator/:id" element={<IstoricUtilizator />} />
       </Routes>
     </BrowserRouter>
   );

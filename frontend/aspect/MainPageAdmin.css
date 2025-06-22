@@ -97,8 +97,7 @@
     width: 100%;
 }
 
-#btnOkCod,
-#btnAnuleazaCod,
+
 #btnEfectuat,
 #btnAnuleaza {
     background-color: rgb(255, 209, 220);
@@ -111,8 +110,6 @@
     box-shadow: 0px 2px 6px;
 }
 
-#btnOkCod:hover,
-#btnAnuleazaCod:hover,
 #btnEfectuat:hover,
 #btnAnuleaza:hover {
     box-shadow: 0px 4px 10px rgb(62, 45, 36);
