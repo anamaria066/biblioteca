@@ -31,6 +31,7 @@ function Exemplare() {
   const [exemplarCurentId, setExemplarCurentId] = useState(null);
   const [popupRentabilitate, setPopupRentabilitate] = useState(null); // { numarImprumuturi, rentabilitate, eticheta }
   const [loadingRentabilitate, setLoadingRentabilitate] = useState(false);
+  const [showCheltuialaError, setShowCheltuialaError] = useState(false);
 
   // Funcție pentru a încărca exemplarele și datele cărții
   const fetchData = async () => {
@@ -162,8 +163,14 @@ function Exemplare() {
   };
 
   const handleConfirmCheltuiala = async () => {
+    if (!cheltuialaDetalii.trim() || !cheltuialaCost.trim()) {
+      setShowCheltuialaError(true);
+      setTimeout(() => setShowCheltuialaError(false), 5000);
+      return;
+    }
+
     try {
-      // Actualizează starea exemplarului în "bună"
+      // Actualizează starea exemplarului
       await fetch(
         `http://localhost:3000/modifica-exemplar/${exemplarCurentId}`,
         {
@@ -185,8 +192,7 @@ function Exemplare() {
         }),
       });
 
-      // Resetează popup-ul
-      fetchData(); // reîncarcă datele
+      fetchData();
       setShowPopupCheltuiala(false);
       setCheltuialaCost("");
       setCheltuialaDetalii("");
@@ -390,15 +396,14 @@ function Exemplare() {
       </div>
 
       {showPopupCheltuiala && (
-        <div className="confirm-modal">
-          <div className="modal-content">
+        <div className="popup-cheltuiala">
+          <div className="popup-adauga-cheltuiala-content">
             <h3>Formular {tipCheltuiala.toLowerCase()}</h3>
 
             <textarea
               placeholder="Detalii suplimentare"
               value={cheltuialaDetalii}
               onChange={(e) => setCheltuialaDetalii(e.target.value)}
-              style={{ width: "100%", height: "60px", marginBottom: "10px" }}
             />
 
             <input
@@ -406,7 +411,6 @@ function Exemplare() {
               placeholder="Cost total"
               value={cheltuialaCost}
               onChange={(e) => setCheltuialaCost(e.target.value)}
-              style={{ width: "100%", marginBottom: "10px" }}
             />
 
             <div className="popup-buttons">
@@ -437,6 +441,12 @@ function Exemplare() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showCheltuialaError && (
+        <div className="floating-error-cheltuiala">
+          Completati toate câmpurile!
         </div>
       )}
     </div>

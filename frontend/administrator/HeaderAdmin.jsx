@@ -171,9 +171,14 @@ const HeaderAdmin = () => {
 
       {showPopupCod && (
         <div className="popup-overlay-cod">
-          <div className="popup-adauga-imprumut">
+          <div className="popup-adauga-imprumut-admin">
             <p>Introduceți cod împrumut:</p>
-            <input type="text" maxLength={6} placeholder="123456" />
+            <input
+              id="inputCod"
+              type="text"
+              maxLength={6}
+              placeholder="123456"
+            />
             <div className="popup-buttons">
               <button id="btnOkCod" onClick={handleConfirmareCod}>
                 OK
@@ -216,8 +221,8 @@ const HeaderAdmin = () => {
         <div
           className={
             mesajFlotant.tip === "succes"
-              ? "floating-success"
-              : "floating-error"
+              ? "floating-success-cod"
+              : "floating-error-cod"
           }
         >
           {mesajFlotant.mesaj}

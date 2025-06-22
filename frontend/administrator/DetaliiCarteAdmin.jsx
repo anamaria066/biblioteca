@@ -26,6 +26,7 @@ function DetaliiCarteAdmin() {
   ); // format YYYY-MM-DD
   const [showExemplarSuccess, setShowExemplarSuccess] = useState(false);
   const [showEditSuccess, setShowEditSuccess] = useState(false);
+  const [showExemplarError, setShowExemplarError] = useState(false);
   const location = useLocation();
   useEffect(() => {
     if (location.state?.showSuccessMessage) {
@@ -161,6 +162,12 @@ function DetaliiCarteAdmin() {
   }
 
   const handleAddExemplar = async () => {
+    if (!stareExemplar || !costAchizitie || !dataAchizitie) {
+      setShowExemplarError(true);
+      setTimeout(() => setShowExemplarError(false), 5000);
+      return;
+    }
+
     const cost = parseFloat(costAchizitie) || 0;
 
     try {
@@ -390,6 +397,12 @@ function DetaliiCarteAdmin() {
 
       {showEditSuccess && (
         <div className="floating-success-modificari">Modificări salvate!</div>
+      )}
+
+      {showExemplarError && (
+        <div className="floating-error-adauga-exemplar">
+          Introduceți toate datele exemplarului!
+        </div>
       )}
     </div>
   );

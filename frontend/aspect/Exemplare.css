@@ -175,6 +175,20 @@ body {
     animation: fadeInOut 3s ease-in-out forwards;
 }
 
+.floating-error-cheltuiala {
+    position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #5c0f0fd3;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeInOut 5s ease-in-out forwards;
+  font-family: 'Times New Roman', Times, serif;
+}
+
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translateY(20px); }
     10% { opacity: 1; transform: translateY(0); }
@@ -250,19 +264,68 @@ body {
     gap: 10px;
 }
 
-.popup-buttons button,
-#btnDa, #btnNu {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
+.popup-cheltuiala {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.popup-buttons button:hover,
-#btnDa:hover, #btnNu:hover {
-    background-color: rgb(255, 180, 200);
+.popup-adauga-cheltuiala-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 370px;
+    height: 230px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+    text-align: center;
 }
+
+.popup-adauga-cheltuiala-content h3 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.popup-adauga-cheltuiala-content input,
+.popup-adauga-cheltuiala-content textarea {
+ width: 340px;
+  padding: 10px;
+  font-size: 16px;
+  font-family: 'Times New Roman', Times, serif;
+  border: none;
+  box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+  border-radius: 6px;
+  background-color: #fdf6f0;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+.popup-adauga-cheltuiala-content input:focus,
+.popup-adauga-cheltuiala-content textarea:focus {
+    outline: none;
+}
+
+.popup-buttons button {
+color: #ffffff;
+    padding: 12px 24px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+}
+

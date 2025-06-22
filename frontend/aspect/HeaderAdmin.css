@@ -103,7 +103,7 @@
     transform: scale(1.1);
 }
 
-.popup-adauga-imprumut {
+.popup-adauga-imprumut-admin {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -113,14 +113,14 @@
     text-align: center;
 }
 
-.popup-adauga-imprumut p {
+.popup-adauga-imprumut-admin p {
     font-family: 'Times New Roman', Times, serif;
     font-size: 18px;
     font-weight: bold;
 }
 
-.popup-adauga-imprumut input {
-    width: 200px;
+.popup-adauga-imprumut-admin #inputCod {
+    width: 250px;
     padding: 8px;
     margin-top: 15px;
     border: none;
@@ -156,26 +156,25 @@
     transform: translateY(-2px);
 }
 
-.floating-success, .floating-error {
+.floating-success-cod, .floating-error-cod {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 1000;
-    animation: fadeInOut 3s ease-in-out forwards;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeInOut 5s ease-in-out forwards;
+  font-family: 'Times New Roman', Times, serif;
   }
   
-  .floating-success {
+  .floating-success-cod {
     background-color: #4CAF50;
-    color: white;
   }
   
-  .floating-error {
-    background-color: #D32F2F;
-    color: white;
+  .floating-error-cod {
+    background-color: #5c0f0fd3;
   }
   
   @keyframes fadeInOut {
