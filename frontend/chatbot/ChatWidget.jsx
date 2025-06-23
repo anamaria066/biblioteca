@@ -13,14 +13,18 @@ const ChatWidget = () => {
   const sentIntroRef = useRef(false); // Adăugat în componentă, în afara funcției
 
   const generateBotResponse = async (history) => {
-    const lastUserMessage = history[history.length - 1]?.text;
+    // const lastUserMessage = history[history.length - 1]?.text;
+    const rawUserMessage = history[history.length - 1]?.text.replace(
+      /^Folosind detaliile.*?: /,
+      ""
+    ); //aici
 
     try {
       const userId = localStorage.getItem("utilizator_id");
       const res = await fetch("http://localhost:3000/chatbot-query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: lastUserMessage, userId }),
+        body: JSON.stringify({ question: rawUserMessage, userId }), //aici
       });
 
       const serverReply = await res.json();
@@ -51,7 +55,14 @@ const ChatWidget = () => {
     if (!sentIntroRef.current) {
       formattedHistory.unshift({
         role: "user",
-        parts: [{ text: basic_info }],
+        parts: [
+          {
+            text:
+              "Context despre platformă:\n" +
+              basic_info +
+              "\n\nȚine cont de aceste informații în toate răspunsurile următoare.",
+          },
+        ],
       });
       sentIntroRef.current = true;
     }

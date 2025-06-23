@@ -23,6 +23,7 @@ function AdaugaCarte() {
   const [mesajEroareCod, setMesajEroareCod] = useState("");
   const [detaliiImprumut, setDetaliiImprumut] = useState(null);
   const fileInputRef = useRef(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [user, setUser] = useState({
     nume: "",
@@ -73,40 +74,6 @@ function AdaugaCarte() {
     }
   };
 
-  const handleConfirm = async () => {
-    const formData = new FormData();
-    formData.append("titlu", titlu);
-    formData.append("autor", autor);
-    formData.append("an_publicatie", anPublicatie);
-    formData.append("descriere", descriere);
-    formData.append("gen", gen);
-    formData.append("pret", parseFloat(pret));
-    if (file) {
-      formData.append("imagine", file);
-    }
-
-    try {
-      const res = await fetch("http://localhost:3000/adauga-carte-cu-upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        setSuccessMessage(true);
-        setTimeout(() => {
-          setSuccessMessage(false);
-          navigate("/admin");
-        }, 3000);
-      } else {
-        const data = await res.json();
-        alert(data.message || "Eroare la adăugare.");
-      }
-    } catch (error) {
-      console.error("Eroare:", error);
-      alert("Eroare de rețea!");
-    }
-  };
-
   const handleCancel = () => {
     navigate("/admin");
   };
@@ -130,6 +97,44 @@ function AdaugaCarte() {
       console.error("Eroare verificare cod:", err);
       setMesajEroareCod("Eroare de rețea!");
       setTimeout(() => setMesajEroareCod(""), 3000);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!titlu || !autor || !anPublicatie || !descriere || !pret || !file) {
+      setErrorMessage("Toate câmpurile trebuie completate!");
+      setTimeout(() => setErrorMessage(""), 5000);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("titlu", titlu);
+    formData.append("autor", autor);
+    formData.append("an_publicatie", anPublicatie);
+    formData.append("descriere", descriere);
+    formData.append("gen", gen);
+    formData.append("pret", parseFloat(pret));
+    formData.append("imagine", file);
+
+    try {
+      const res = await fetch("http://localhost:3000/adauga-carte-cu-upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        setSuccessMessage(true);
+        setTimeout(() => {
+          setSuccessMessage(false);
+          navigate("/admin");
+        }, 3000);
+      } else {
+        const data = await res.json();
+        alert(data.message || "Eroare la adăugare.");
+      }
+    } catch (error) {
+      console.error("Eroare:", error);
+      alert("Eroare de rețea!");
     }
   };
 
@@ -259,7 +264,13 @@ function AdaugaCarte() {
       </div>
 
       {successMessage && (
-        <div className="floating-success">Carte adăugată cu succes!</div>
+        <div className="floating-success-adauga-carte">
+          Carte adăugată cu succes!
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="floating-error-adauga-carte">{errorMessage}</div>
       )}
     </div>
   );

@@ -32,6 +32,14 @@ function DetaliiCarte() {
   const [afiseazaMesajImprumut, setAfiseazaMesajImprumut] = useState(false);
   const [esteSucces, setEsteSucces] = useState(false);
   const [cartiSimilare, setCartiSimilare] = useState([]);
+  const [afiseazaEroareRecenzie, setAfiseazaEroareRecenzie] = useState(false);
+  const [mesajEroareRecenzie, setMesajEroareRecenzie] = useState("");
+  const [afiseazaSuccesRecenzie, setAfiseazaSuccesRecenzie] = useState(false);
+  const [mesajSuccesRecenzie, setMesajSuccesRecenzie] = useState("");
+  const [afiseazaPopupStergere, setAfiseazaPopupStergere] = useState(false);
+  const [recenziePentruStergere, setRecenziePentruStergere] = useState(null);
+  const [afiseazaSuccesStergere, setAfiseazaSuccesStergere] = useState(false);
+  const [mesajSuccesStergere, setMesajSuccesStergere] = useState("");
 
   // ✅ Funcție pentru a încărca cartea, recenziile și favoritele
   const userId = localStorage.getItem("utilizator_id");
@@ -185,9 +193,9 @@ function DetaliiCarte() {
 
     const nota = parseFloat(recenzie.rating);
     if (isNaN(nota) || nota < 0 || nota > 5 || !recenzie.comentariu) {
-      setMesaj(
-        "Te rugăm să completezi toate câmpurile și să alegi un rating valid!"
-      );
+      setMesajEroareRecenzie("Toate câmpurile trebuie completate!");
+      setAfiseazaEroareRecenzie(true);
+      setTimeout(() => setAfiseazaEroareRecenzie(false), 5000);
       return;
     }
 
@@ -205,18 +213,53 @@ function DetaliiCarte() {
 
       const data = await response.json();
       if (response.ok) {
-        setMesaj("Recenzia a fost adăugată cu succes!");
+        setAfiseazaSuccesRecenzie(true);
+        setMesajSuccesRecenzie("Recenzie adăugată!");
         setTimeout(() => {
-          setShowPopup(false);
-          setMesaj("");
-          setRecenzie({ rating: "", comentariu: "" });
-          fetchData();
-        }, 1000);
+          setAfiseazaSuccesRecenzie(false);
+        }, 5000);
+
+        setShowPopup(false);
+        setMesaj("");
+        setRecenzie({ rating: "", comentariu: "" });
+        fetchData();
       } else {
         setMesaj(data.message || "Eroare la adăugarea recenziei!");
       }
     } catch (err) {
       setMesaj("Eroare de rețea!");
+    }
+  };
+
+  const initiazaStergereRecenzie = (idRecenzie) => {
+    setRecenziePentruStergere(idRecenzie);
+    setAfiseazaPopupStergere(true);
+  };
+
+  const confirmaStergereRecenzie = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/sterge-recenzie/${recenziePentruStergere}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (res.ok) {
+        setAfiseazaSuccesStergere(true);
+        setMesajSuccesStergere("Recenzie ștearsă!");
+        setTimeout(() => setAfiseazaSuccesStergere(false), 5000);
+
+        setAfiseazaPopupStergere(false);
+        setRecenziePentruStergere(null);
+        fetchData(); // reîncarcă cartea + recenziile
+      } else {
+        const data = await res.json();
+        alert(data.message || "Eroare la ștergere.");
+      }
+    } catch (err) {
+      console.error("Eroare la ștergerea recenziei:", err);
+      alert("Eroare la server!");
     }
   };
 
@@ -342,6 +385,16 @@ function DetaliiCarte() {
               <div className="recenzii-box-client">
                 {recenzii.map((recenzie, index) => (
                   <div className="recenzie-card-client" key={index}>
+                    {/* ✕ doar dacă recenzia este a utilizatorului curent */}
+                    {recenzie.utilizator_id === parseInt(utilizator_id) && (
+                      <button
+                        className="btn-x-stergere"
+                        onClick={() => initiazaStergereRecenzie(recenzie.id)}
+                        title="Șterge recenzia"
+                      >
+                        ✕
+                      </button>
+                    )}
                     <p id="detalii-utilizator-recenzie">
                       {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
                       Nota: {recenzie.rating}/5 ⭐
@@ -499,6 +552,41 @@ function DetaliiCarte() {
             </form>
           </div>
         </div>
+      )}
+
+      {afiseazaEroareRecenzie && (
+        <div className="floating-error-recenzie">{mesajEroareRecenzie}</div>
+      )}
+
+      {afiseazaSuccesRecenzie && (
+        <div className="floating-success-recenzie">{mesajSuccesRecenzie}</div>
+      )}
+
+      {afiseazaPopupStergere && (
+        <div className="popup-overlay">
+          <div className="popup-confirmare-stergere">
+            <h3>Ștergeți recenzia?</h3>
+            <p>Această acțiune este ireversibilă.</p>
+            <div className="butoane-confirmare-stergere">
+              <button
+                id="confirmStergeRecenzie"
+                onClick={confirmaStergereRecenzie}
+              >
+                Da
+              </button>
+              <button
+                id="cancelStergeRecenzie"
+                onClick={() => setAfiseazaPopupStergere(false)}
+              >
+                Nu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {afiseazaSuccesStergere && (
+        <div className="floating-success-stergere">{mesajSuccesStergere}</div>
       )}
     </div>
   );

@@ -20,6 +20,8 @@ function Utilizatori() {
   const [showPopupConfirmare, setShowPopupConfirmare] = useState(false);
   const [mesajEroareCod, setMesajEroareCod] = useState("");
   const [detaliiImprumut, setDetaliiImprumut] = useState(null);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch utilizatori din baza de date
   useEffect(() => {
@@ -73,6 +75,8 @@ function Utilizatori() {
       .then((res) => res.json())
       .then((data) => {
         if (data.message === "Cont șters cu succes!") {
+          setShowDeleteSuccess(true);
+          setTimeout(() => setShowDeleteSuccess(false), 20000); // dispare după 5 secunde
           const loggedInUserId = localStorage.getItem("utilizator_id");
 
           // Dacă utilizatorul șters este cel logat
@@ -110,13 +114,32 @@ function Utilizatori() {
   };
 
   // Calculul utilizatorilor de afișat pe baza paginii curente
+  const utilizatoriFiltrati = utilizatori.filter(
+    (utilizator) =>
+      // utilizator.nume.toLowerCase().includes(searchTerm.toLowerCase())
+      utilizator.nume
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .startsWith(
+          searchTerm
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+        ) //pt a inlocui diacritice
+  );
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = utilizatori.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = utilizatoriFiltrati.slice(
+    indexOfFirstUser,
+    indexOfLastUser
+  );
 
   // Funcții de navigare între pagini
   const nextPage = () => {
-    if (currentPage < Math.ceil(utilizatori.length / usersPerPage)) {
+    if (currentPage < Math.ceil(utilizatoriFiltrati.length / usersPerPage)) {
+      //aici
       setCurrentPage((prevPage) => prevPage + 1);
     }
   };
@@ -178,6 +201,18 @@ function Utilizatori() {
       {/* ======= TABEL UTILIZATORI ======= */}
       <div className="utilizatori-subcontainer">
         <h2>Lista Utilizatorilor</h2>
+        <div className="search-container-utilizatori">
+          <input
+            type="text"
+            placeholder="🔍 Caută utilizator..."
+            className="search-bar-utilizatori"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // reset pagină la căutare nouă
+            }}
+          />
+        </div>
         <table className="utilizatori-table">
           <thead>
             <tr>
@@ -253,11 +288,13 @@ function Utilizatori() {
         )}
 
         {Array.from(
-          { length: Math.ceil(utilizatori.length / usersPerPage) },
+          { length: Math.ceil(utilizatoriFiltrati.length / usersPerPage) }, //AICI
           (_, i) => i + 1
         )
           .filter((pagina) => {
-            const totalPages = Math.ceil(utilizatori.length / usersPerPage);
+            const totalPages = Math.ceil(
+              utilizatoriFiltrati.length / usersPerPage
+            ); //aici
             if (totalPages <= 5) return true;
             if (
               pagina === 1 ||
@@ -312,7 +349,7 @@ function Utilizatori() {
             );
           })}
 
-        {currentPage < Math.ceil(utilizatori.length / usersPerPage) && (
+        {currentPage < Math.ceil(utilizatoriFiltrati.length / usersPerPage) && ( //AICI
           <button
             className="pagination-next"
             onClick={() => setCurrentPage(currentPage + 1)}
@@ -321,6 +358,11 @@ function Utilizatori() {
           </button>
         )}
       </div>
+      {showDeleteSuccess && (
+        <div className="floating-success-stergere-utilizator">
+          Utilizator șters!
+        </div>
+      )}
     </div>
   );
 }

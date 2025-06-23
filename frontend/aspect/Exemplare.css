@@ -173,6 +173,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 9999;
     animation: fadeInOut 3s ease-in-out forwards;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .floating-error-cheltuiala {

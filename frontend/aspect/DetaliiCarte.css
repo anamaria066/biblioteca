@@ -148,9 +148,113 @@ body.no-scroll {
     font-family: 'Times New Roman', Times, serif;
 }
 
+.btn-x-stergere {
+  /* position: absolute; */
+  margin-left: 220px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #c0392b;
+  cursor: pointer;
+} 
+
+.popup-confirmare-stergere {
+  background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 330px;
+    height: 120px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+    text-align: center;
+    display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.popup-confirmare-stergere h3 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 20px;
+}
+
+.popup-confirmare-stergere p {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 18px;
+}
+
+.butoane-confirmare-stergere {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 100px; 
+}
+
+#confirmStergeRecenzie {
+  padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    background-image: linear-gradient(to bottom right, #305c31ee, #ccc7c5d5);
+    backdrop-filter: blur(10px);
+}
+
+#cancelStergeRecenzie {
+padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    background-image: linear-gradient(to bottom right, #8c2929eb, #ccc7c5dc);
+    backdrop-filter: blur(10px);
+}
+
 /* Mesaje de succes sau eroare plutitoare */
 .floating-success-imprumut {
     position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #326734de;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 9999;
+    animation: fadeInOut 5s ease-in-out forwards;
+}
+
+.floating-success-recenzie {
+  position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #326734de;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 9999;
+    animation: fadeInOut 5s ease-in-out forwards;
+}
+
+.floating-success-stergere {
+  position: fixed;
     bottom: 30px;
     right: 30px;
     background-color: #326734de;
@@ -182,6 +286,21 @@ body.no-scroll {
 
 .floating-error-imprumut {
     position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #741c1ce2;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-family: 'Times New Roman', Times, serif;
+    z-index: 9999;
+    animation: fadeInOut 5s ease-in-out forwards;
+}
+
+.floating-error-recenzie {
+  position: fixed;
     bottom: 30px;
     right: 30px;
     background-color: #741c1ce2;

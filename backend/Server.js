@@ -604,6 +604,18 @@ app.get('/conturi', async (req, res) => {
     }
 });
 
+// Vizualizare toate conturile (inclusiv parolele) pentru debugging - http://localhost:3000/conturi-pt-debugging
+app.get('/conturi-pt-debugging', async (req, res) => {
+    try {
+        const utilizatori = await Utilizator.findAll(); // Nu excludem niciun câmp
+
+        res.status(200).json(utilizatori);
+    } catch (error) {
+        console.error("Eroare la obținerea utilizatorilor (debug):", error);
+        res.status(500).json({ message: "Eroare la server!" });
+    }
+});
+
 
 // http://localhost:3000/adauga-utilizatori
 app.post('/adauga-utilizatori', async (req, res) => {
@@ -2349,94 +2361,308 @@ app.get("/carti-similare/:carteId", async (req, res) => {
   }
 });
 
+// app.post("/chatbot-query", async (req, res) => {
+//     const { userId, question } = req.body;
+  
+//     try {
+//       const intrebare = question.toLowerCase();
+  
+//       // 1️⃣ Împrumuturi active
+//       if (
+//         intrebare.includes("împrumut") &&
+//         (
+//           intrebare.includes("activ") ||
+//           intrebare.includes("imprumuturi") ||
+//           intrebare.includes("în curs") ||
+//           intrebare.includes("curent") ||
+//           intrebare.includes("am acum") ||
+//           intrebare.includes("momentan") ||
+//           intrebare.includes("ai mei") ||
+//           intrebare.includes("meu") ||
+//           intrebare.includes("mele")
+//         )
+//       ) {
+//         const imprumuturi = await Imprumut.findAll({
+//           where: {
+//             utilizator_id: userId,
+//             status: "activ",
+//           },
+//           include: [
+//             {
+//               model: ExemplarCarte,
+//               include: [{ model: Carte }],
+//             },
+//           ],
+//         });
+  
+//         if (!imprumuturi.length) {
+//           return res.json({
+//             type: "dynamic",
+//             text: "Nu ai împrumuturi active în acest moment.",
+//           });
+//         }
+  
+//         const lista = imprumuturi
+//           .map((imp) => {
+//             const titlu = imp.ExemplarCarte?.Carte?.titlu;
+//             const autor = imp.ExemplarCarte?.Carte?.autor;
+//             const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
+//             return `• "${titlu}" de ${autor} (retur: ${retur})`;
+//           })
+//           .join("\n");
+  
+//         return res.json({
+//           type: "dynamic",
+//           text: `Ai ${imprumuturi.length} împrumuturi active:\n${lista}`,
+//         });
+//       }
+  
+//       // 2️⃣ Favorite
+//       if (
+//   intrebare.includes("favorite") &&
+//   !intrebare.includes("cum") &&
+//   !intrebare.includes("unde") &&
+//   !intrebare.includes("ajung") &&
+//   !intrebare.includes("acces") &&
+//   !intrebare.includes("găsesc") &&
+//   !intrebare.includes("vizualizez")
+// ) {
+//         const favorite = await Favorite.findAll({
+//           where: { utilizator_id: userId },
+//           include: [{ model: Carte }],
+//         });
+  
+//         if (!favorite.length) {
+//           return res.json({
+//             type: "dynamic",
+//             text: "Nu ai nicio carte la favorite momentan.",
+//           });
+//         }
+  
+//         const lista = favorite
+//           .map((f) => `• "${f.Carte.titlu}" de ${f.Carte.autor}`)
+//           .join("\n");
+  
+//         return res.json({
+//           type: "dynamic",
+//           text: `Iată lista cărților tale favorite:\n${lista}`,
+//         });
+//       }
+  
+//       // Niciun răspuns direct – lasă AI-ul să preia
+//       return res.json({ type: "no-match" });
+  
+//     } catch (err) {
+//       console.error("Eroare /chatbot-query:", err);
+//       return res.status(500).json({ error: "Eroare la interogare server." });
+//     }
+//   });
+
 app.post("/chatbot-query", async (req, res) => {
-    const { userId, question } = req.body;
-  
-    try {
-      const intrebare = question.toLowerCase();
-  
-      // 1️⃣ Împrumuturi active
-      if (
-        intrebare.includes("împrumut") &&
-        (
-          intrebare.includes("activ") ||
-          intrebare.includes("imprumuturi") ||
-          intrebare.includes("în curs") ||
-          intrebare.includes("curent") ||
-          intrebare.includes("am acum") ||
-          intrebare.includes("momentan") ||
-          intrebare.includes("ai mei") ||
-          intrebare.includes("meu") ||
-          intrebare.includes("mele")
-        )
-      ) {
-        const imprumuturi = await Imprumut.findAll({
-          where: {
-            utilizator_id: userId,
-            status: "activ",
-          },
-          include: [
-            {
-              model: ExemplarCarte,
-              include: [{ model: Carte }],
-            },
-          ],
-        });
-  
-        if (!imprumuturi.length) {
-          return res.json({
-            type: "dynamic",
-            text: "Nu ai împrumuturi active în acest moment.",
-          });
-        }
-  
-        const lista = imprumuturi
-          .map((imp) => {
-            const titlu = imp.ExemplarCarte?.Carte?.titlu;
-            const autor = imp.ExemplarCarte?.Carte?.autor;
-            const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
-            return `• "${titlu}" de ${autor} (retur: ${retur})`;
-          })
-          .join("\n");
-  
-        return res.json({
-          type: "dynamic",
-          text: `Ai ${imprumuturi.length} împrumuturi active:\n${lista}`,
-        });
+  const { userId, question } = req.body;
+
+  try {
+    const intrebare = question.toLowerCase();
+
+    const isHowToQuestion = (keywords) =>
+      keywords.some((k) => intrebare.includes(k));
+
+    const HOW_WORDS = [
+      "cum", "unde", "ajung", "găsesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau să",
+    ];
+
+    // 1️⃣ Împrumuturi active
+    if (
+      intrebare.includes("împrumut") &&
+      !isHowToQuestion(HOW_WORDS) &&
+      (
+        intrebare.includes("activ") ||
+        intrebare.includes("momentan") ||
+        intrebare.includes("curent") ||
+        intrebare.includes("am acum") ||
+        intrebare.includes("în curs") ||
+        intrebare.includes("mele") ||
+        intrebare.includes("meu")
+      )
+    ) {
+      const imprumuturi = await Imprumut.findAll({
+        where: { utilizator_id: userId, status: "activ" },
+        include: [{ model: ExemplarCarte, include: [Carte] }],
+      });
+
+      if (!imprumuturi.length) {
+        return res.json({ type: "dynamic", text: "Nu ai împrumuturi active în acest moment." });
       }
-  
-      // 2️⃣ Favorite
-      if (intrebare.includes("favorite")) {
-        const favorite = await Favorite.findAll({
-          where: { utilizator_id: userId },
-          include: [{ model: Carte }],
-        });
-  
-        if (!favorite.length) {
-          return res.json({
-            type: "dynamic",
-            text: "Nu ai nicio carte la favorite momentan.",
-          });
-        }
-  
-        const lista = favorite
-          .map((f) => `• "${f.Carte.titlu}" de ${f.Carte.autor}`)
-          .join("\n");
-  
-        return res.json({
-          type: "dynamic",
-          text: `Iată lista cărților tale favorite:\n${lista}`,
-        });
-      }
-  
-      // Niciun răspuns direct – lasă AI-ul să preia
-      return res.json({ type: "no-match" });
-  
-    } catch (err) {
-      console.error("Eroare /chatbot-query:", err);
-      return res.status(500).json({ error: "Eroare la interogare server." });
+
+      const lista = imprumuturi
+        .map((imp) => {
+          const titlu = imp.ExemplarCarte?.Carte?.titlu;
+          const autor = imp.ExemplarCarte?.Carte?.autor;
+          const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
+          return `• "${titlu}" de ${autor} (retur: ${retur})`;
+        })
+        .join("\n");
+
+      return res.json({
+        type: "dynamic",
+        text: `Ai ${imprumuturi.length} împrumuturi active:\n${lista}`,
+      });
     }
+
+    // 2️⃣ Favorite
+    if (
+      intrebare.includes("favorite") &&
+      !isHowToQuestion(HOW_WORDS)
+    ) {
+      const favorite = await Favorite.findAll({
+        where: { utilizator_id: userId },
+        include: [{ model: Carte }],
+      });
+
+      if (!favorite.length) {
+        return res.json({ type: "dynamic", text: "Nu ai nicio carte la favorite momentan." });
+      }
+
+      const lista = favorite
+        .map((f) => `• "${f.Carte.titlu}" de ${f.Carte.autor}`)
+        .join("\n");
+
+      return res.json({
+        type: "dynamic",
+        text: `Iată lista cărților tale favorite:\n${lista}`,
+      });
+    }
+
+    // 3️⃣ Taxe restante
+    if (
+      intrebare.includes("tax") &&
+      !isHowToQuestion(HOW_WORDS)
+    ) {
+      const utilizator = await Utilizator.findByPk(userId);
+      const taxe = utilizator?.taxe_restante || 0;
+
+      if (!taxe) {
+        return res.json({ type: "dynamic", text: "Nu ai taxe restante în acest moment." });
+      }
+
+      return res.json({
+        type: "dynamic",
+        text: `Ai de plată ${taxe} lei pentru întârzierea returnării.`,
+      });
+    }
+
+    // 4️⃣ Poate prelungi?
+    if (
+      intrebare.includes("prelung") &&
+      !isHowToQuestion(HOW_WORDS)
+    ) {
+      const imprumuturi = await Imprumut.findAll({
+        where: { utilizator_id: userId, status: "activ" },
+      });
+
+      if (!imprumuturi.length) {
+        return res.json({
+          type: "dynamic",
+          text: "Nu ai împrumuturi active care să poată fi prelungite.",
+        });
+      }
+
+      return res.json({
+        type: "dynamic",
+        text:
+          "Poți prelungi un împrumut activ cu cel mult 7 zile, dacă cartea nu este rezervată de altcineva.",
+      });
+    }
+
+    // 5️⃣ Profil personal (doar informații simple)
+    if (
+      (intrebare.includes("profil") || intrebare.includes("cont")) &&
+      !isHowToQuestion(HOW_WORDS)
+    ) {
+      const user = await Utilizator.findByPk(userId);
+      return res.json({
+        type: "dynamic",
+        text: `Profilul tău: ${user.nume} ${user.prenume}, Email: ${user.email}`,
+      });
+    }
+
+    // 6️. Istoric împrumuturi
+if (
+  intrebare.includes("istoric") ||
+  intrebare.includes("în trecut") ||
+  intrebare.includes("am avut") ||
+  intrebare.includes("returnat") ||
+  intrebare.includes("împrumutate") && intrebare.includes("fost") ||
+  (intrebare.includes("împrumut") && intrebare.includes("vechi")) ||
+  (intrebare.includes("împrumut") && intrebare.includes("finalizat"))
+) {
+  const imprumuturi = await Imprumut.findAll({
+    where: {
+      utilizator_id: userId,
+      status: {
+        [Op.not]: "activ", // orice alt status decât „activ”
+      },
+    },
+    include: [{ model: ExemplarCarte, include: [Carte] }],
   });
+
+  if (!imprumuturi.length) {
+    return res.json({
+      type: "dynamic",
+      text: "Nu ai niciun împrumut încheiat sau returnat în trecut.",
+    });
+  }
+
+  // 🔒 4.5️⃣ Întrebări despre date personale sensibile
+if (
+  intrebare.includes("parola") ||
+  intrebare.includes("cnp") ||
+  intrebare.includes("adres") || // "adresa" sau "adresă"
+  intrebare.includes("email") ||
+  intrebare.includes("mail") ||
+  intrebare.includes("numele meu complet") ||
+  intrebare.includes("data nașterii") ||
+  intrebare.includes("telefon") ||
+  intrebare.includes("număr de telefon")
+) {
+  return res.json({
+    type: "dynamic",
+    text:
+      "Din motive de confidențialitate, nu am acces la informații sensibile din contul tău. Te rugăm să verifici aceste date direct în secțiunea „Profil” a aplicației.",
+  });
+}
+
+  const lista = imprumuturi
+    .map((imp) => {
+      const titlu = imp.ExemplarCarte?.Carte?.titlu;
+      const autor = imp.ExemplarCarte?.Carte?.autor;
+      const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
+      const status = imp.status.charAt(0).toUpperCase() + imp.status.slice(1);
+      return `• "${titlu}" de ${autor} (retur: ${retur}, status: ${status})`;
+    })
+    .join("\n");
+
+  return res.json({
+    type: "dynamic",
+    text: `Ai ${imprumuturi.length} împrumuturi încheiate:\n${lista}`,
+  });
+}
+
+    // 7. Dacă nu a fost identificat un caz, trimitem către AI
+    return res.json({ type: "no-match" });
+  } catch (err) {
+   console.error("Eroare la generarea răspunsului AI:", err);
+
+  setChatHistory((prev) => [
+    ...prev.filter((msg) => msg.text !== "Se gândește..."),
+    {
+      role: "model",
+      text: "Ne pare rău, momentan chatbot-ul se află în mentenanță.",
+      isError: true,
+    },
+  ]);
+  }
+});
 
 
 // Pornire server

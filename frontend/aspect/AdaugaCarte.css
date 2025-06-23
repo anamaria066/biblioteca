@@ -240,23 +240,33 @@
 }
 
 /* === Floating Success / Error === */
-.floating-success,
-.floating-error {
+.floating-success-adauga-carte {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #4CAF50;
+    background-color: #1c4b1ed4;
     color: white;
     padding: 15px 25px;
     border-radius: 8px;
-    font-weight: bold;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 9999;
     animation: fadeInOut 3s ease-in-out forwards;
+    font-family: 'Times New Roman', Times, serif;
 }
 
-.floating-error {
-    background-color: #e20303;
+
+.floating-error-adauga-carte {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #651f1fdd;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeInOut 3s ease-in-out forwards;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 @keyframes fadeInOut {

@@ -116,8 +116,8 @@ function CartiAdmin() {
   // Filtrare cărți după titlu sau autor
   const filteredBooks = carti.filter((carte) => {
     const matchesSearch =
-      carte.titlu.toLowerCase().includes(search.toLowerCase()) ||
-      carte.autor.toLowerCase().includes(search.toLowerCase());
+      carte.titlu.toLowerCase().startsWith(search.toLowerCase()) ||
+      carte.autor.toLowerCase().startsWith(search.toLowerCase());
 
     const matchesGen = filtruGen ? carte.gen === filtruGen : true;
 

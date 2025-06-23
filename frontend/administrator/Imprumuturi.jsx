@@ -235,7 +235,7 @@ function Imprumuturi() {
                           idImprumut: imprumut.id,
                           exemplarId: imprumut.exemplarId,
                         });
-                        setTaxaIntarziere(taxa); // 🆕 setăm taxa calculată
+                        setTaxaIntarziere(taxa);
                         setShowPopupFinalizare(true);
                       }}
                     >
@@ -383,8 +383,8 @@ function Imprumuturi() {
 
       {showPopupFinalizare && detaliiFinalizare && (
         <div className="popup-overlay-finalizare">
-          <div className="popup-content">
-            <p>Selectează starea exemplarului returnat:</p>
+          <div className="finalizare-content">
+            <h3>Selectează starea exemplarului returnat:</h3>
             <select
               value={stareExemplar}
               onChange={(e) => setStareExemplar(e.target.value)}
@@ -415,7 +415,9 @@ function Imprumuturi() {
         </div>
       )}
 
-      {showPopupSucces && <div className="floating-success">{mesajSucces}</div>}
+      {showPopupSucces && (
+        <div className="floating-success-finalizare">{mesajSucces}</div>
+      )}
     </div>
   );
 }
