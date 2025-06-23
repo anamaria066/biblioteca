@@ -67,7 +67,7 @@ function ProfilClient() {
     const handleClickOutside = (e) => {
       if (
         !e.target.closest(".profile-img") &&
-        !e.target.closest(".dropdown-poza-mare")
+        !e.target.closest(".dropdown-poza-client") //aici
       ) {
         setPozaMareDropdownDeschis(false);
       }
@@ -277,10 +277,9 @@ function ProfilClient() {
               alt="Poza profil"
               className="profile-img"
               onClick={(e) => {
-                if (userData.pozaProfil !== "/images/default-avatar.jpg") {
-                  setDropdownPosition({ x: e.clientX, y: e.clientY + 10 });
-                  setPozaMareDropdownDeschis((prev) => !prev);
-                }
+                setDropdownPosition({ x: e.clientX, y: e.clientY + 10 });
+                // setPozaMareDropdownDeschis((prev) => !prev);
+                setPozaMareDropdownDeschis(true);
               }}
             />
             {pozaMareDropdownDeschis && (
@@ -292,8 +291,19 @@ function ProfilClient() {
                   position: "fixed",
                 }}
               >
-                <button onClick={handleSelectPoza}>Schimbă poza</button>
-                <button onClick={handleDeletePicture}>Șterge poza</button>
+                <button
+                  onClick={() => {
+                    console.log("🟡 Ai apăsat pe 'Adaugă/schimba poză'");
+                    handleSelectPoza();
+                  }}
+                >
+                  {userData.pozaProfil === "/images/default-avatar.jpg"
+                    ? "Adaugă poză"
+                    : "Schimbă poza"}
+                </button>
+                {userData.pozaProfil !== "/images/default-avatar.jpg" && (
+                  <button onClick={handleDeletePicture}>Șterge poza</button>
+                )}
               </div>
             )}
           </div>
@@ -368,49 +378,50 @@ function ProfilClient() {
           />
         </div>
 
-        <div className="zona-butoane-profil">
-          {isEditing ? (
-            <>
-              <button
-                id="btnsalveazaModificarile"
-                onClick={handleSaveProfileChanges}
-              >
-                Salvează modificările
-              </button>
-              <button
-                id="btnAnuleazaModificarile"
-                onClick={() => setIsEditing(false)}
-              >
-                Anulează
-              </button>
-            </>
-          ) : (
-            <>
-              <button id="btnEditProfil" onClick={handleEditProfile}>
-                Editează profilul
-              </button>
-              <button
-                id="btnSchimbaParola"
-                onClick={() => setIsChangingPassword(true)}
-              >
-                Schimbă parola
-              </button>
-              <button
-                id="btnDelogare"
-                onClick={() => {
-                  localStorage.clear();
-                  navigate("/");
-                }}
-              >
-                Deloghează-te
-              </button>
-            </>
-          )}
-
-          <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
-            Șterge cont
-          </button>
-        </div>
+        {!previewPoza && (
+          <div className="zona-butoane-profil">
+            {isEditing ? (
+              <>
+                <button
+                  id="btnsalveazaModificarile"
+                  onClick={handleSaveProfileChanges}
+                >
+                  Salvează modificările
+                </button>
+                <button
+                  id="btnAnuleazaModificarile"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Anulează
+                </button>
+              </>
+            ) : (
+              <>
+                <button id="btnEditProfil" onClick={handleEditProfile}>
+                  Editează profilul
+                </button>
+                <button
+                  id="btnSchimbaParola"
+                  onClick={() => setIsChangingPassword(true)}
+                >
+                  Schimbă parola
+                </button>
+                <button
+                  id="btnDelogare"
+                  onClick={() => {
+                    localStorage.clear();
+                    navigate("/");
+                  }}
+                >
+                  Deloghează-te
+                </button>
+              </>
+            )}
+            <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+              Șterge cont
+            </button>
+          </div>
+        )}
       </div>
 
       {isChangingPassword && (

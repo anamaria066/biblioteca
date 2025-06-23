@@ -2462,25 +2462,32 @@ app.post("/chatbot-query", async (req, res) => {
   const { userId, question } = req.body;
 
   try {
-    const intrebare = question.toLowerCase();
+    const removeDiacritics = (text) => {
+  return text
+    .normalize("NFD") // separă literele de semnele diacritice
+    .replace(/[\u0300-\u036f]/g, ""); // elimină diacriticele
+};
+    // const intrebare = question.toLowerCase();
+    let intrebare = question.toLowerCase();
+intrebare = removeDiacritics(intrebare); // normalizezi
 
     const isHowToQuestion = (keywords) =>
       keywords.some((k) => intrebare.includes(k));
 
     const HOW_WORDS = [
-      "cum", "unde", "ajung", "găsesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau să",
+      "cum", "unde", "ajung", "gasesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau sa",
     ];
 
     // 1️⃣ Împrumuturi active
     if (
-      intrebare.includes("împrumut") &&
+      intrebare.includes("imprumut") &&
       !isHowToQuestion(HOW_WORDS) &&
       (
         intrebare.includes("activ") ||
         intrebare.includes("momentan") ||
         intrebare.includes("curent") ||
         intrebare.includes("am acum") ||
-        intrebare.includes("în curs") ||
+        intrebare.includes("in curs") ||
         intrebare.includes("mele") ||
         intrebare.includes("meu")
       )
