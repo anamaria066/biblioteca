@@ -165,7 +165,7 @@ function Login() {
           <a onClick={() => setPopupReset(true)} className="forgot-link">
             Ai uitat parola?
           </a>
-          {error && <p className="error-message">{error}</p>}
+          {error && <p className="error-message-sch-parola">{error}</p>}
         </div>
       </div>
       <div className="login-right">

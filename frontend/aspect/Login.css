@@ -23,15 +23,14 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(2.5px); /* efect de blur */
-    transform: scale(1.05); /* puțin zoom */
+    filter: blur(2.5px);
+    transform: scale(1.05); 
 }
 
-/* Container cu formularul */
 .login-container-new {
-    background: rgba(255, 255, 255, 0.2); /* fundal semi-transparent */
-    backdrop-filter: blur(10px);          /* efect de blur */
-    -webkit-backdrop-filter: blur(10px);  /* compatibilitate Safari */
+    background: rgba(255, 255, 255, 0.2); 
+    backdrop-filter: blur(10px);  
+    -webkit-backdrop-filter: blur(10px);  
     padding: 40px 30px;
     border: 1px solid rgba(1, 50, 12, 0.3);
     border-radius: 12px;
@@ -128,9 +127,9 @@
     z-index: 3;
 }
 
-.error-message {
-    color: red;
-    margin-top: 10px;
+.error-message-sch-parola {
+    color: #741c1ce2;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 
@@ -147,8 +146,6 @@
   text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
   z-index: 3;
   padding: 0 20px;
-
-  /* Efect de plutire */
   animation: floatSlow 3s ease-in-out infinite;
 }
 
@@ -182,8 +179,8 @@
   height: 200px; 
   width: 350px;
   background: linear-gradient(to bottom right, #220a4166, #efac8b6a); 
-  backdrop-filter: blur(10px);          /* efect de blur */
-  -webkit-backdrop-filter: blur(10px);  /* compatibilitate Safari */
+  backdrop-filter: blur(10px);  
+  -webkit-backdrop-filter: blur(10px); 
   padding: 40px 30px;
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(19, 21, 20, 0.3);
@@ -282,13 +279,13 @@
 }
 
 .floating-success-sch-parola {
-  background: #7af97e8f;
+  background: #326734de;
   font-family: 'Times New Roman', Times, serif;
   color: rgb(255, 255, 255);
 }
 
 .floating-error-sch-parola {
-  background: #ff5877a3;
+  background: #741c1ce2;
   font-family: 'Times New Roman', Times, serif;
   color: rgb(255, 255, 255);
 }

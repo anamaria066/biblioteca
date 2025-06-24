@@ -35,7 +35,9 @@ function Welcome() {
       </div>
 
       {showDeletedMessage && (
-        <div className="floating-success">Contul a fost șters cu succes!</div>
+        <div className="floating-success-stergere-cont">
+          Contul a fost șters cu succes!
+        </div>
       )}
     </div>
   );

@@ -152,28 +152,28 @@ body {
 }
 
 .expired-row {
-    background-color: #d9534f !important;
+    background-color: #741c1ce2 !important;
     color: white;
 }
 
 .expired-row td {
-    background-color: #d9534f !important;
+    background-color: #741c1ce2 !important;
     color: white;
 }
 
-.floating-success {
+.floating-successs-stergere-exemplar {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #4CAF50;
+    background-color: #326734de;
     color: white;
     padding: 15px 25px;
     border-radius: 8px;
     font-weight: bold;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 9999;
-    animation: fadeInOut 3s ease-in-out forwards;
     font-family: 'Times New Roman', Times, serif;
+    z-index: 9999;
+    animation: fadeInOut 5s ease-in-out forwards;
 }
 
 .floating-error-cheltuiala {
@@ -235,7 +235,7 @@ body {
 .rentabilitate-button {
     display: flex;
   flex-direction: column;
-  justify-content: center; /* centrează vertical */
+  justify-content: center;
   align-items: center; 
   margin-top: 8px;
 }

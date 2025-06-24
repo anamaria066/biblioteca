@@ -183,7 +183,9 @@ function EditeazaCarte() {
         </div>
       </div>
       {showSuccessMessage && (
-        <div className="floating-success">Modificări salvate!</div>
+        <div className="floating-success-modificari-carte">
+          Modificări salvate!
+        </div>
       )}
     </div>
   );

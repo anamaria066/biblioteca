@@ -516,62 +516,6 @@ function MainPageAdmin() {
           />
         </div>
       </div>
-
-      {/* ====== POPUP COD ÎMPRUMUT ====== */}
-      {showPopupCod && (
-        <div className="popup-overlay-cod">
-          <div className="popup-content">
-            <p>Introduceți cod împrumut:</p>
-            <input
-              id="inputCod"
-              type="text"
-              value={codImprumut}
-              onChange={(e) => setCodImprumut(e.target.value)}
-              maxLength={6}
-            />
-            <div className="popup-buttons">
-              <button id="btnOkCod" onClick={verificaCod}>
-                OK
-              </button>
-              <button
-                id="btnAnuleazaCod"
-                onClick={() => setShowPopupCod(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-          {mesajEroareCod && (
-            <div className="floating-error">{mesajEroareCod}</div>
-          )}
-        </div>
-      )}
-
-      {/* ====== POPUP CONFIRMARE IMPRUMUT ====== */}
-      {showPopupConfirmare && detaliiImprumut && (
-        <div className="popup-overlay-confirmare">
-          <div className="popup-content">
-            <p>
-              <strong>Cod corect!</strong>
-            </p>
-            <p>
-              A se elibera cartea: <strong>{detaliiImprumut.titlu}</strong>,
-              exemplarul ID <strong>{detaliiImprumut.exemplar_id}</strong>
-            </p>
-            <div className="popup-buttons">
-              <button id="btnEfectuat" onClick={finalizeazaImprumut}>
-                Efectuat
-              </button>
-              <button
-                id="btnAnuleaza"
-                onClick={() => setShowPopupConfirmare(false)}
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

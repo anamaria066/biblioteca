@@ -68,8 +68,9 @@
 }
 
 /* Mesaj de eroare */
-.error-message {
-    color: red;
+.error-message-signup {
+    color: #741c1ce2;
+    font-family: 'Times New Roman', Times, serif;
     margin-top: 10px;
 }
 

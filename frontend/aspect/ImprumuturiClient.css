@@ -8,7 +8,6 @@
     background: rgb(253, 252, 251);
 }
 
-/* ========== TABEL ========== */
 .imprumuturile-mele-subcontainer {
     min-height: 400px;
     display: flex;
@@ -78,7 +77,6 @@
     color: #555;
 }
 
-/* ========== PAGINARE ========== */
 .pagination-container-imprumuturile-mele {
   height: 10px;
   display: flex;
@@ -89,7 +87,6 @@
   gap: 8px;
   font-family: 'Inter', sans-serif;
   margin-bottom: 30px;
-
   position: fixed;
     bottom: 0;
     left: 50%;
@@ -149,28 +146,7 @@
 }
 
 
-/* ========== BUTOANE DE ACȚIUNE ========== */
-.btnVeziTaxa,
-.btnAnuleazaImprumut,
-.btnPrelungesteImprumut {
-    background-color: rgb(255, 209, 220);
-    color: rgb(62, 45, 36);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-    box-shadow: 0px 2px 6px;
-}
 
-.btnVeziTaxa:hover,
-.btnAnuleazaImprumut:hover,
-.btnPrelungesteImprumut:hover {
-    box-shadow: 0px 4px 10px rgb(62, 45, 36);
-    transform: translateY(-2px);
-}
-
-/* ========== POPUPS ========== */
 .popup-prelungire {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -255,20 +231,6 @@
     transform: translateY(-2px);
 }
 
-/* ========== MESAJE ========== */
-.floating-success,
-.floating-error {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 9999;
-    animation: fadeInOut 3s ease-in-out forwards;
-}
 
 .floating-success-anulare {
     position: fixed;
@@ -328,14 +290,14 @@
     margin-top: 10px;
 }
 
-/* ========== RÂND EXPIRAT ========== */
+
 .expired-row {
-    background-color: #e2524dd5 !important;
+    background-color: #741c1ce2 !important;
     color: white;
 }
 
 .expired-row td {
-    background-color: #e2524dd5 !important;
+    background-color: #741c1ce2 !important;
     color: white;
 }
 

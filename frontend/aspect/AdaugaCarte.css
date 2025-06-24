@@ -1,4 +1,4 @@
-/* === Layout General === */
+
 .adauga-carte-admin-container {
     min-height: 100vh;
     display: flex;
@@ -121,7 +121,6 @@
     border-radius: 0%;
 }
 
-/* === Preview imagine carte === */
 .preview-section-coperta {
     width: 250px;
     display: flex;
@@ -239,7 +238,7 @@
     margin-top: 10px;
 }
 
-/* === Floating Success / Error === */
+
 .floating-success-adauga-carte {
     position: fixed;
     bottom: 30px;

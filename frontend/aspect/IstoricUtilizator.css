@@ -1,6 +1,4 @@
 
-
-/* ======= Dropdown pentru meniuri ======= */
 .dropdown {
     position: relative;
 }
@@ -35,7 +33,7 @@
     background-color: rgb(255, 209, 220);
 }
 
-/* ======= Container general ======= */
+
 .istoric-imprumuturi-admin-container {
     min-height: 100vh;
     display: flex;

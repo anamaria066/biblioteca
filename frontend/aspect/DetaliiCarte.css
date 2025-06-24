@@ -222,7 +222,7 @@ padding: 10px;
     backdrop-filter: blur(10px);
 }
 
-/* Mesaje de succes sau eroare plutitoare */
+
 .floating-success-imprumut {
     position: fixed;
     bottom: 30px;
@@ -324,7 +324,6 @@ padding: 10px;
 }
 
 
-/* Butoane */
 .btn-recenzie,
 .btnImprumuta {
     color: #ffffff;
@@ -364,7 +363,6 @@ padding: 10px;
     padding: 20px;
     border-radius: 10px;
     width: 300px;
-    /* box-shadow: 0 0 10px black; */
     box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
     text-align: center;
 }
@@ -664,7 +662,7 @@ padding: 10px;
 .rating-stars-client {
     font-size: 24px;
     color: rgb(255, 221, 26);
-    background-color: rgba(255, 255, 255, 0.1); /* fundal subtil */
+    background-color: rgba(255, 255, 255, 0.1); 
     border-radius: 6px;
     padding: 4px 8px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);

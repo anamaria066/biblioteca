@@ -391,7 +391,9 @@ function Exemplare() {
         )}
 
         {showDeleteSuccess && (
-          <div className="floating-success">Exemplarul a fost șters!</div>
+          <div className="floating-successs-stergere-exemplar">
+            Exemplarul a fost șters!
+          </div>
         )}
       </div>
 
