@@ -138,29 +138,56 @@ export async function getTipuriCheltuieli() {
 }
 
 
-export async function getTaxeIntarziereLunare() {
-    try {
-      const result = await TaxaIntarziere.findAll({
-        attributes: [
-          [Sequelize.fn('MONTH', Sequelize.col('data_taxare')), 'luna'],
-          [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
-        ],
-        where: {
-          data_taxare: {
-            [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
-          },
-          platita: true // Doar ce a fost plătit
-        },
-        group: ['luna'],
-        order: [[Sequelize.literal('luna'), 'ASC']]
-      });
+// export async function getTaxeIntarziereLunare() {
+//     try {
+//       const result = await TaxaIntarziere.findAll({
+//         attributes: [
+//           [Sequelize.fn('MONTH', Sequelize.col('data_taxare')), 'luna'],
+//           [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
+//         ],
+//         where: {
+//           data_taxare: {
+//             [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
+//           },
+//           platita: true // Doar ce a fost plătit
+//         },
+//         group: ['luna'],
+//         order: [[Sequelize.literal('luna'), 'ASC']]
+//       });
   
-      return result.map(row => ({
-        luna: row.getDataValue('luna'),
-        total: row.getDataValue('total')
-      }));
-    } catch (error) {
-      console.error("❌ Eroare la `getTaxeIntarziereLunare`:", error);
-      return [];
-    }
+//       return result.map(row => ({
+//         luna: row.getDataValue('luna'),
+//         total: row.getDataValue('total')
+//       }));
+//     } catch (error) {
+//       console.error("❌ Eroare la `getTaxeIntarziereLunare`:", error);
+//       return [];
+//     }
+//   }
+
+export async function getTaxeIntarziereZilnice() {
+  try {
+    const result = await TaxaIntarziere.findAll({
+      attributes: [
+        [Sequelize.fn('DATE', Sequelize.col('data_taxare')), 'zi'],
+        [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
+      ],
+      where: {
+        data_taxare: {
+          [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 30 DAY)")
+        },
+        platita: true
+      },
+      group: ['zi'],
+      order: [[Sequelize.literal('zi'), 'ASC']]
+    });
+
+    return result.map(row => ({
+      zi: row.getDataValue('zi'),
+      total: row.getDataValue('total')
+    }));
+  } catch (error) {
+    console.error("❌ Eroare la `getTaxeIntarziereZilnice`:", error);
+    return [];
   }
+}

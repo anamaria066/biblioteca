@@ -4,7 +4,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { Op } from 'sequelize';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
-import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli, getTaxeIntarziereLunare } from './Statistici.js';
+import { getCheltuieliLunare, getGenuriPopularitate, getImprumuturiLunare, getUtilizatoriNoi, getTipuriCheltuieli, getTaxeIntarziereZilnice } from './Statistici.js';
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -1448,15 +1448,15 @@ app.get('/statistici', async (req, res) => {
         const imprumuturi = await getImprumuturiLunare();
         const utilizatori = await getUtilizatoriNoi();
         const tipCheltuieli = await getTipuriCheltuieli();
-        const taxeLunare = await getTaxeIntarziereLunare();
+        const taxeZilnice = await getTaxeIntarziereZilnice();
 
         // ✅ Verifică dacă sunt undefined
-        if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli || !taxeLunare) {
+        if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli || !taxeZilnice) {
             console.error("❌ Una dintre funcțiile statistice a returnat undefined!");
         }
 
         // ✅ Trimite datele doar dacă sunt valide
-        res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli, taxeLunare });
+        res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli, taxeZilnice });
     } catch (error) {
         console.error("❌ Eroare API statistici:", error);
         res.status(500).json({ message: "Eroare la server!", error: error.message });
@@ -1862,6 +1862,11 @@ app.put("/finalizeaza-imprumut/:cod", async (req, res) => {
             await exemplar.update({ status_disponibilitate: "împrumutat" });
         }
 
+        // după actualizarea statusului împrumutului și a exemplarului:
+if (exemplar) {
+    await exemplar.update({ status_disponibilitate: "împrumutat" });
+}
+
         res.json({ message: "Împrumut activat cu succes!" });
     } catch (err) {
         console.error("Eroare la activare împrumut:", err);
@@ -1895,15 +1900,35 @@ app.put('/finalizeaza-returnare/:idImprumut', async (req, res) => {
         const today = new Date();
         const returnDue = new Date(imprumut.data_returnare);
 
-        if (today > returnDue) {
-        const zileIntarziere = Math.ceil((today - returnDue) / (1000 * 60 * 60 * 24));
-        const taxa = zileIntarziere * 1.5; // Exemplu: 1.5 lei pe zi
+        // Verifică dacă există o taxă deja (neplătită) pentru acest împrumut
+const taxaExistenta = await TaxaIntarziere.findOne({
+  where: {
+    imprumut_id: imprumut.id,
+    platita: false
+  }
+});
 
-        await TaxaIntarziere.create({
-            imprumut_id: imprumut.id,
-            suma: taxa
-        });
-        }
+if (taxaExistenta) {
+  // 🟢 Marchează ca plătită
+  await taxaExistenta.update({
+    platita: true,
+    data_taxare: new Date()
+  });
+} else {
+  // 🟡 Dacă nu există deja taxă, dar împrumutul este întârziat, adaugă una nouă
+  const dataScadenta = new Date(imprumut.data_returnare);
+  if (today > dataScadenta) {
+    const zileIntarziere = Math.ceil((today - dataScadenta) / (1000 * 60 * 60 * 24));
+    const suma = zileIntarziere * 5; // sau ce tarif folosești tu
+
+    await TaxaIntarziere.create({
+      imprumut_id: imprumut.id,
+      suma,
+      data_taxare: new Date(),
+      platita: true // pentru că s-a returnat acum
+    });
+  }
+}
 
         res.status(200).json({ message: "Împrumut și exemplar actualizate cu succes!" });
     } catch (error) {
@@ -2095,8 +2120,56 @@ const verificaImprumuturiExpirate = async () => {
     }
 };
 
+const verificaTaxeNeplatite = async () => {
+  const azi = new Date();
+
+  try {
+    const imprumuturiIntarziate = await Imprumut.findAll({
+      where: {
+        status: "activ",
+        data_returnare: {
+          [Sequelize.Op.lt]: azi,
+        },
+      },
+      include: [{ model: TaxaIntarziere }],
+    });
+
+    for (const imprumut of imprumuturiIntarziate) {
+      const dataReturnare = new Date(imprumut.data_returnare);
+      const zile = Math.ceil((azi - dataReturnare) / (1000 * 60 * 60 * 24));
+      const sumaNoua = zile * 5;
+
+      if (imprumut.TaxaIntarziere) {
+        // 🔁 Dacă taxa există și nu e plătită — o actualizăm
+        if (!imprumut.TaxaIntarziere.platita) {
+          await imprumut.TaxaIntarziere.update({
+            suma: sumaNoua,
+            data_taxare: azi,
+          });
+
+          console.log(`🔁 Taxă actualizată pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
+        }
+      } else {
+        // ➕ Nu există taxă — o creăm
+        await TaxaIntarziere.create({
+          imprumut_id: imprumut.id,
+          suma: sumaNoua,
+          platita: false,
+          data_taxare: azi,
+        });
+
+        console.log(`💸 Taxă nouă pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
+      }
+    }
+  } catch (err) {
+    console.error("❌ Eroare la gestionarea taxelor de întârziere:", err);
+  }
+};
+
 // Verificare automată la fiecare oră atata timp cat serverul e pornit
 cron.schedule('0 * * * *', verificaImprumuturiExpirate);
+// cron.schedule('0 * * * *', verificaTaxeNeplatite);
+verificaTaxeNeplatite();
 
 
 
@@ -2233,60 +2306,6 @@ app.post('/adauga-cheltuiala', async (req, res) => {
 });
 
 
-
-// app.get("/carti-similare/:carteId", async (req, res) => {
-//   const carteId = parseInt(req.params.carteId);
-
-//   try {
-//     const carte = await Carte.findByPk(carteId);
-//     if (!carte) return res.status(404).json({ message: "Carte inexistentă" });
-
-//     const [cartiAutorGen, cartiAutor, cartiGen] = await Promise.all([
-//       // autor + gen
-//       Carte.findAll({
-//         where: {
-//           id: { [Op.ne]: carteId },
-//           autor: carte.autor,
-//           gen: carte.gen
-//         }
-//       }),
-//       // autor
-//       Carte.findAll({
-//         where: {
-//           id: { [Op.ne]: carteId },
-//           autor: carte.autor
-//         }
-//       }),
-//       // gen
-//       Carte.findAll({
-//         where: {
-//           id: { [Op.ne]: carteId },
-//           gen: carte.gen
-//         }
-//       }),
-//     ]);
-
-//     // Concatenează și elimină duplicatele
-//     const toateCartile = [...cartiAutorGen, ...cartiAutor, ...cartiGen];
-//     const cartiUnice = [];
-//     const idsVazute = new Set();
-
-//     for (const c of toateCartile) {
-//       if (!idsVazute.has(c.id)) {
-//         cartiUnice.push(c);
-//         idsVazute.add(c.id);
-//       }
-//     }
-
-//     // Returnează maxim 6
-//     res.json(cartiUnice.slice(0, 6));
-//   } catch (error) {
-//     console.error("Eroare la obținerea cărților similare:", error);
-//     res.status(500).json({ message: "Eroare internă la server." });
-//   }
-// });
-
-
 app.get("/carti-similare/:carteId", async (req, res) => {
   const carteId = parseInt(req.params.carteId);
 
@@ -2361,102 +2380,7 @@ app.get("/carti-similare/:carteId", async (req, res) => {
   }
 });
 
-// app.post("/chatbot-query", async (req, res) => {
-//     const { userId, question } = req.body;
-  
-//     try {
-//       const intrebare = question.toLowerCase();
-  
-//       // 1️⃣ Împrumuturi active
-//       if (
-//         intrebare.includes("împrumut") &&
-//         (
-//           intrebare.includes("activ") ||
-//           intrebare.includes("imprumuturi") ||
-//           intrebare.includes("în curs") ||
-//           intrebare.includes("curent") ||
-//           intrebare.includes("am acum") ||
-//           intrebare.includes("momentan") ||
-//           intrebare.includes("ai mei") ||
-//           intrebare.includes("meu") ||
-//           intrebare.includes("mele")
-//         )
-//       ) {
-//         const imprumuturi = await Imprumut.findAll({
-//           where: {
-//             utilizator_id: userId,
-//             status: "activ",
-//           },
-//           include: [
-//             {
-//               model: ExemplarCarte,
-//               include: [{ model: Carte }],
-//             },
-//           ],
-//         });
-  
-//         if (!imprumuturi.length) {
-//           return res.json({
-//             type: "dynamic",
-//             text: "Nu ai împrumuturi active în acest moment.",
-//           });
-//         }
-  
-//         const lista = imprumuturi
-//           .map((imp) => {
-//             const titlu = imp.ExemplarCarte?.Carte?.titlu;
-//             const autor = imp.ExemplarCarte?.Carte?.autor;
-//             const retur = new Date(imp.data_returnare).toLocaleDateString("ro-RO");
-//             return `• "${titlu}" de ${autor} (retur: ${retur})`;
-//           })
-//           .join("\n");
-  
-//         return res.json({
-//           type: "dynamic",
-//           text: `Ai ${imprumuturi.length} împrumuturi active:\n${lista}`,
-//         });
-//       }
-  
-//       // 2️⃣ Favorite
-//       if (
-//   intrebare.includes("favorite") &&
-//   !intrebare.includes("cum") &&
-//   !intrebare.includes("unde") &&
-//   !intrebare.includes("ajung") &&
-//   !intrebare.includes("acces") &&
-//   !intrebare.includes("găsesc") &&
-//   !intrebare.includes("vizualizez")
-// ) {
-//         const favorite = await Favorite.findAll({
-//           where: { utilizator_id: userId },
-//           include: [{ model: Carte }],
-//         });
-  
-//         if (!favorite.length) {
-//           return res.json({
-//             type: "dynamic",
-//             text: "Nu ai nicio carte la favorite momentan.",
-//           });
-//         }
-  
-//         const lista = favorite
-//           .map((f) => `• "${f.Carte.titlu}" de ${f.Carte.autor}`)
-//           .join("\n");
-  
-//         return res.json({
-//           type: "dynamic",
-//           text: `Iată lista cărților tale favorite:\n${lista}`,
-//         });
-//       }
-  
-//       // Niciun răspuns direct – lasă AI-ul să preia
-//       return res.json({ type: "no-match" });
-  
-//     } catch (err) {
-//       console.error("Eroare /chatbot-query:", err);
-//       return res.status(500).json({ error: "Eroare la interogare server." });
-//     }
-//   });
+
 
 app.post("/chatbot-query", async (req, res) => {
   const { userId, question } = req.body;

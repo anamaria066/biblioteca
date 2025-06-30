@@ -35,7 +35,7 @@ function MainPageAdmin() {
   const [imprumuturi, setImprumuturi] = useState([]);
   const [utilizatori, setUtilizatori] = useState([]);
   const [tipCheltuieli, setTipCheltuieli] = useState([]);
-  const [taxeLunare, setTaxeLunare] = useState([]);
+  const [taxeZilnice, setTaxeZilnice] = useState([]);
   const [menuOpen, setMenuOpen] = useState(null);
   const [user, setUser] = useState({
     nume: "",
@@ -58,7 +58,7 @@ function MainPageAdmin() {
         setImprumuturi(data.imprumuturi);
         setUtilizatori(data.utilizatori);
         setTipCheltuieli(data.tipCheltuieli);
-        setTaxeLunare(data.taxeLunare);
+        setTaxeZilnice(data.taxeZilnice);
       })
       .catch((error) =>
         console.error("Eroare la încărcarea statisticilor:", error)
@@ -152,7 +152,12 @@ function MainPageAdmin() {
           <h3>Cheltuieli lunare</h3>
           <Bar
             data={{
-              labels: cheltuieli.map((c) => c.luna),
+              // labels: cheltuieli.map((c) => c.luna),
+              labels: cheltuieli.map((c) =>
+                new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+                  month: "long",
+                })
+              ),
               datasets: [
                 {
                   label: "Cheltuieli (RON)",
@@ -217,11 +222,13 @@ function MainPageAdmin() {
           <h3>Taxe de întârziere plătite</h3>
           <Line
             data={{
-              labels: taxeLunare.map((t) => `Luna ${t.luna}`),
+              labels: taxeZilnice.map((t) =>
+                new Date(t.zi).toLocaleDateString("ro-RO")
+              ),
               datasets: [
                 {
                   label: "Taxe plătite (RON)",
-                  data: taxeLunare.map((t) => t.total),
+                  data: taxeZilnice.map((t) => t.total),
                   fill: false,
                   borderColor: "#4bc0c0",
                   backgroundColor: "#4bc0c0",
@@ -283,7 +290,12 @@ function MainPageAdmin() {
           <h3>Împrumuturi lunare</h3>
           <Bar
             data={{
-              labels: imprumuturi.map((i) => i.luna),
+              // labels: imprumuturi.map((i) => i.luna),
+              labels: cheltuieli.map((c) =>
+                new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+                  month: "long",
+                })
+              ),
               datasets: [
                 {
                   label: "Împrumuturi",
@@ -346,7 +358,12 @@ function MainPageAdmin() {
           <h3>Utilizatori noi lunari</h3>
           <Bar
             data={{
-              labels: utilizatori.map((u) => u.luna),
+              // labels: utilizatori.map((u) => u.luna),
+              labels: cheltuieli.map((c) =>
+                new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+                  month: "long",
+                })
+              ),
               datasets: [
                 {
                   label: "Utilizatori noi",
