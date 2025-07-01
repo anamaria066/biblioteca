@@ -44,16 +44,33 @@ const ChatWidget = () => {
       (msg) => !msg.hideInChat && msg.text !== "Se gândește..."
     );
 
-    const lastTwo = visibleHistory.slice(-2).map(({ role, text }) => ({
-      role,
-      parts: [{ text }],
-    }));
+    // const lastTwo = visibleHistory.slice(-2).map(({ role, text }) => ({
+    //   role,
+    //   parts: [{ text }],
+    // }));
 
-    const formattedHistory = [...lastTwo];
+    // const formattedHistory = [...lastTwo];
 
-    // Trimite basic_info o singură dată (doar la prima întrebare)
+    // // Trimite basic_info o singură dată (doar la prima întrebare)
+    // if (!sentIntroRef.current) {
+    //   formattedHistory.unshift({
+    //     role: "user",
+    //     parts: [
+    //       {
+    //         text:
+    //           "Context despre platformă:\n" +
+    //           basic_info +
+    //           "\n\nȚine cont de aceste informații în toate răspunsurile următoare.",
+    //       },
+    //     ],
+    //   });
+    //   sentIntroRef.current = true;
+    // }
+
+    const formattedHistory = [];
+
     if (!sentIntroRef.current) {
-      formattedHistory.unshift({
+      formattedHistory.push({
         role: "user",
         parts: [
           {
@@ -66,6 +83,16 @@ const ChatWidget = () => {
       });
       sentIntroRef.current = true;
     }
+
+    const lastTwo = history
+      .filter((msg) => !msg.hideInChat && msg.text !== "Se gândește...")
+      .slice(-2)
+      .map(({ role, text }) => ({
+        role,
+        parts: [{ text }],
+      }));
+
+    formattedHistory.push(...lastTwo);
 
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, {

@@ -2402,6 +2402,26 @@ intrebare = removeDiacritics(intrebare); // normalizezi
       "cum", "unde", "ajung", "gasesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau sa",
     ];
 
+      // 🔒 4.5️⃣ Întrebări despre date personale sensibile
+if (
+  intrebare.includes("parola") ||
+  intrebare.includes("cnp") ||
+  intrebare.includes("adres") || // "adresa" sau "adresă"
+  intrebare.includes("email") ||
+  intrebare.includes("mail") ||
+  intrebare.includes("numele meu complet") ||
+  intrebare.includes("data nașterii") ||
+  intrebare.includes("telefon") ||
+  intrebare.includes("număr de telefon")
+) {
+  return res.json({
+    type: "dynamic",
+    text:
+      "Din motive de confidențialitate, nu am acces la informații personale sau sensibile din contul tău. ",
+  });
+}
+
+
     // 1️⃣ Împrumuturi active
     if (
       intrebare.includes("imprumut") &&
@@ -2544,24 +2564,6 @@ if (
     });
   }
 
-  // 🔒 4.5️⃣ Întrebări despre date personale sensibile
-if (
-  intrebare.includes("parola") ||
-  intrebare.includes("cnp") ||
-  intrebare.includes("adres") || // "adresa" sau "adresă"
-  intrebare.includes("email") ||
-  intrebare.includes("mail") ||
-  intrebare.includes("numele meu complet") ||
-  intrebare.includes("data nașterii") ||
-  intrebare.includes("telefon") ||
-  intrebare.includes("număr de telefon")
-) {
-  return res.json({
-    type: "dynamic",
-    text:
-      "Din motive de confidențialitate, nu am acces la informații sensibile din contul tău. Te rugăm să verifici aceste date direct în secțiunea „Profil” a aplicației.",
-  });
-}
 
   const lista = imprumuturi
     .map((imp) => {
