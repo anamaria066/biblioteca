@@ -2404,15 +2404,15 @@ intrebare = removeDiacritics(intrebare); // normalizezi
 
       // 🔒 4.5️⃣ Întrebări despre date personale sensibile
 if (
-  intrebare.includes("parola") ||
+  intrebare.includes("parola mea") ||
   intrebare.includes("cnp") ||
-  intrebare.includes("adres") || // "adresa" sau "adresă"
-  intrebare.includes("email") ||
-  intrebare.includes("mail") ||
+  intrebare.includes("adresa mea") || // "adresa" sau "adresă"
+  intrebare.includes("email am") ||
+  intrebare.includes("mail am") ||
   intrebare.includes("numele meu complet") ||
-  intrebare.includes("data nașterii") ||
+  intrebare.includes("data nasterii") ||
   intrebare.includes("telefon") ||
-  intrebare.includes("număr de telefon")
+  intrebare.includes("numar de telefon")
 ) {
   return res.json({
     type: "dynamic",
@@ -2424,18 +2424,21 @@ if (
 
     // 1️⃣ Împrumuturi active
     if (
-      intrebare.includes("imprumut") &&
-      !isHowToQuestion(HOW_WORDS) &&
       (
         intrebare.includes("activ") ||
         intrebare.includes("momentan") ||
         intrebare.includes("curent") ||
+        intrebare.includes("curente") ||
         intrebare.includes("am acum") ||
-        intrebare.includes("in curs") ||
-        intrebare.includes("mele") ||
-        intrebare.includes("meu")
-      )
-    ) {
+        intrebare.includes("posesie") ||
+        intrebare.includes("active") ||
+        intrebare.includes("am imprumutate") ||
+        intrebare.includes("carti") ||
+        intrebare.includes("imprumuturi") ||
+        intrebare.includes("imprumut") ||
+        intrebare.includes("in curs") 
+      ) && !isHowToQuestion(HOW_WORDS) 
+    )  {
       const imprumuturi = await Imprumut.findAll({
         where: { utilizator_id: userId, status: "activ" },
         include: [{ model: ExemplarCarte, include: [Carte] }],
@@ -2486,7 +2489,12 @@ if (
 
     // 3️⃣ Taxe restante
     if (
-      intrebare.includes("tax") &&
+      (
+        intrebare.includes("tax") ||
+        intrebare.includes("am de plata") ||
+        intrebare.includes("am de platit") ||
+        intrebare.includes("trebuie sa platesc") 
+      ) &&
       !isHowToQuestion(HOW_WORDS)
     ) {
       const utilizator = await Utilizator.findByPk(userId);
@@ -2527,7 +2535,11 @@ if (
 
     // 5️⃣ Profil personal (doar informații simple)
     if (
-      (intrebare.includes("profil") || intrebare.includes("cont")) &&
+      (intrebare.includes("profil") || 
+      intrebare.includes("cont") || 
+      intrebare.includes("contul") || 
+      intrebare.includes("profilul") || 
+      intrebare.includes("emailul meu")) &&
       !isHowToQuestion(HOW_WORDS)
     ) {
       const user = await Utilizator.findByPk(userId);
@@ -2540,6 +2552,7 @@ if (
     // 6️. Istoric împrumuturi
 if (
   intrebare.includes("istoric") ||
+  intrebare.includes("deja") ||
   intrebare.includes("în trecut") ||
   intrebare.includes("am avut") ||
   intrebare.includes("returnat") ||

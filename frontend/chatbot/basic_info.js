@@ -11,6 +11,6 @@ Info utile:
 - Recomandate: In bara de sus -> ,,Recomandate", personalizat pentru tine.
 - Taxe: Verifică „Împrumuturi curente”.
 - Filtru: Iconița de filtrare de lângă bara de căutare.
-Cărțile se ridică fizic de la adresa: Str. Apărătorii Patriei 19, București, orele 8-20, luni-sambata.
+Cărțile se ridică fizic de la adresa: Str. Apărătorii Patriei 19, București; orar: orele 8-20, luni-sambata.
 email: bibliotecaonlinesystem@gmail.com, telefon 0720314205
 `;
