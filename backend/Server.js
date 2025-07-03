@@ -2394,12 +2394,13 @@ app.post("/chatbot-query", async (req, res) => {
     // const intrebare = question.toLowerCase();
     let intrebare = question.toLowerCase();
 intrebare = removeDiacritics(intrebare); // normalizezi
+console.log(">>> Received:", { intrebare, userId });
 
     const isHowToQuestion = (keywords) =>
       keywords.some((k) => intrebare.includes(k));
 
     const HOW_WORDS = [
-      "cum", "unde", "ajung", "gasesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau sa",
+      "cum","pot", "unde", "ajung", "gasesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau sa",
     ];
 
       // 🔒 4.5️⃣ Întrebări despre date personale sensibile
@@ -2426,14 +2427,13 @@ if (
     if (
       (
         intrebare.includes("activ") ||
+        intrebare.includes("active") ||
         intrebare.includes("momentan") ||
         intrebare.includes("curent") ||
         intrebare.includes("curente") ||
-        intrebare.includes("am acum") ||
         intrebare.includes("posesie") ||
         intrebare.includes("active") ||
-        intrebare.includes("am imprumutate") ||
-        intrebare.includes("carti") ||
+        intrebare.includes("imprumutate") ||
         intrebare.includes("imprumuturi") ||
         intrebare.includes("imprumut") ||
         intrebare.includes("in curs") 

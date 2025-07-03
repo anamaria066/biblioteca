@@ -8,6 +8,7 @@ import { basic_info } from "./basic_info";
 const ChatWidget = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [showChatbot, setShowChatbot] = useState(false);
+  const userMessageCountRef = useRef(0);
   const chatBodyRef = useRef();
 
   const sentIntroRef = useRef(false); // Adăugat în componentă, în afara funcției
@@ -45,8 +46,9 @@ const ChatWidget = () => {
     );
 
     const formattedHistory = [];
+    userMessageCountRef.current += 1;
 
-    if (!sentIntroRef.current) {
+    if (!sentIntroRef.current || userMessageCountRef.current % 2 === 0) {
       formattedHistory.push({
         role: "user",
         parts: [
