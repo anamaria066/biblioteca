@@ -467,6 +467,7 @@ function ImprumuturiClient() {
             </p>
             <label>Noua dată de returnare:</label>
             <input
+              id="inputNouaData"
               type="date"
               value={dataNouaFinal}
               onChange={(e) => setDataNouaFinal(e.target.value)}

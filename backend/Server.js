@@ -1680,11 +1680,8 @@ app.post('/creeaza-imprumut', async (req, res) => {
         }
 
         const exemplare = await ExemplarCarte.findAll({
-            where: {
-                carte_id,
-                status_disponibilitate: 'disponibil'
-            }
-        });
+  where: { carte_id }
+});
 
         for (const exemplar of exemplare) {
             // Pentru fiecare exemplar verificăm dacă există suprapuneri
@@ -1748,7 +1745,9 @@ app.post('/creeaza-imprumut', async (req, res) => {
                 
                 ⏳ Codul devine activ începând cu data de start a împrumutului: ${dataStart}.
                 
-                Te rugăm să prezinți acest cod din ${dataStart} începând, în termen de 48 de ore.
+                Te rugăm să prezinți acest cod unui angajat incepând cu ${dataStart}, în termen de 48 de ore. După aceea, codul nu va mai fi valabil iar împrumutul va fi anulat automat.
+
+               Cărțile se ridică fizic de la adresa: Str. Apărătorii Patriei 19, București; orar: orele 8-20, luni-sambata.
                 
                 Mulțumim! 📚`
                 };

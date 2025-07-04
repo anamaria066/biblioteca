@@ -157,6 +157,25 @@
     z-index: 9000;
 }
 
+.popup-prelungire label {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 19px;
+}
+
+.popup-prelungire input[type="date"] {
+width: 200px;
+  padding: 7px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
+  border: none;
+  box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+  border-radius: 6px;
+  background-color: #fdf6f0;
+  resize: vertical;
+  margin-top: 10px;
+}
+
+
 .popup-overlay-confirmare {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
