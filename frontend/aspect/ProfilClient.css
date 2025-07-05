@@ -163,9 +163,7 @@
 #btnSchimbaParola,
 #btnAdaugaPoza,
 #btnDelogare,
-#btnStergeCont,
-#btnConfirmaSchimbParola,
-#btnAnuleazaSchimbParola {
+#btnStergeCont {
     color: #ffffff;
     padding: 10px 22px;
     height: 40px;
@@ -183,6 +181,32 @@
     margin-top: 8px;
 }
 
+.butoane-schimba-parola, .butoane-stergere-cont {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#btnConfirmaSchimbParola,
+#btnAnuleazaSchimbParola,
+#confirmaStergereCont,
+#anuleazaStergereCont {
+    color: #ffffff;
+    padding: 10px 22px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+}
+
 
 
 #btnsalveazaModificarile:hover,
@@ -193,7 +217,9 @@
 #btnDelogare:hover,
 #btnStergeCont:hover,
 #btnConfirmaSchimbParola:hover,
-#btnAnuleazaSchimbParola:hover {
+#btnAnuleazaSchimbParola:hover,
+#confirmaStergereCont:hover,
+#anuleazaStergereCont:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transform: translateY(-2px);
 }
@@ -212,18 +238,40 @@
     z-index: 1000;
 }
 
-.popup {
+.popup-schimba-parola {
     background: white;
     padding: 25px 35px;
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    align-items: center;
 }
 
-.popup input {
-    width: 100%;
+.popup-stergere-cont {
+    background: white;
+    padding: 25px 35px;
+    width: 470px;
+    height: 100px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    align-items: center;
+}
+
+.popup-stergere-cont h4 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.popup-schimba-parola h3 {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.popup-schimba-parola input {
+    width: 300px;
     padding: 10px;
-    margin: 10px 0;
+    margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ddd;
 }

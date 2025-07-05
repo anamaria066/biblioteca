@@ -426,7 +426,7 @@ function ProfilClient() {
 
       {isChangingPassword && (
         <div className="popup-overlay">
-          <div className="popup">
+          <div className="popup-schimba-parola">
             <h3>Schimbă parola</h3>
             <input
               type="password"
@@ -440,15 +440,20 @@ function ProfilClient() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <button id="btnConfirmaSchimbParola" onClick={handleChangePassword}>
-              Confirmă schimbarea
-            </button>
-            <button
-              id="btnAnuleazaSchimbParola"
-              onClick={handleCloseChangePassword}
-            >
-              Anulează
-            </button>
+            <div className="butoane-schimba-parola">
+              <button
+                id="btnConfirmaSchimbParola"
+                onClick={handleChangePassword}
+              >
+                Confirmă schimbarea
+              </button>
+              <button
+                id="btnAnuleazaSchimbParola"
+                onClick={handleCloseChangePassword}
+              >
+                Anulează
+              </button>
+            </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
           </div>
         </div>
@@ -477,19 +482,21 @@ function ProfilClient() {
 
       {showDeletePopup && (
         <div className="popup-overlay-stergere-cont">
-          <div className="popup">
-            <p>
+          <div className="popup-stergere-cont">
+            <h4>
               Confirmați ștergerea contului? Această acțiune este ireversibilă!
-            </p>
-            <button id="confirmaStergereCont" onClick={handleDeleteAccount}>
-              Confirmă
-            </button>
-            <button
-              id="anuleazaStergereCont"
-              onClick={() => setShowDeletePopup(false)}
-            >
-              Anulează
-            </button>
+            </h4>
+            <div className="butoane-stergere-cont">
+              <button id="confirmaStergereCont" onClick={handleDeleteAccount}>
+                Confirmă
+              </button>
+              <button
+                id="anuleazaStergereCont"
+                onClick={() => setShowDeletePopup(false)}
+              >
+                Anulează
+              </button>
+            </div>
           </div>
         </div>
       )}

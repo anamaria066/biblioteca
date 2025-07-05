@@ -537,19 +537,21 @@ function ProfilAdmin() {
 
       {showDeletePopup && (
         <div className="popup-overlay-stergere-cont">
-          <div className="popup">
-            <p>
+          <div className="popup-stergere-cont-admin">
+            <h4>
               Confirmați ștergerea contului? Această acțiune este ireversibilă!
-            </p>
-            <button id="confirmaStergereCont" onClick={handleDeleteAccount}>
-              Confirmă
-            </button>
-            <button
-              id="anuleazaStergereCont"
-              onClick={() => setShowDeletePopup(false)}
-            >
-              Anulează
-            </button>
+            </h4>
+            <div className="butoane-stergere-cont">
+              <button id="confirmaStergereCont" onClick={handleDeleteAccount}>
+                Confirmă
+              </button>
+              <button
+                id="anuleazaStergereCont"
+                onClick={() => setShowDeletePopup(false)}
+              >
+                Anulează
+              </button>
+            </div>
           </div>
         </div>
       )}

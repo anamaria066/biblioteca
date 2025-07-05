@@ -16,42 +16,43 @@ dotenv.config();
 
 
 // pt ca folosesc ESModules (cu `import` în loc de `require`):
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// Configurare nodemailer
-export const transporter = nodemailer.createTransport({
+const __filename = fileURLToPath(import.meta.url);// calea completă a fișierului curent folosind import.meta.url, care conține URL-ul fișierului curent
+const __dirname = path.dirname(__filename);//doar folderul în care se află fișierul curent
+
+export const transporter = nodemailer.createTransport({//Creează un obiect transporter care știe cum să trimită emailuri prin serverul de Gmail
     service: 'gmail',
     auth: {
         user: 'bibliotecaonlinesystem@gmail.com',
-        pass: 'uiai mhpi gdlx zyde'
+        pass: 'uiai mhpi gdlx zyde'//o „parolă de aplicație” generată din contul Google, NU parola normală
     }
 });
 
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const app = express();//Creează aplicația Express (app) – Aici pornește serverul – e ca și cum ai zice: „vreau să construiesc o aplicație web”
+app.use(cors());//permite cereri (API calls) din alte locații;Pe scurt: permite frontendului tău (React) care rulează pe un alt port (ex: http://localhost:5173) să trimită cereri către serverul backend (ex: http://localhost:3000).
+app.use(express.json());//permite serverului să înțeleagă body-ul JSON al cererilor POST, PUT etc.
 
-// Asta face fișierele din /uploads accesibile public:
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));//Orice fișier aflat în folderul uploads (imagini, PDF-uri etc.) devine accesibil public , ca utilizatorii să poată vedea/rescrie fișierele din el (important pentru poza de profil)
 
 const SECRET_KEY = "biblioteca_secret_key";
-const ACCESS_KEYS = ["ADMIN123", "ADMIN456"]; // Lista de chei de acces valide
+const ACCESS_KEYS = ["ADMIN123", "ADMIN456"]; // Lista de chei de acces valide pentru a crea cont de admin
 
 
-// Creează conexiunea fără să specifici baza de date
-const connection = await mysql.createConnection({
+const connection = await mysql.createConnection({//	Creează o conexiune directă la serverul MySQL, fără să menționeze o bază de date încă (doar cu host, user, password)
     host: "localhost",
     user: "root",
     password: "ana"
-});
+});//Deschizi o conexiune temporară doar ca să te asiguri că baza de date bibliotecadb există
+//!!!Sequelize nu știe „să creeze o bază nouă”. El doar se conectează la una existentă
 
-// Creează baza de date dacă nu există
-await connection.query("CREATE DATABASE IF NOT EXISTS bibliotecadb");
 
+await connection.query("CREATE DATABASE IF NOT EXISTS bibliotecadb");//Caută dacă baza bibliotecadb există; dacă nu, o creează
+
+//Se închide conexiunea simplă, pentru că imediat mai jos…
 await connection.end();
 
-// Configurarea bazei de date MySQL
+//Creează conexiunea „oficială” (de acum încolo) cu baza de date, folosind Sequelize (un ORM – Object Relational Mapper), Adică în loc să scrii SQL, poți interacționa cu baza de date ca și cum ai lucra cu obiecte JavaScript
 const sequelize = new Sequelize('bibliotecadb', 'root', 'ana', {
     host: 'localhost',
     dialect: 'mysql'
@@ -429,8 +430,8 @@ Recomandare.belongsTo(Utilizator, { foreignKey: 'utilizator_id' });
 Recomandare.belongsTo(Carte, { foreignKey: 'carte_id' });
 
 
-// Sincronizarea bazei de date (crearea tabelei, dacă nu există)
-sequelize.sync()  //{ force: true }
+//sequelize.sync() se asigură că toate tabelele definite prin modele (ex: Carte, Utilizator, Imprumut, etc.) sunt create în baza de date dacă nu există deja.
+sequelize.sync()
     .then(() => {
         console.log("Baza de date a fost sincronizată!");
     })
@@ -440,55 +441,51 @@ sequelize.sync()  //{ force: true }
 
 
 
-
-
-// ===============================
-// Middleware pentru verificarea JWT
-// ===============================
+// Verifică dacă utilizatorul e autentificat
 const verificaToken = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1]; // Preluăm token-ul JWT
+    const token = req.headers.authorization?.split(' ')[1]; //Primește un token JWT în header-ul cererii: Authorization: Bearer eyJhbGciOiJIUz..., Desparte „Bearer” de token-ul propriu-zis cu .split(' ')[1]
 
-    if (!token) {
+    if (!token) {//Dacă token-ul nu există → trimite răspuns 403 - acces interzis
         return res.status(403).json({ message: "Acces interzis! Token lipsă." });
     }
 
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        req.utilizator = decoded;
-        next();
+        const decoded = jwt.verify(token, SECRET_KEY);//Dacă token-ul există, îl decodează
+        req.utilizator = decoded;//și îl atașează la req.utilizator, ca să fie disponibil în rutele următoare
+        next();//Dacă totul e ok → next() continuă către următoarea funcție din rută
     } catch (error) {
         return res.status(401).json({ message: "Token invalid!" });
     }
 };
 
 
-// Configurare folder de upload
+//Configurează modul în care fișierele sunt salvate local când utilizatorul încarcă o imagine de profil sau alt fișier:
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, file, cb) => {//destination: toate fișierele încărcate vor fi salvate în folderul ./uploads/
       cb(null, "./uploads/");
     },
     filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      const name = `profil_${Date.now()}${ext}`;
-      cb(null, name);
+      const ext = path.extname(file.originalname);//Preia extensia originală a fișierului (.jpg, .png, etc).
+      const name = `profil_${Date.now()}${ext}`;//Creează un nume nou unic: profil_ + timestamp (Date.now()).
+      cb(null, name);// funcție de callback, null ⇒ înseamnă “nu există eroare”, name ⇒ este valoarea dorită, adică numele fișierului, deci pe scurt: „Totul e în regulă, salvează fișierul cu acest nume: name”
     },
   });
   
-  const upload = multer({ storage });
+  const upload = multer({ storage });//upload este obiectul Multer pe care îl vei folosi în rute 
   
   // Endpoint pentru upload poză
-  app.post("/upload-poza/:id", upload.single("poza"), async (req, res) => {
-    const userId = req.params.id;
-    const imagePath = `/uploads/${req.file.filename}`;
+  app.post("/upload-poza/:id", upload.single("poza"), async (req, res) => {//:id este un parametru de rută – reprezintă id-ul utilizatorului căruia i se încarcă poza
+    const userId = req.params.id;//Extrage id-ul utilizatorului din URL (ex: /upload-poza/7 → userId = 7).
+    const imagePath = `/uploads/${req.file.filename}`;//ruta relativă către imagine
   
     try {
-      await Utilizator.update({ poza_profil: imagePath }, { where: { id: userId } });
-      res.json({ message: "Poză încărcată cu succes!", pozaProfil: imagePath });
+      await Utilizator.update({ poza_profil: imagePath }, { where: { id: userId } });//Actualizează coloana poza_profil din baza de date
+      res.json({ message: "Poză încărcată cu succes!", pozaProfil: imagePath });//Trimite un răspuns de succes către client (frontend), cu mesaj + ruta pozei
     } catch (err) {
       console.error("Eroare la salvarea pozei:", err);
       res.status(500).json({ error: "Eroare la salvarea pozei." });
     }
-  });
+  });//	upload.single("poza") vine din multer și: Acceptă un singur fișier (nu multiple). Se așteaptă ca numele câmpului de fișier din formularul trimis să fie "poza" 
 
   // Endpoint pentru stergere poză
   app.post("/sterge-poza/:id", async (req, res) => {
@@ -537,8 +534,6 @@ app.post("/adauga-carte-cu-upload", upload.single("imagine"), async (req, res) =
         res.status(500).json({ message: "Eroare server." });
     }
 });
-
-
 
   
 // Expune folderul uploads public
@@ -599,8 +594,8 @@ app.get('/conturi', async (req, res) => {
 
         res.status(200).json(utilizatori);
     } catch (error) {
-        console.error("Eroare la obținerea utilizatorilor:", error);
-        res.status(500).json({ message: "Eroare la server!" });
+        console.error("Eroare la obținerea utilizatorilor:", error);//Afișează un mesaj de eroare în consola serverului (adică în terminalul unde rulează node server.js).
+        res.status(500).json({ message: "Eroare la server!" });//Trimite un răspuns HTTP către clientul care a făcut cererea (frontend-ul tău React, de exemplu)
     }
 });
 
@@ -788,13 +783,14 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ message: "Email sau parolă incorectă!" });
         }
 
-        // ✅ Creăm un token JWT care conține ID-ul utilizatorului și tipul
+        //  Creăm un token JWT care conține ID-ul utilizatorului și tipul
         const token = jwt.sign({ id: utilizator.id, tip: utilizator.tip }, SECRET_KEY, { expiresIn: '2h' });
+        //	•	Creează un JSON Web Token: Conține: id și tip (ex: admin sau client), Este semnat cu SECRET_KEY ca să nu poată fi falsificat, Expiră în 2 ore.
 
         res.status(200).json({
             message: "Autentificare reușită!",
             token,
-            id: utilizator.id, // ✅ Trimitem și ID-ul utilizatorului
+            id: utilizator.id, //  Trimitem și ID-ul utilizatorului
             tip: utilizator.tip,
             nume: utilizator.nume, 
             prenume: utilizator.prenume
@@ -878,7 +874,6 @@ app.post('/adauga-carti', async (req, res) => {
 });
 
 
-
 // Vizualizare toate cărțile - http://localhost:3000/carti
 app.get('/carti', async (req, res) => {
     try {
@@ -886,18 +881,18 @@ app.get('/carti', async (req, res) => {
             attributes: ['id', 'titlu', 'autor', 'an_publicatie', 'descriere', 'gen', 'pret', 'imagine'],
             include: [{
                 model: ExemplarCarte,
-                attributes: ['id', 'stare', 'status_disponibilitate'] // Preluăm starea și disponibilitatea
-            }]
+                attributes: ['id', 'stare', 'status_disponibilitate']
+            }]//Pentru fiecare carte, se adaugă și lista de exemplare din ExemplarCarte, dar doar cu id, stare și status_disponibilitate
         });
 
         // ✅ Procesăm cărțile și calculăm stocul corect
         const cartiCuStoc = carti.map(carte => {
-            const exemplare = carte.ExemplarCartes; // Sequelize returnează acest array automat
+            const exemplare = carte.ExemplarCartes; //Sequelize creează automat o proprietate ExemplarCartes care conține toate exemplarele cărții
 
-            // 🔹 Stocul este numărul total de exemplare ale cărții
+            // Stocul este numărul total de exemplare ale cărții
             const stoc = exemplare.length;
 
-            // 🔹 Disponibilitatea = există cel puțin un exemplar care este „disponibil”
+            // Disponibilitatea = există cel puțin un exemplar care este „disponibil”
             const disponibil = exemplare.some(ex => ex.status_disponibilitate === 'disponibil');
 
             return {
@@ -909,8 +904,8 @@ app.get('/carti', async (req, res) => {
                 gen: carte.gen,
                 pret: carte.pret,
                 imagine: carte.imagine,
-                stoc, // 🔹 Stoc calculat corect
-                disponibil // 🔹 True/False bazat pe status_disponibilitate
+                stoc, // Stoc calculat corect
+                disponibil // True/False bazat pe status_disponibilitate
             };
         });
 
@@ -997,7 +992,7 @@ app.put('/editeaza-carte/:id', upload.single('imagine'), async (req, res) => {
 app.delete('/sterge-toate-cartile', async (req, res) => {
     try {
         // Șterge toate cărțile din baza de date (vor declanșa cascade automat pentru exemplare & recenzii)
-        const numarCartiSterse = await Carte.destroy({ where: {} });
+        const numarCartiSterse = await Carte.destroy({ where: {} });//	where: {} înseamnă „șterge tot”, fără filtru
 
         res.status(200).json({
             message: `Toate cele ${numarCartiSterse} cărți au fost șterse cu succes (inclusiv exemplarele și recenziile asociate).`
@@ -1007,6 +1002,9 @@ app.delete('/sterge-toate-cartile', async (req, res) => {
         res.status(500).json({ message: "Eroare la server." });
     }
 });
+//„Vor declanșa cascade automat” – adică:
+	// •	dacă ai setat corect relațiile între tabele în Sequelize (ex. onDelete: 'CASCADE' în hasMany / belongsTo),
+	// •	atunci când ștergi o carte, Sequelize va șterge și toate înregistrările dependente (exemplare, recenzii etc.).
 
 
 //adauga recenzie - http://localhost:3000/adauga-recenzie
@@ -1032,8 +1030,8 @@ app.post('/adauga-recenzie', async (req, res) => {
 
         await Carte.update({ rating: ratingMediu.toFixed(1) }, { where: { id: carte_id } });
 
-        // 🔁 Recalculează automat recomandările pentru utilizatorul care a lăsat recenzia
-        exec(`python3 backend/recomandari.py ${utilizator_id}`, (err, stdout, stderr) => {
+        // Recalculează automat recomandările pentru utilizatorul care a lăsat recenzia
+        exec(`python3 recomandari.py ${utilizator_id}`, (err, stdout, stderr) => {
             if (err) {
                 console.error("❌ Eroare la regenerarea recomandărilor:", err);
                 console.error(stderr);
@@ -1052,21 +1050,76 @@ app.post('/adauga-recenzie', async (req, res) => {
 });
 
 // http://localhost:3000/adauga-recenzii
+// app.post('/adauga-recenzii', async (req, res) => {
+//     try {
+//       const recenzii = req.body;
+  
+//       if (!Array.isArray(recenzii) || recenzii.length === 0) {
+//         return res.status(400).json({ message: "Trebuie trimis un vector de recenzii!" });
+//       }
+  
+//       await Recenzie.bulkCreate(recenzii);
+//       res.status(201).json({ message: "Recenzii adăugate cu succes!" });
+//     } catch (error) {
+//       console.error("Eroare la adăugarea recenziilor:", error);
+//       res.status(500).json({ message: "Eroare server!" });
+//     }
+//   });
+
+//AICI
 app.post('/adauga-recenzii', async (req, res) => {
-    try {
-      const recenzii = req.body;
-  
-      if (!Array.isArray(recenzii) || recenzii.length === 0) {
-        return res.status(400).json({ message: "Trebuie trimis un vector de recenzii!" });
-      }
-  
-      await Recenzie.bulkCreate(recenzii);
-      res.status(201).json({ message: "Recenzii adăugate cu succes!" });
-    } catch (error) {
-      console.error("Eroare la adăugarea recenziilor:", error);
-      res.status(500).json({ message: "Eroare server!" });
+  try {
+    const recenzii = req.body;
+
+    if (!Array.isArray(recenzii) || recenzii.length === 0) {
+      return res.status(400).json({ message: "Trebuie trimis un vector de recenzii!" });
     }
-  });
+
+    // Salvează recenziile în baza de date
+    await Recenzie.bulkCreate(recenzii);
+
+    //  Reținem toate carte_id și utilizator_id unice
+    const cartiSet = new Set();
+    const utilizatoriSet = new Set();
+
+    recenzii.forEach((recenzie) => {
+      if (recenzie.carte_id) cartiSet.add(recenzie.carte_id);
+      if (recenzie.utilizator_id) utilizatoriSet.add(recenzie.utilizator_id);
+    });
+
+    //  Recalculăm ratingul mediu pentru fiecare carte afectată
+    for (const carte_id of cartiSet) {
+      const toateRecenziile = await Recenzie.findAll({ where: { carte_id } });
+      const suma = toateRecenziile.reduce((acc, r) => acc + r.rating, 0);
+      const medie = suma / toateRecenziile.length;
+
+      await Carte.update(
+        { rating: medie.toFixed(1) },
+        { where: { id: carte_id } }
+      );
+    }
+
+    //  Recalculăm recomandările pentru fiecare utilizator afectat
+    for (const utilizator_id of utilizatoriSet) {
+      exec(`python3 recomandari.py ${utilizator_id}`, (err, stdout, stderr) => {
+        if (err) {
+          console.error(`❌ Eroare la recomandări pentru user ${utilizator_id}:`, err);
+        } else {
+          console.log(`✅ Recomandări regenerate pentru utilizatorul ${utilizator_id}`);
+        }
+      });
+    }
+
+    // ✅ Răspuns final
+    res.status(201).json({
+      message: "Recenzii adăugate cu succes, ratinguri actualizate și recomandări regenerate!"
+    });
+
+  } catch (error) {
+    console.error("Eroare la adăugarea recenziilor:", error);
+    res.status(500).json({ message: "Eroare server!" });
+  }
+});
 
 
 // Endpoint pentru obținerea tuturor recenziilor - http://localhost:3000/recenzii
