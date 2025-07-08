@@ -1066,7 +1066,7 @@ app.post('/adauga-recenzie', async (req, res) => {
 //     }
 //   });
 
-//AICI
+
 app.post('/adauga-recenzii', async (req, res) => {
   try {
     const recenzii = req.body;
@@ -1079,7 +1079,7 @@ app.post('/adauga-recenzii', async (req, res) => {
     await Recenzie.bulkCreate(recenzii);
 
     //  Reținem toate carte_id și utilizator_id unice
-    const cartiSet = new Set();
+    const cartiSet = new Set();//set pentru a nu avea dubluri
     const utilizatoriSet = new Set();
 
     recenzii.forEach((recenzie) => {
@@ -1325,7 +1325,7 @@ app.get('/favorite/:utilizator_id', async (req, res) => {
                     model: Carte,
                     include: [
                         {
-                            model: Recenzie, // ✅ Include recenziile pentru a calcula rating-ul
+                            model: Recenzie, //  Include recenziile pentru a calcula rating-ul
                             attributes: ['rating']
                         }
                     ]
@@ -1363,6 +1363,8 @@ app.get('/favorite/:utilizator_id', async (req, res) => {
     }
 });
 
+
+//AICI
 //adauga un exemplar de carte - http://localhost:3000/adauga-exemplar
 app.post('/adauga-exemplar', async (req, res) => {
     try {
@@ -2142,34 +2144,31 @@ app.get("/istoric-utilizator/:id", async (req, res) => {
 
 // Functie pentru expirarea împrumuturilor în așteptare după 48 de ore/dupa termenul limita
 const verificaImprumuturiExpirate = async () => {
-    const acum = new Date();
-    const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000);
+  const acum = new Date();
+  const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000); // 48h în urmă
 
-    try {
-        const imprumuturiInAsteptare = await Imprumut.findAll({
-            where: {
-                status: 'în așteptare',
-                [Sequelize.Op.or]: [
-                    { data_imprumut: { [Sequelize.Op.lt]: acumMinus48h } },
-                    { data_returnare: { [Sequelize.Op.lt]: acum } }
-                ]
-            }
-        });
+  try {
+    const imprumuturiExpirate = await Imprumut.findAll({
+      where: {
+        status: 'în așteptare',
+        data_imprumut: { [Sequelize.Op.lt]: acumMinus48h }
+      }
+    });
 
-        for (const imprumut of imprumuturiInAsteptare) {
-            console.log(`⚡ Expiră împrumut ID: ${imprumut.id}`);
-            await imprumut.update({ status: 'expirat' });
+    for (const imprumut of imprumuturiExpirate) {
+      console.log(`⚡ Expiră împrumut ID: ${imprumut.id}`);
+      await imprumut.update({ status: 'expirat' });
 
-            await ExemplarCarte.update(
-                { status_disponibilitate: 'disponibil' },
-                { where: { id: imprumut.exemplar_id } }
-            );
-        }
-
-        console.log(`✅ Verificare finalizată. ${imprumuturiInAsteptare.length} împrumuturi expirate.`);
-    } catch (error) {
-        console.error("❌ Eroare la expirarea împrumuturilor:", error);
+      await ExemplarCarte.update(
+        { status_disponibilitate: 'disponibil' },
+        { where: { id: imprumut.exemplar_id } }
+      );
     }
+
+    console.log(`✅ Verificare finalizată. ${imprumuturiExpirate.length} împrumuturi expirate.`);
+  } catch (error) {
+    console.error("❌ Eroare la expirarea împrumuturilor:", error);
+  }
 };
 
 const verificaTaxeNeplatite = async () => {

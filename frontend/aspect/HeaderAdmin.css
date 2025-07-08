@@ -133,6 +133,10 @@
     font-size: 15px;
 }
 
+.popup-adauga-imprumut-admin #inputCod:focus {
+    outline: none;
+}
+
 #btnOkCod, #btnAnuleazaCod {
     margin-top: 10px;
     color: #ffffff;

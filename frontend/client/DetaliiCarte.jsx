@@ -311,6 +311,26 @@ function DetaliiCarte() {
     setTimeout(() => setAfiseazaMesajImprumut(false), 3000);
   };
 
+  const verificaDisponibilitate = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/exemplare/${id}`);
+      const exemplare = await res.json();
+
+      // Dacă nu există niciun exemplar, evident nu e disponibilă
+      if (exemplare.length === 0) return false;
+
+      // Verificăm dacă toate au statusul "imprumutat"
+      const toateOcupate = exemplare.every(
+        (exemplar) => exemplar.status_disponibilitate === "împrumutat"
+      );
+
+      return !toateOcupate; // returnează true doar dacă există măcar unul disponibil
+    } catch (err) {
+      console.error("Eroare la verificarea disponibilității:", err);
+      return false;
+    }
+  };
+
   return (
     <div className="detalii-container-client">
       <HeaderClient />
@@ -343,7 +363,17 @@ function DetaliiCarte() {
             </button>
             <button
               className="btnImprumuta"
-              onClick={() => setShowPopupImprumut(true)}
+              // onClick={() => setShowPopupImprumut(true)}
+              onClick={async () => {
+                const eDisponibila = await verificaDisponibilitate();
+                if (eDisponibila) {
+                  setShowPopupImprumut(true);
+                } else {
+                  setMesajImprumut("Carte indisponibilă momentan!");
+                  setEsteSucces(false);
+                  afiseazaPopupTemporar();
+                }
+              }}
             >
               Împrumută
             </button>

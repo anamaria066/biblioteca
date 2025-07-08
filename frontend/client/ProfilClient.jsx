@@ -67,7 +67,7 @@ function ProfilClient() {
     const handleClickOutside = (e) => {
       if (
         !e.target.closest(".profile-img") &&
-        !e.target.closest(".dropdown-poza-client") //aici
+        !e.target.closest(".dropdown-poza-client")
       ) {
         setPozaMareDropdownDeschis(false);
       }
@@ -203,6 +203,8 @@ function ProfilClient() {
         }
         setPreviewPoza(null);
         setPozaSelectata(null);
+
+        window.location.reload(); //AICI
       })
       .catch((err) => console.error("Eroare la upload poză:", err));
   };
@@ -461,11 +463,14 @@ function ProfilClient() {
 
       {showSuccessPopup && (
         <div className="popup-overlay">
-          <div className="popup">
-            <p>{successMessage}</p>
+          <div className="popup-confirmare-stergere-pfp">
+            <h4>{successMessage}</h4>
             <button
               id="confirmStergerePfp"
-              onClick={() => setShowSuccessPopup(false)}
+              onClick={() => {
+                setShowSuccessPopup(false);
+                window.location.reload();
+              }}
             >
               OK
             </button>
