@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Importă pentru navigare
 import "../aspect/CartiAdmin.css";
 import HeaderAdmin from "./HeaderAdmin";
 import { useLocation } from "react-router-dom";
+import Fuse from "fuse.js";
 
 function CartiAdmin() {
   const [carti, setCarti] = useState([]);
@@ -113,13 +114,23 @@ function CartiAdmin() {
     );
   };
 
-  // Filtrare cărți după titlu sau autor
-  const filteredBooks = carti.filter((carte) => {
-    const matchesSearch =
-      carte.titlu.toLowerCase().startsWith(search.toLowerCase()) ||
-      carte.autor.toLowerCase().startsWith(search.toLowerCase());
+  // Configurare Fuse.js pentru căutare fuzzy
+  const fuse = new Fuse(carti, {
+    keys: ["titlu", "autor"],
+    threshold: 0.4,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+  });
 
+  // Dacă s-a introdus text de căutare, aplicăm Fuse
+  const rezultateFuse = search
+    ? fuse.search(search).map((rezultat) => rezultat.item)
+    : carti;
+
+  // Aplica filtrele suplimentare pe rezultate
+  const filteredBooks = rezultateFuse.filter((carte) => {
     const matchesGen = filtruGen ? carte.gen === filtruGen : true;
+    const matchesLimba = filtruLimba ? carte.limba === filtruLimba : true;
 
     let matchesAn = true;
     const an = carte.an_publicatie;
@@ -151,12 +162,9 @@ function CartiAdmin() {
       }
     }
 
-    const matchesLimba = filtruLimba
-      ? carte.limba?.toLowerCase() === filtruLimba.toLowerCase()
-      : true;
-
-    return matchesSearch && matchesGen && matchesAn && matchesLimba;
+    return matchesGen && matchesAn && matchesLimba;
   });
+
   // Calculăm numărul total de pagini
   const numarTotalPagini = Math.ceil(filteredBooks.length / cartiPerPagina);
 

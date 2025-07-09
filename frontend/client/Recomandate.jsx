@@ -60,7 +60,7 @@ function Recomandate() {
   const cartiAfisate = carti.slice(indexStart, indexStart + cartiPerPagina);
   const spatiiGoale = cartiPerPagina - cartiAfisate.length;
   const cartiComplete = [...cartiAfisate, ...Array(spatiiGoale).fill(null)];
-  const scorMaxim = Math.max(1, ...carti.map((c) => c?.scor || 0)); //test
+  const scorMaxim = Math.max(1, ...carti.map((c) => c?.scor || 0));
 
   const paginaAnterioara = () => {
     if (paginaCurenta > 1) setPaginaCurenta(paginaCurenta - 1);

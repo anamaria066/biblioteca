@@ -331,6 +331,49 @@ function DetaliiCarte() {
     }
   };
 
+  const verificaImprumuturiExpirate = async (userId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/verifica-imprumuturi-expirate/${userId}`
+      );
+      const data = await res.json();
+      return data.areExpirate;
+    } catch (error) {
+      console.error("Eroare la verificarea împrumuturilor expirate:", error);
+      return false;
+    }
+  };
+
+  const handleImprumutClick = async () => {
+    try {
+      const areExpirate = await verificaImprumuturiExpirate(utilizator_id);
+
+      if (areExpirate) {
+        setMesajImprumut(
+          "Serviciu momentan indisponibil! Returnați cărțile cu termen depășit!"
+        );
+        setEsteSucces(false);
+        afiseazaPopupTemporar();
+        return;
+      }
+
+      const eDisponibila = await verificaDisponibilitate(id);
+
+      if (eDisponibila) {
+        setShowPopupImprumut(true);
+      } else {
+        setMesajImprumut("Carte indisponibilă momentan!");
+        setEsteSucces(false);
+        afiseazaPopupTemporar();
+      }
+    } catch (error) {
+      console.error("Eroare la validarea împrumutului:", error);
+      setMesajImprumut("Eroare la verificări!");
+      setEsteSucces(false);
+      afiseazaPopupTemporar();
+    }
+  };
+
   return (
     <div className="detalii-container-client">
       <HeaderClient />
@@ -361,7 +404,7 @@ function DetaliiCarte() {
             <button className="btn-recenzie" onClick={() => setShowPopup(true)}>
               Lasă o recenzie
             </button>
-            <button
+            {/* <button
               className="btnImprumuta"
               // onClick={() => setShowPopupImprumut(true)}
               onClick={async () => {
@@ -375,6 +418,9 @@ function DetaliiCarte() {
                 }
               }}
             >
+              Împrumută
+            </button> */}
+            <button className="btnImprumuta" onClick={handleImprumutClick}>
               Împrumută
             </button>
           </div>

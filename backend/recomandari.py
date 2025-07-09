@@ -113,14 +113,14 @@ def salveaza_recomandari_in_db(utilizator_id, recomandari_df):
 
 
 for utilizator_id in df_ratings.index:
-    recomandari = recomanda_carti(utilizator_id=utilizator_id, numar_recomandari=15, cu_scoruri=True)
+    recomandari = recomanda_carti(utilizator_id=utilizator_id, numar_recomandari=25, cu_scoruri=True)
     if not recomandari.empty:
         salveaza_recomandari_in_db(utilizator_id, recomandari)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         utilizator_id = int(sys.argv[1])
-        recomandari = recomanda_carti(utilizator_id, numar_recomandari=15, cu_scoruri=True)
+        recomandari = recomanda_carti(utilizator_id, numar_recomandari=25, cu_scoruri=True)
         if not recomandari.empty:
             salveaza_recomandari_in_db(utilizator_id, recomandari)
             print(f"✅ Recomandări regenerate pentru utilizatorul {utilizator_id}")

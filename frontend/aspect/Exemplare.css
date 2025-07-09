@@ -258,14 +258,14 @@ body {
   align-items: center;
 }
 
-.popup-buttons {
+.popup-buttons-stergere-exemplar {
     margin-top: 20px;
     display: flex;
     justify-content: space-around;
     gap: 10px;
 }
 
-.popup-cheltuiala {
+.popup-cheltuiala, .popup-stergere {
     position: fixed;
     top: 0;
     left: 0;
@@ -287,7 +287,17 @@ body {
     text-align: center;
 }
 
-.popup-adauga-cheltuiala-content h3 {
+.popup-confirma-stergere-exemplar {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 350px;
+    height: 120px;
+    box-shadow: 0 4px 12px 0px rgba(44, 35, 98, 0.511), 0 6px 20px 0px rgba(224, 145, 49, 0.402);
+    text-align: center;
+}
+
+.popup-adauga-cheltuiala-content h3, .popup-confirma-stergere-exemplar h3 {
     font-family: 'Times New Roman', Times, serif;
     font-size: 20px;
     font-weight: bold;
@@ -313,7 +323,7 @@ body {
     outline: none;
 }
 
-.popup-buttons button {
+.popup-buttons-stergere-exemplar button {
 color: #ffffff;
     padding: 12px 24px;
     height: 40px;

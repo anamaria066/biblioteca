@@ -336,86 +336,92 @@ function ProfilAdmin() {
       <HeaderAdmin />
 
       <div className="profil-content-admin">
-        <div className="poza-cu-butoane">
-          <div className="profile-picture-admin">
-            <img
-              src={pozaAfisata}
-              alt="Poza profil"
-              className="profile-img"
-              onClick={() => {
-                if (userData.pozaProfil !== "/images/default-avatar.jpg") {
-                  setPozaMareDropdownDeschis((prev) => !prev);
-                }
-              }}
-            />
-
-            {pozaMareDropdownDeschis &&
-              userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                <div className="dropdown-poza-admin">
-                  <button onClick={handleSelectPoza}>Schimbă poza</button>
-                  <button onClick={handleDeletePicture}>Șterge poza</button>
-                </div>
-              )}
-          </div>
-
-          {previewPoza && (
-            <div className="butoane-previzualizare">
-              <button id="btnConfirmaPoza" onClick={handleConfirmPoza}>
-                Confirmă poza
-              </button>
-              <button id="btnAnuleazaPoza" onClick={handleCancelPoza}>
-                Anulează
-              </button>
-            </div>
-          )}
+        {/* <h2 className="titlu-profil">Profilul tău</h2> */}
+        <div className="header-profil">
+          <h2>Profilul tău</h2>
         </div>
-        <div className="profile-details">
-          <div className="informatii-basic">
-            {isEditing ? (
-              <>
-                <input
-                  id="inputNume"
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Nume"
-                  className="input-edit"
-                />
-                <input
-                  id="inputPrenume"
-                  type="text"
-                  value={newPrenume}
-                  onChange={(e) => setNewPrenume(e.target.value)}
-                  placeholder="Prenume"
-                  className="input-edit"
-                />
-                <input
-                  id="inputMail"
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Email"
-                  className="input-edit"
-                />
-                <p>Cont creat la: {userData.dataCreare}</p>
-              </>
-            ) : (
-              <>
-                <h2>
-                  {userData.nume} {userData.prenume}
-                </h2>
-                <p>{userData.email}</p>
-                <p>Cont creat la: {userData.dataCreare}</p>
-              </>
+        <div className="container-suplimentar">
+          <div className="poza-cu-butoane">
+            <div className="profile-picture-admin">
+              <img
+                src={pozaAfisata}
+                alt="Poza profil"
+                className="profile-img"
+                onClick={() => {
+                  if (userData.pozaProfil !== "/images/default-avatar.jpg") {
+                    setPozaMareDropdownDeschis((prev) => !prev);
+                  }
+                }}
+              />
+
+              {pozaMareDropdownDeschis &&
+                userData.pozaProfil !== "/images/default-avatar.jpg" && (
+                  <div className="dropdown-poza-admin">
+                    <button onClick={handleSelectPoza}>Schimbă poza</button>
+                    <button onClick={handleDeletePicture}>Șterge poza</button>
+                  </div>
+                )}
+            </div>
+
+            {previewPoza && (
+              <div className="butoane-previzualizare">
+                <button id="btnConfirmaPoza" onClick={handleConfirmPoza}>
+                  Confirmă poza
+                </button>
+                <button id="btnAnuleazaPoza" onClick={handleCancelPoza}>
+                  Anulează
+                </button>
+              </div>
             )}
           </div>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
+          <div className="profile-details">
+            <div className="informatii-basic">
+              {isEditing ? (
+                <>
+                  <input
+                    id="inputNume"
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Nume"
+                    className="input-edit"
+                  />
+                  <input
+                    id="inputPrenume"
+                    type="text"
+                    value={newPrenume}
+                    onChange={(e) => setNewPrenume(e.target.value)}
+                    placeholder="Prenume"
+                    className="input-edit"
+                  />
+                  <input
+                    id="inputMail"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="Email"
+                    className="input-edit"
+                  />
+                  <p>Cont creat la: {userData.dataCreare}</p>
+                </>
+              ) : (
+                <>
+                  <h2>
+                    {userData.nume} {userData.prenume}
+                  </h2>
+                  <p>{userData.email}</p>
+                  <p>Cont creat la: {userData.dataCreare}</p>
+                </>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+          </div>
         </div>
 
         <div className="zona-butoane-profil">

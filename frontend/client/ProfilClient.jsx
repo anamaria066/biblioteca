@@ -272,112 +272,117 @@ function ProfilClient() {
       <HeaderClient />
 
       <div className="profil-content">
-        <div className="poza-cu-butoane">
-          <div className="profile-picture">
-            <img
-              src={pozaAfisata}
-              alt="Poza profil"
-              className="profile-img"
-              onClick={(e) => {
-                setDropdownPosition({ x: e.clientX, y: e.clientY + 10 });
-                // setPozaMareDropdownDeschis((prev) => !prev);
-                setPozaMareDropdownDeschis(true);
-              }}
-            />
-            {pozaMareDropdownDeschis && (
-              <div
-                className="dropdown-poza-client"
-                style={{
-                  top: `${dropdownPosition.y}px`,
-                  left: `${dropdownPosition.x}px`,
-                  position: "fixed",
+        <div className="header-profil-client">
+          <h2>Profilul tău</h2>
+        </div>
+        <div className="container-suplimentar">
+          <div className="poza-cu-butoane">
+            <div className="profile-picture">
+              <img
+                src={pozaAfisata}
+                alt="Poza profil"
+                className="profile-img"
+                onClick={(e) => {
+                  setDropdownPosition({ x: e.clientX, y: e.clientY + 10 });
+                  // setPozaMareDropdownDeschis((prev) => !prev);
+                  setPozaMareDropdownDeschis(true);
                 }}
-              >
-                <button
-                  onClick={() => {
-                    console.log("🟡 Ai apăsat pe 'Adaugă/schimba poză'");
-                    handleSelectPoza();
+              />
+              {pozaMareDropdownDeschis && (
+                <div
+                  className="dropdown-poza-client"
+                  style={{
+                    top: `${dropdownPosition.y}px`,
+                    left: `${dropdownPosition.x}px`,
+                    position: "fixed",
                   }}
                 >
-                  {userData.pozaProfil === "/images/default-avatar.jpg"
-                    ? "Adaugă poză"
-                    : "Schimbă poza"}
+                  <button
+                    onClick={() => {
+                      console.log("🟡 Ai apăsat pe 'Adaugă/schimba poză'");
+                      handleSelectPoza();
+                    }}
+                  >
+                    {userData.pozaProfil === "/images/default-avatar.jpg"
+                      ? "Adaugă poză"
+                      : "Schimbă poza"}
+                  </button>
+                  {userData.pozaProfil !== "/images/default-avatar.jpg" && (
+                    <button onClick={handleDeletePicture}>Șterge poza</button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {previewPoza && (
+              <div className="butoane-previzualizare">
+                <button id="btnConfirmaPoza" onClick={handleConfirmPoza}>
+                  Confirmă poza
                 </button>
-                {userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                  <button onClick={handleDeletePicture}>Șterge poza</button>
-                )}
+                <button
+                  id="btnAnuleazaPoza"
+                  onClick={() => {
+                    setPreviewPoza(null);
+                    setPozaSelectata(null);
+                  }}
+                >
+                  Anulează
+                </button>
               </div>
             )}
           </div>
 
-          {previewPoza && (
-            <div className="butoane-previzualizare">
-              <button id="btnConfirmaPoza" onClick={handleConfirmPoza}>
-                Confirmă poza
-              </button>
-              <button
-                id="btnAnuleazaPoza"
-                onClick={() => {
-                  setPreviewPoza(null);
-                  setPozaSelectata(null);
-                }}
-              >
-                Anulează
-              </button>
+          <div className="profile-details">
+            <div className="informatii-basic">
+              {isEditing ? (
+                <>
+                  <input
+                    id="inputNume"
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Nume"
+                    className="input-edit"
+                  />
+                  <input
+                    id="inputPrenume"
+                    type="text"
+                    value={newPrenume}
+                    onChange={(e) => setNewPrenume(e.target.value)}
+                    placeholder="Prenume"
+                    className="input-edit"
+                  />
+                  <input
+                    id="inputMail"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="Email"
+                    className="input-edit"
+                  />
+                  <p>{userData.numarRecenzii} recenzii</p>
+                  <p>Cont creat la: {userData.dataCreare}</p>
+                </>
+              ) : (
+                <>
+                  <h2>
+                    {userData.nume} {userData.prenume}
+                  </h2>
+                  <p>{userData.numarRecenzii} recenzii</p>
+                  <p>{userData.email}</p>
+                  <p>Cont creat la: {userData.dataCreare}</p>
+                </>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="profile-details">
-          <div className="informatii-basic">
-            {isEditing ? (
-              <>
-                <input
-                  id="inputNume"
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Nume"
-                  className="input-edit"
-                />
-                <input
-                  id="inputPrenume"
-                  type="text"
-                  value={newPrenume}
-                  onChange={(e) => setNewPrenume(e.target.value)}
-                  placeholder="Prenume"
-                  className="input-edit"
-                />
-                <input
-                  id="inputMail"
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Email"
-                  className="input-edit"
-                />
-                <p>{userData.numarRecenzii} recenzii</p>
-                <p>Cont creat la: {userData.dataCreare}</p>
-              </>
-            ) : (
-              <>
-                <h2>
-                  {userData.nume} {userData.prenume}
-                </h2>
-                <p>{userData.numarRecenzii} recenzii</p>
-                <p>{userData.email}</p>
-                <p>Cont creat la: {userData.dataCreare}</p>
-              </>
-            )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
           </div>
-
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
         </div>
 
         {!previewPoza && (

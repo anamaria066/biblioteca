@@ -13,6 +13,55 @@ body {
     color: #f4f4f4;
 }
 
+.branding-titlu {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-family: 'Times New Roman', Times, serif;
+  z-index: 2;
+  opacity: 0.95;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 8px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(5px);
+}
+
+.animated-header {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+  color: #fff;
+  font-weight: 500;
+  font-family: 'Times New Roman', serif;
+  z-index: 2;
+  opacity: 0;
+  padding: 12px 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+  animation: fadeSlideIn 1.8s ease-out forwards;
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 .welcome-container {
     position: relative;
     width: 100vw;
@@ -23,7 +72,6 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    /* Gradient fundal */
     background: linear-gradient(to bottom right, #220a41, #efac8b); 
     background-size: cover;
     background-position: center;
@@ -69,12 +117,14 @@ body {
     margin-bottom: 20px;
     font-weight: 600;
     letter-spacing: 1px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .welcome-subtitle {
-    font-size: 18px;
+    font-size: 20px;
     color: #ffffff;
     margin-bottom: 35px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .welcome-buttons {

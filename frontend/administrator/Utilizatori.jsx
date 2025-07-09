@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../aspect/Utilizatori.css";
 import HeaderAdmin from "./HeaderAdmin";
+import Fuse from "fuse.js";
 
 function Utilizatori() {
   const navigate = useNavigate();
@@ -114,20 +115,33 @@ function Utilizatori() {
   };
 
   // Calculul utilizatorilor de afișat pe baza paginii curente
-  const utilizatoriFiltrati = utilizatori.filter(
-    (utilizator) =>
-      // utilizator.nume.toLowerCase().includes(searchTerm.toLowerCase())
-      utilizator.nume
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .startsWith(
-          searchTerm
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-        ) //pt a inlocui diacritice
-  );
+  // const utilizatoriFiltrati = utilizatori.filter(
+  //   (utilizator) =>
+  //     // utilizator.nume.toLowerCase().includes(searchTerm.toLowerCase())
+  //     utilizator.nume
+  //       .normalize("NFD")
+  //       .replace(/[\u0300-\u036f]/g, "")
+  //       .toLowerCase()
+  //       .startsWith(
+  //         searchTerm
+  //           .normalize("NFD")
+  //           .replace(/[\u0300-\u036f]/g, "")
+  //           .toLowerCase()
+  //       ) //pt a inlocui diacritice
+  // );
+
+  let utilizatoriFiltrati = utilizatori;
+
+  if (searchTerm.trim() !== "") {
+    const fuse = new Fuse(utilizatori, {
+      keys: ["nume", "prenume", "email"],
+      threshold: 0.4,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+    });
+
+    utilizatoriFiltrati = fuse.search(searchTerm).map((result) => result.item);
+  }
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;

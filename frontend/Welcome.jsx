@@ -17,6 +17,9 @@ function Welcome() {
 
   return (
     <div className="welcome-container">
+      <div className="branding-titlu animated-header">
+        📚 <strong>BiblioSmart</strong> — Biblioteca ta digitală inteligentă
+      </div>
       <div className="welcome-overlay"></div>
 
       <div className="welcome-content">

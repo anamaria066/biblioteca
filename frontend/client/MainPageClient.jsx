@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Importă pentru navigare
 import "../aspect/MainPageClient.css";
 import ChatWidget from "../chatbot/ChatWidget";
 import HeaderClient from "./HeaderClient";
+import Fuse from "fuse.js";
 
 function MainPageClient() {
   const [carti, setCarti] = useState([]);
@@ -82,12 +83,65 @@ function MainPageClient() {
   };
 
   // Filtrare cărți după titlu sau autor
-  const filteredBooks = carti.filter((carte) => {
-    const matchesSearch =
-      carte.titlu.toLowerCase().startsWith(search.toLowerCase()) ||
-      carte.autor.toLowerCase().startsWith(search.toLowerCase());
+  // const filteredBooks = carti.filter((carte) => {
+  //   const matchesSearch =
+  //     carte.titlu.toLowerCase().startsWith(search.toLowerCase()) ||
+  //     carte.autor.toLowerCase().startsWith(search.toLowerCase());
 
+  //   const matchesGen = filtruGen ? carte.gen === filtruGen : true;
+
+  //   let matchesAn = true;
+  //   const an = carte.an_publicatie;
+
+  //   if (filtruAn?.type === "exact") {
+  //     matchesAn = an === parseInt(filtruAn.value);
+  //   } else if (filtruAn?.type === "interval") {
+  //     switch (filtruAn.value) {
+  //       case "lt1800":
+  //         matchesAn = an < 1800;
+  //         break;
+  //       case "1800-1850":
+  //         matchesAn = an >= 1800 && an <= 1850;
+  //         break;
+  //       case "1850-1900":
+  //         matchesAn = an >= 1850 && an <= 1900;
+  //         break;
+  //       case "1900-1950":
+  //         matchesAn = an >= 1900 && an <= 1950;
+  //         break;
+  //       case "1950-2000":
+  //         matchesAn = an >= 1950 && an <= 2000;
+  //         break;
+  //       case "gt2000":
+  //         matchesAn = an > 2000;
+  //         break;
+  //       default:
+  //         matchesAn = true;
+  //     }
+  //   }
+
+  //   const matchesLimba = filtruLimba ? carte.limba === filtruLimba : true;
+
+  //   return matchesSearch && matchesGen && matchesAn && matchesLimba;
+  // });
+
+  // Configurare Fuse.js pentru căutare fuzzy
+  const fuse = new Fuse(carti, {
+    keys: ["titlu", "autor"],
+    threshold: 0.4,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+  });
+
+  // Dacă s-a introdus text de căutare, aplicăm Fuse
+  const rezultateFuse = search
+    ? fuse.search(search).map((rezultat) => rezultat.item)
+    : carti;
+
+  // Aplica filtrele suplimentare pe rezultate
+  const filteredBooks = rezultateFuse.filter((carte) => {
     const matchesGen = filtruGen ? carte.gen === filtruGen : true;
+    const matchesLimba = filtruLimba ? carte.limba === filtruLimba : true;
 
     let matchesAn = true;
     const an = carte.an_publicatie;
@@ -119,9 +173,7 @@ function MainPageClient() {
       }
     }
 
-    const matchesLimba = filtruLimba ? carte.limba === filtruLimba : true;
-
-    return matchesSearch && matchesGen && matchesAn && matchesLimba;
+    return matchesGen && matchesAn && matchesLimba;
   });
 
   // Calculăm numărul total de pagini

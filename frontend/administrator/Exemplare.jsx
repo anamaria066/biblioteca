@@ -372,10 +372,10 @@ function Exemplare() {
         </table>
 
         {confirmDeleteId && (
-          <div className="confirm-modal">
-            <div className="modal-content">
+          <div className="popup-stergere">
+            <div className="popup-confirma-stergere-exemplar">
               <h3>Doriți ștergerea exemplarului?</h3>
-              <div className="popup-buttons">
+              <div className="popup-buttons-stergere-exemplar">
                 <button
                   id="btnDa"
                   onClick={() => handleDeleteExemplar(confirmDeleteId)}

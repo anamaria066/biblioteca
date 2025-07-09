@@ -2431,6 +2431,28 @@ app.get("/carti-similare/:carteId", async (req, res) => {
   }
 });
 
+// backend/app.js sau ruta ta de imprumuturi
+app.get('/verifica-imprumuturi-expirate/:utilizator_id', async (req, res) => {
+  try {
+    const { utilizator_id } = req.params;
+
+    const imprumuturiExpirate = await Imprumut.findAll({
+      where: {
+        utilizator_id,
+        status: 'activ',
+        data_returnare: { [Op.lt]: new Date() }  // data returnare mai mică decât azi
+      }
+    });
+
+    const areExpirate = imprumuturiExpirate.length > 0;
+
+    res.status(200).json({ areExpirate });
+  } catch (error) {
+    console.error("Eroare la verificarea împrumuturilor expirate:", error);
+    res.status(500).json({ message: "Eroare la server!" });
+  }
+});
+
 
 
 app.post("/chatbot-query", async (req, res) => {
@@ -2661,11 +2683,25 @@ if (
   }
 });
 
+function ruleazaRecomandariPentruTot() {
+  exec("python3 recomandari.py", (error, stdout, stderr) => {
+    if (error) {
+      console.error(` Eroare la rularea scriptului Python: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(` STDERR Python: ${stderr}`);
+    }
+    console.log(`✅ Recomandări actualizate:\n${stdout}`);
+  });
+}
+
 
 // Pornire server
 const PORT = 3000;
 (async () => {
     await verificaImprumuturiExpirate();
+    ruleazaRecomandariPentruTot();
 
     app.listen(PORT, () => {
         console.log(`Serverul rulează pe http://localhost:${PORT}`);
