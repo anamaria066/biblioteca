@@ -9,12 +9,12 @@ export async function getCheltuieliLunare() {
     try {
         const result = await Cheltuiala.findAll({
             attributes: [
-                [Sequelize.fn('MONTH', Sequelize.col('data_cheltuiala')), 'luna'],
-                [Sequelize.fn('SUM', Sequelize.col('cost_total')), 'total']
+                [Sequelize.fn('MONTH', Sequelize.col('data_cheltuiala')), 'luna'],// extrage luna din data
+                [Sequelize.fn('SUM', Sequelize.col('cost_total')), 'total']// adună toate cheltuielile
             ],
             where: {
                 data_cheltuiala: {
-                    [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
+                    [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")//doar ultimele 12 luni
                 }
             },
             group: ['luna'],
@@ -26,7 +26,7 @@ export async function getCheltuieliLunare() {
             total: row.getDataValue('total')
         }));
     } catch (error) {
-        console.error("❌ Eroare la `getCheltuieliLunare`:", error);
+        console.error(" Eroare la `getCheltuieliLunare`:", error);
         return [];
     }
 }
@@ -48,12 +48,10 @@ export async function getGenuriPopularitate() {
             numar: row.getDataValue('numar')
         }));
     } catch (error) {
-        console.error("❌ Eroare la `getGenuriPopularitate`:", error);
+        console.error(" Eroare la `getGenuriPopularitate`:", error);
         return [];
     }
 }
-
-
 
 
 
@@ -78,7 +76,7 @@ export async function getImprumuturiLunare() {
             numar: row.getDataValue('numar')
         }));
     } catch (error) {
-        console.error("❌ Eroare la `getImprumuturiLunare`:", error);
+        console.error(" Eroare la `getImprumuturiLunare`:", error);
         return [];
     }
 }
@@ -107,7 +105,7 @@ export async function getUtilizatoriNoi() {
             numar: row.getDataValue('numar')
         }));
     } catch (error) {
-        console.error("❌ Eroare la `getUtilizatoriNoi`:", error);
+        console.error(" Eroare la `getUtilizatoriNoi`:", error);
         return [];
     }
 }
@@ -132,38 +130,12 @@ export async function getTipuriCheltuieli() {
             numar: row.getDataValue('numar')
         }));
     } catch (error) {
-        console.error("❌ Eroare la `getTipuriCheltuieli`:", error);
+        console.error(" Eroare la `getTipuriCheltuieli`:", error);
         return [];
     }
 }
 
 
-// export async function getTaxeIntarziereLunare() {
-//     try {
-//       const result = await TaxaIntarziere.findAll({
-//         attributes: [
-//           [Sequelize.fn('MONTH', Sequelize.col('data_taxare')), 'luna'],
-//           [Sequelize.fn('SUM', Sequelize.col('suma')), 'total']
-//         ],
-//         where: {
-//           data_taxare: {
-//             [Sequelize.Op.gte]: Sequelize.literal("DATE_SUB(CURDATE(), INTERVAL 12 MONTH)")
-//           },
-//           platita: true // Doar ce a fost plătit
-//         },
-//         group: ['luna'],
-//         order: [[Sequelize.literal('luna'), 'ASC']]
-//       });
-  
-//       return result.map(row => ({
-//         luna: row.getDataValue('luna'),
-//         total: row.getDataValue('total')
-//       }));
-//     } catch (error) {
-//       console.error("❌ Eroare la `getTaxeIntarziereLunare`:", error);
-//       return [];
-//     }
-//   }
 
 export async function getTaxeIntarziereZilnice() {
   try {
@@ -187,7 +159,7 @@ export async function getTaxeIntarziereZilnice() {
       total: row.getDataValue('total')
     }));
   } catch (error) {
-    console.error("❌ Eroare la `getTaxeIntarziereZilnice`:", error);
+    console.error(" Eroare la `getTaxeIntarziereZilnice`:", error);
     return [];
   }
 }

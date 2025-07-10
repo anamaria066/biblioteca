@@ -1049,23 +1049,6 @@ app.post('/adauga-recenzie', async (req, res) => {
     }
 });
 
-// http://localhost:3000/adauga-recenzii
-// app.post('/adauga-recenzii', async (req, res) => {
-//     try {
-//       const recenzii = req.body;
-  
-//       if (!Array.isArray(recenzii) || recenzii.length === 0) {
-//         return res.status(400).json({ message: "Trebuie trimis un vector de recenzii!" });
-//       }
-  
-//       await Recenzie.bulkCreate(recenzii);
-//       res.status(201).json({ message: "Recenzii adăugate cu succes!" });
-//     } catch (error) {
-//       console.error("Eroare la adăugarea recenziilor:", error);
-//       res.status(500).json({ message: "Eroare server!" });
-//     }
-//   });
-
 
 app.post('/adauga-recenzii', async (req, res) => {
   try {
@@ -1364,18 +1347,18 @@ app.get('/favorite/:utilizator_id', async (req, res) => {
 });
 
 
-//AICI
+
 //adauga un exemplar de carte - http://localhost:3000/adauga-exemplar
 app.post('/adauga-exemplar', async (req, res) => {
     try {
         const { carte_id, stare, cost_achizitie } = req.body;
 
-        // ✅ Verificăm dacă toate câmpurile necesare sunt furnizate
+        //  Verificăm dacă toate câmpurile necesare sunt furnizate
         if (!carte_id || !stare || !cost_achizitie) {
             return res.status(400).json({ message: "ID carte, starea și costul de achiziție sunt necesare!" });
         }
 
-        // ✅ Creăm un nou exemplar
+        //  Creăm un nou exemplar
         const exemplar = await ExemplarCarte.create({
             carte_id,
             stare,
@@ -1452,7 +1435,7 @@ app.put('/modifica-exemplar/:id', async (req, res) => {
             return res.status(404).json({ message: "Exemplarul nu a fost găsit!" });
         }
 
-        // ✅ Modificăm doar câmpurile transmise în request
+        //  Modificăm doar câmpurile transmise în request
         if (stare) exemplar.stare = stare;
         if (cost_achizitie !== undefined) exemplar.cost_achizitie = cost_achizitie;
         if (status_disponibilitate) exemplar.status_disponibilitate = status_disponibilitate;
@@ -1478,7 +1461,7 @@ app.delete('/sterge-exemplar/:id', async (req, res) => {
             return res.status(404).json({ message: "Exemplarul nu a fost găsit!" });
         }
 
-        // ❌ Nu permitem ștergerea unui exemplar împrumutat
+        // Nu permitem ștergerea unui exemplar împrumutat
         if (exemplar.status_disponibilitate === "împrumutat") {
             return res.status(400).json({ message: "Exemplarul este împrumutat și nu poate fi șters!" });
         }
@@ -1505,15 +1488,15 @@ app.get('/statistici', async (req, res) => {
         const tipCheltuieli = await getTipuriCheltuieli();
         const taxeZilnice = await getTaxeIntarziereZilnice();
 
-        // ✅ Verifică dacă sunt undefined
+        //  Verifică dacă sunt undefined
         if (!cheltuieli || !genuri || !imprumuturi || !utilizatori || !tipCheltuieli || !taxeZilnice) {
-            console.error("❌ Una dintre funcțiile statistice a returnat undefined!");
+            console.error(" Una dintre funcțiile statistice a returnat undefined!");
         }
 
-        // ✅ Trimite datele doar dacă sunt valide
+        //  Trimite datele doar dacă sunt valide
         res.json({ cheltuieli, genuri, imprumuturi, utilizatori, tipCheltuieli, taxeZilnice });
     } catch (error) {
-        console.error("❌ Eroare API statistici:", error);
+        console.error(" Eroare API statistici:", error);
         res.status(500).json({ message: "Eroare la server!", error: error.message });
     }
 });
@@ -1537,7 +1520,7 @@ app.get('/profil/:id', async (req, res) => {
         }
 
         // Calculăm numărul de recenzii
-        const numarRecenzii = utilizator.Recenzies.length;
+        const numarRecenzii = utilizator.Recenzies.length;//Recenzies este array-ul cu recenziile utilizatorului (prin relația definită în Sequelize)
 
         // Formatează data creării corect
         const dataCreare = utilizator.createdAt ? utilizator.createdAt.toISOString() : null;
@@ -1557,14 +1540,14 @@ app.get('/profil/:id', async (req, res) => {
 });
 
 
-//pentru a vedea toate imprumuturile - http://localhost:3000/imprumuturi
+//pentru a vedea toate imprumuturile active - http://localhost:3000/imprumuturi
 app.get('/imprumuturi', async (req, res) => {
     try {
       const imprumuturi = await Imprumut.findAll({
         where: { status: 'activ' },
         include: [
             {
-              model: ExemplarCarte,
+              model: ExemplarCarte,//toate atributele acestuia
               include: [
                 { model: Carte, attributes: ['titlu'] }
               ]
@@ -1591,6 +1574,8 @@ app.get('/imprumuturi', async (req, res) => {
       res.status(500).json({ mesaj: "Eroare server" });
     }
   });
+
+
 
   // Endpoint pentru a vedea imprumuturile active - http://localhost:3000/imprumuturi-curente-utilizator/:id
 app.get('/imprumuturi-curente-utilizator/:id', async (req, res) => {
@@ -1626,6 +1611,8 @@ app.get('/imprumuturi-curente-utilizator/:id', async (req, res) => {
         res.status(500).json({ message: "Eroare la obținerea împrumuturilor active" });
     }
 });
+
+
 
 //Endpoint pentru a vedea imprumuturile vechi - http://localhost:3000/imprumuturi-utilizator/:id
 app.get('/imprumuturi-utilizator/:id', async (req, res) => {
@@ -1684,13 +1671,13 @@ app.get('/intervale-imprumut/:exemplar_id', async (req, res) => {
 
 
 // Intervale indisponibile pentru TOATE exemplarele unei cărți
-// ✅ Endpoint modificat pentru intervale + număr exemplare
+//  Endpoint modificat pentru intervale + număr exemplare
 app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
     const { carte_id } = req.params;
 
     try {
         const exemplare = await ExemplarCarte.findAll({ where: { carte_id } });
-        const totalExemplare = exemplare.length; // 🆕 Adaugă numărul total de exemplare
+        const totalExemplare = exemplare.length; //  Adaugă numărul total de exemplare
 
         let toateImprumuturile = [];
 
@@ -1706,8 +1693,8 @@ app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
         }
 
         res.status(200).json({
-            imprumuturi: toateImprumuturile, // 🆕 trimitem toate intervalele
-            totalExemplare                  // 🆕 trimitem numărul total de exemplare
+            imprumuturi: toateImprumuturile, //  trimitem toate intervalele
+            totalExemplare                  //  trimitem numărul total de exemplare
         });
     } catch (error) {
         console.error("Eroare la obținerea intervalelor pentru carte:", error);
@@ -1719,7 +1706,7 @@ app.get('/intervale-imprumut-carte/:carte_id', async (req, res) => {
 
 app.post('/creeaza-imprumut', async (req, res) => {
     const { utilizator_id, carte_id, dataStart, dataEnd } = req.body;
-    console.log(`📬 Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);
+    console.log(` Cerere nouă de împrumut: carte ${carte_id}, de la ${dataStart} până la ${dataEnd}`);
 
     try {
         //Verificăm câte împrumuturi are deja utilizatorul
@@ -1735,8 +1722,8 @@ app.post('/creeaza-imprumut', async (req, res) => {
         }
 
         const exemplare = await ExemplarCarte.findAll({
-  where: { carte_id }
-});
+              where: { carte_id }
+          });
 
         for (const exemplar of exemplare) {
             // Pentru fiecare exemplar verificăm dacă există suprapuneri
@@ -1760,8 +1747,6 @@ app.post('/creeaza-imprumut', async (req, res) => {
             });
 
             if (!suprapuneri) {
-                // 📬 Exemplarul este liber -> îl folosim!
-
                 // Creează cod random de confirmare
                 const cod = Math.floor(100000 + Math.random() * 900000);
 
@@ -1813,7 +1798,7 @@ app.post('/creeaza-imprumut', async (req, res) => {
             }
         }
 
-        // ❗ Dacă terminăm loop-ul și nu am găsit niciun exemplar liber
+        // Dacă terminăm loop-ul și nu am găsit niciun exemplar liber
         return res.status(400).json({ message: "Nu există exemplare disponibile în perioada selectată!" });
 
     } catch (err) {
@@ -1916,11 +1901,6 @@ app.put("/finalizeaza-imprumut/:cod", async (req, res) => {
             await exemplar.update({ status_disponibilitate: "împrumutat" });
         }
 
-        // după actualizarea statusului împrumutului și a exemplarului:
-if (exemplar) {
-    await exemplar.update({ status_disponibilitate: "împrumutat" });
-}
-
         res.json({ message: "Împrumut activat cu succes!" });
     } catch (err) {
         console.error("Eroare la activare împrumut:", err);
@@ -1963,13 +1943,13 @@ const taxaExistenta = await TaxaIntarziere.findOne({
 });
 
 if (taxaExistenta) {
-  // 🟢 Marchează ca plătită
+  //  Marchează ca plătită
   await taxaExistenta.update({
     platita: true,
     data_taxare: new Date()
   });
 } else {
-  // 🟡 Dacă nu există deja taxă, dar împrumutul este întârziat, adaugă una nouă
+  //  Dacă nu există deja taxă, dar împrumutul este întârziat, adaugă una nouă
   const dataScadenta = new Date(imprumut.data_returnare);
   if (today > dataScadenta) {
     const zileIntarziere = Math.ceil((today - dataScadenta) / (1000 * 60 * 60 * 24));
@@ -2018,7 +1998,8 @@ app.get('/taxe-utilizator/:id', async (req, res) => {
     }
   });
 
-  app.put('/plateste-taxa/:id', async (req, res) => {
+
+app.put('/plateste-taxa/:id', async (req, res) => {
     try {
       const taxa = await TaxaIntarziere.findByPk(req.params.id);
       if (!taxa) return res.status(404).json({ message: "Taxa nu a fost găsită!" });
@@ -2035,7 +2016,7 @@ app.get('/taxe-utilizator/:id', async (req, res) => {
 
 app.put('/modifica-imprumut/:id', async (req, res) => {
     const { id } = req.params;
-    const { data_returnare, status } = req.body;  // 🛠️ luăm și status
+    const { data_returnare, status } = req.body;  //  luăm și status
 
     try {
         const imprumut = await Imprumut.findByPk(id);
@@ -2142,7 +2123,7 @@ app.get("/istoric-utilizator/:id", async (req, res) => {
 });
 
 
-// Functie pentru expirarea împrumuturilor în așteptare după 48 de ore/dupa termenul limita
+// Functie pentru a verifica împrumuturile în așteptare care n-au fost activate în 48 de ore de la data_start și să le marcheze ca expirate
 const verificaImprumuturiExpirate = async () => {
   const acum = new Date();
   const acumMinus48h = new Date(acum.getTime() - 48 * 60 * 60 * 1000); // 48h în urmă
@@ -2155,22 +2136,23 @@ const verificaImprumuturiExpirate = async () => {
       }
     });
 
-    for (const imprumut of imprumuturiExpirate) {
-      console.log(`⚡ Expiră împrumut ID: ${imprumut.id}`);
-      await imprumut.update({ status: 'expirat' });
+    for (const imprumut of imprumuturiExpirate) {//Pentru fiecare împrumut expirat
+      console.log(` Expiră împrumut ID: ${imprumut.id}`);
+      await imprumut.update({ status: 'expirat' });//Schimbă statusul în “expirat”
 
       await ExemplarCarte.update(
-        { status_disponibilitate: 'disponibil' },
+        { status_disponibilitate: 'disponibil' },//Pune exemplarul asociat înapoi ca “disponibil” în sistem
         { where: { id: imprumut.exemplar_id } }
       );
     }
 
-    console.log(`✅ Verificare finalizată. ${imprumuturiExpirate.length} împrumuturi expirate.`);
+    console.log(` Verificare finalizată. ${imprumuturiExpirate.length} împrumuturi expirate.`);
   } catch (error) {
-    console.error("❌ Eroare la expirarea împrumuturilor:", error);
+    console.error("Eroare la expirarea împrumuturilor:", error);
   }
 };
 
+//Verifică dacă există împrumuturi active, cu data de returnare depășită, Actualizează taxa existentă (dacă există dar nu e plătită), Creează taxă nouă (dacă lipsește)
 const verificaTaxeNeplatite = async () => {
   const azi = new Date();
 
@@ -2191,17 +2173,17 @@ const verificaTaxeNeplatite = async () => {
       const sumaNoua = zile * 5;
 
       if (imprumut.TaxaIntarziere) {
-        // 🔁 Dacă taxa există și nu e plătită — o actualizăm
+        //  Dacă taxa există și nu e plătită — o actualizăm
         if (!imprumut.TaxaIntarziere.platita) {
           await imprumut.TaxaIntarziere.update({
             suma: sumaNoua,
             data_taxare: azi,
           });
 
-          console.log(`🔁 Taxă actualizată pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
+          console.log(` Taxă actualizată pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
         }
       } else {
-        // ➕ Nu există taxă — o creăm
+        // Nu există taxă — o creăm
         await TaxaIntarziere.create({
           imprumut_id: imprumut.id,
           suma: sumaNoua,
@@ -2209,19 +2191,17 @@ const verificaTaxeNeplatite = async () => {
           data_taxare: azi,
         });
 
-        console.log(`💸 Taxă nouă pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
+        console.log(` Taxă nouă pentru împrumut ${imprumut.id}: ${sumaNoua} lei`);
       }
     }
   } catch (err) {
-    console.error("❌ Eroare la gestionarea taxelor de întârziere:", err);
+    console.error(" Eroare la gestionarea taxelor de întârziere:", err);
   }
 };
 
-// Verificare automată la fiecare oră atata timp cat serverul e pornit
+// Programează ambele funcții să ruleze automat o dată pe oră, la minutul 0 (Exemplu: 13:00, 14:00, 15:00 etc) atata timp cat serverul e pornit
 cron.schedule('0 * * * *', verificaImprumuturiExpirate);
-// cron.schedule('0 * * * *', verificaTaxeNeplatite);
-verificaTaxeNeplatite();
-
+cron.schedule('0 * * * *', verificaTaxeNeplatite);
 
 
 
@@ -2395,12 +2375,12 @@ app.get("/carti-similare/:carteId", async (req, res) => {
     // Concatenează și elimină duplicatele
     const toateCartile = [...cartiAutorGen, ...cartiAutor, ...cartiGen];
     const cartiUnice = [];
-    const idsVazute = new Set();
+    const idsVazute = new Set();//folosit pentru a ține minte ce ID-uri au fost deja adăugate
 
-    for (const c of toateCartile) {
-      if (!idsVazute.has(c.id)) {
-        cartiUnice.push(c);
-        idsVazute.add(c.id);
+    for (const c of toateCartile) {//Parcurge fiecare carte
+      if (!idsVazute.has(c.id)) {//Verifică dacă ID-ul nu a mai fost văzut, Dacă e o carte nouă:
+        cartiUnice.push(c);//o adaugă în cartiUnice
+        idsVazute.add(c.id);//marchează ID-ul în idsVazute ca fiind deja folosit
       }
     }
 
@@ -2431,7 +2411,8 @@ app.get("/carti-similare/:carteId", async (req, res) => {
   }
 });
 
-// backend/app.js sau ruta ta de imprumuturi
+
+
 app.get('/verifica-imprumuturi-expirate/:utilizator_id', async (req, res) => {
   try {
     const { utilizator_id } = req.params;
@@ -2453,6 +2434,54 @@ app.get('/verifica-imprumuturi-expirate/:utilizator_id', async (req, res) => {
   }
 });
 
+// http://localhost:3000/sterge-recenzii-duplicate
+app.delete('/sterge-recenzii-duplicate', async (req, res) => {
+    try {
+        // 1. Găsește toate perechile (utilizator_id, carte_id) cu mai multe recenzii
+        const [results] = await sequelize.query(`
+            SELECT utilizator_id, carte_id
+            FROM Recenzie
+            GROUP BY utilizator_id, carte_id
+            HAVING COUNT(*) > 1
+        `);
+
+        let totalSterse = 0;
+
+        for (const { utilizator_id, carte_id } of results) {
+            // 2. Obține toate recenziile pentru perechea respectivă, sortate descrescător
+            const recenzii = await Recenzie.findAll({
+                where: { utilizator_id, carte_id },
+                order: [['data_recenzie', 'DESC']]
+            });
+
+            // 3. Păstrează cea mai recentă, șterge restul
+            const deSters = recenzii.slice(1).map(r => r.id);
+
+            if (deSters.length > 0) {
+                await Recenzie.destroy({ where: { id: deSters } });
+                totalSterse += deSters.length;
+
+                // 4. Recalculează ratingul mediu pentru carte
+                const recenziiRamase = await Recenzie.findAll({ where: { carte_id } });
+                const medie = recenziiRamase.length
+                    ? recenziiRamase.reduce((sum, r) => sum + r.rating, 0) / recenziiRamase.length
+                    : 0;
+
+                await Carte.update(
+                    { rating: medie.toFixed(1) },
+                    { where: { id: carte_id } }
+                );
+            }
+        }
+
+        res.status(200).json({
+            message: `Au fost șterse ${totalSterse} recenzii duplicate și ratingurile au fost actualizate.`
+        });
+    } catch (error) {
+        console.error('Eroare la ștergerea recenziilor duplicate:', error);
+        res.status(500).json({ message: 'Eroare la server!' });
+    }
+});
 
 
 app.post("/chatbot-query", async (req, res) => {
@@ -2476,7 +2505,7 @@ console.log(">>> Received:", { intrebare, userId });
       "cum","pot", "unde", "ajung", "gasesc", "acces", "vizualizez", "mod", "pas", "fac", "vreau sa",
     ];
 
-      // 🔒 4.5️⃣ Întrebări despre date personale sensibile
+      //  Întrebări despre date personale sensibile
 if (
   intrebare.includes("parola mea") ||
   intrebare.includes("cnp") ||
@@ -2496,7 +2525,7 @@ if (
 }
 
 
-    // 1️⃣ Împrumuturi active
+    // Împrumuturi active
     if (
       (
         intrebare.includes("activ") ||
@@ -2536,7 +2565,7 @@ if (
       });
     }
 
-    // 2️⃣ Favorite
+    //  Favorite
     if (
       intrebare.includes("favorite") &&
       !isHowToQuestion(HOW_WORDS)
@@ -2560,7 +2589,7 @@ if (
       });
     }
 
-    // 3️⃣ Taxe restante
+    //  Taxe restante
     if (
       (
         intrebare.includes("tax") ||
@@ -2583,7 +2612,7 @@ if (
       });
     }
 
-    // 4️⃣ Poate prelungi?
+    //  Poate prelungi?
     if (
       intrebare.includes("prelung") &&
       !isHowToQuestion(HOW_WORDS)
@@ -2606,7 +2635,7 @@ if (
       });
     }
 
-    // 5️⃣ Profil personal (doar informații simple)
+    // Profil personal (doar informații simple)
     if (
       (intrebare.includes("profil") || 
       intrebare.includes("cont") || 
@@ -2622,7 +2651,7 @@ if (
       });
     }
 
-    // 6️. Istoric împrumuturi
+    //Istoric împrumuturi
 if (
   intrebare.includes("istoric") ||
   intrebare.includes("deja") ||
@@ -2667,7 +2696,7 @@ if (
   });
 }
 
-    // 7. Dacă nu a fost identificat un caz, trimitem către AI
+    // Dacă nu a fost identificat un caz, trimitem către AI
     return res.json({ type: "no-match" });
   } catch (err) {
    console.error("Eroare la generarea răspunsului AI:", err);
@@ -2683,6 +2712,7 @@ if (
   }
 });
 
+
 function ruleazaRecomandariPentruTot() {
   exec("python3 recomandari.py", (error, stdout, stderr) => {
     if (error) {
@@ -2692,7 +2722,7 @@ function ruleazaRecomandariPentruTot() {
     if (stderr) {
       console.error(` STDERR Python: ${stderr}`);
     }
-    console.log(`✅ Recomandări actualizate:\n${stdout}`);
+    console.log(` Recomandări actualizate:\n${stdout}`);
   });
 }
 

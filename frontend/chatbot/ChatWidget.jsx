@@ -11,26 +11,26 @@ const ChatWidget = () => {
   const userMessageCountRef = useRef(0);
   const chatBodyRef = useRef();
 
-  const sentIntroRef = useRef(false); // Adăugat în componentă, în afara funcției
+  const sentIntroRef = useRef(false);
 
   const generateBotResponse = async (history) => {
-    // const lastUserMessage = history[history.length - 1]?.text;
     const rawUserMessage = history[history.length - 1]?.text.replace(
       /^Folosind detaliile.*?: /,
       ""
-    ); //aici
+    );
 
     try {
       const userId = localStorage.getItem("utilizator_id");
       const res = await fetch("http://localhost:3000/chatbot-query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: rawUserMessage, userId }), //aici
+        body: JSON.stringify({ question: rawUserMessage, userId }),
       });
 
       const serverReply = await res.json();
 
       if (serverReply.type === "dynamic") {
+        //nu este nevoie să întreb AI-ul, am primit deja un răspuns generat direct din baza de date
         setChatHistory((prev) => [
           ...prev.filter((msg) => msg.text !== "Se gândește..."),
           { role: "model", text: serverReply.text },
@@ -83,7 +83,7 @@ const ChatWidget = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: formattedHistory }),
-      });
+      }); //cererea către API-ul Gemini, aici frontendul trimite istoricul conversației către AI ca să obțină un răspuns
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || "Eroare AI");
@@ -122,7 +122,6 @@ const ChatWidget = () => {
         </button>
 
         <div className="chatbot-popup">
-          {/* chatbot header */}
           <div className="chat-header">
             <div className="header-info">
               <ChatbotIcon />
@@ -135,7 +134,6 @@ const ChatWidget = () => {
               keyboard_arrow_down
             </button>
           </div>
-          {/* chatbot body */}
           <div ref={chatBodyRef} className="chat-body">
             <div className="message bot-message">
               <ChatbotIcon />
@@ -143,13 +141,10 @@ const ChatWidget = () => {
                 Bună! <br /> Cu ce te pot ajuta astăzi?
               </p>
             </div>
-
-            {/* render chat history dinamically */}
             {chatHistory.map((chat, index) => (
               <ChatMessage key={index} chat={chat} />
             ))}
           </div>
-          {/* chatbot footer */}
           <div className="chat-footer">
             <ChatForm
               chatHistory={chatHistory}
