@@ -14,6 +14,10 @@ function DetaliiCarteAdmin() {
   const [menuOpen, setMenuOpen] = useState(null);
   const [cartiSimilare, setCartiSimilare] = useState([]);
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const [afiseazaPopupStergere, setAfiseazaPopupStergere] = useState(false);
+  const [recenziePentruStergere, setRecenziePentruStergere] = useState(null);
+  const [afiseazaSuccesStergere, setAfiseazaSuccesStergere] = useState(false);
+  const [mesajSuccesStergere, setMesajSuccesStergere] = useState("");
   const [user, setUser] = useState({
     nume: "",
     prenume: "",
@@ -211,6 +215,38 @@ function DetaliiCarteAdmin() {
     }
   };
 
+  const initiazaStergereRecenzie = (idRecenzie) => {
+    setRecenziePentruStergere(idRecenzie);
+    setAfiseazaPopupStergere(true);
+  };
+
+  const confirmaStergereRecenzie = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/sterge-recenzie/${recenziePentruStergere}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (res.ok) {
+        setAfiseazaSuccesStergere(true);
+        setMesajSuccesStergere("Recenzie ștearsă!");
+        setTimeout(() => setAfiseazaSuccesStergere(false), 5000);
+
+        setAfiseazaPopupStergere(false);
+        setRecenziePentruStergere(null);
+        fetchData(); // reîncarcă cartea + recenziile
+      } else {
+        const data = await res.json();
+        alert(data.message || "Eroare la ștergere.");
+      }
+    } catch (err) {
+      console.error("Eroare la ștergerea recenziei:", err);
+      alert("Eroare la server!");
+    }
+  };
+
   return (
     <div className="detalii-container-admin">
       {/* ======= HEADER ======= */}
@@ -289,6 +325,13 @@ function DetaliiCarteAdmin() {
               <div className="recenzii-box-admin">
                 {recenzii.map((recenzie, index) => (
                   <div className="recenzie-card-admin" key={index}>
+                    <button
+                      className="btn-x-stergere"
+                      onClick={() => initiazaStergereRecenzie(recenzie.id)}
+                      title="Șterge recenzia"
+                    >
+                      ✕
+                    </button>
                     <p id="detalii-utilizator-recenzie">
                       {recenzie.Utilizator.nume} {recenzie.Utilizator.prenume},
                       Nota: {recenzie.rating}/5 ⭐
@@ -419,6 +462,31 @@ function DetaliiCarteAdmin() {
         <div className="floating-error-delete-carte">
           Carte momentan împrumutată!
         </div>
+      )}
+      {afiseazaPopupStergere && (
+        <div className="popup-overlay">
+          <div className="popup-confirmare-stergere">
+            <h3>Ștergeți recenzia?</h3>
+            <p>Această acțiune este ireversibilă.</p>
+            <div className="butoane-confirmare-stergere">
+              <button
+                id="confirmStergeRecenzie"
+                onClick={confirmaStergereRecenzie}
+              >
+                Da
+              </button>
+              <button
+                id="cancelStergeRecenzie"
+                onClick={() => setAfiseazaPopupStergere(false)}
+              >
+                Nu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {afiseazaSuccesStergere && (
+        <div className="floating-success-stergere">{mesajSuccesStergere}</div>
       )}
     </div>
   );
