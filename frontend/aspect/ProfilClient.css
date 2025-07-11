@@ -335,7 +335,7 @@
     margin-top: 8px;
 }
 
-.floating-success-modificari {
+.floating-success-modificari, .floating-success-stergere-pfp {
     position: fixed;
     bottom: 30px;
     right: 30px;

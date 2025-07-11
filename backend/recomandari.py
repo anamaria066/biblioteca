@@ -119,7 +119,7 @@ for utilizator_id in df_ratings.index:#Parcurge fiecare utilizator care există 
     if not recomandari.empty:
         salveaza_recomandari_in_db(utilizator_id, recomandari)
 
-#se executa cand il rulez ca script principal
+#se executa cand il rulez ca script principal, cu python3 recomandari.py 8 de ex pt utilizatorul 8
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         utilizator_id = int(sys.argv[1])

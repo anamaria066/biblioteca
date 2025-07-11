@@ -13,6 +13,7 @@ function DetaliiCarteAdmin() {
   const [mesaj, setMesaj] = useState("");
   const [menuOpen, setMenuOpen] = useState(null);
   const [cartiSimilare, setCartiSimilare] = useState([]);
+  const [showDeleteError, setShowDeleteError] = useState(false);
   const [user, setUser] = useState({
     nume: "",
     prenume: "",
@@ -131,12 +132,22 @@ function DetaliiCarteAdmin() {
         method: "DELETE",
       });
       const data = await response.json();
+
       if (response.ok) {
         navigate("/carti", {
           state: { showDeleteSuccess: true },
         });
       } else {
-        setMesaj(data.message || "Eroare la ștergerea cărții!");
+        if (
+          data.message ===
+          "Nu poți șterge această carte deoarece are exemplare împrumutate!"
+        ) {
+          setShowPopup(false); // Închide popup-ul de confirmare
+          setShowDeleteError(true); // Afișează eroarea flotantă
+          setTimeout(() => setShowDeleteError(false), 3000);
+        } else {
+          setMesaj(data.message || "Eroare la ștergerea cărții!");
+        }
       }
     } catch (error) {
       console.error("Eroare la ștergerea cărții:", error);
@@ -402,6 +413,11 @@ function DetaliiCarteAdmin() {
       {showExemplarError && (
         <div className="floating-error-adauga-exemplar">
           Introduceți toate datele exemplarului!
+        </div>
+      )}
+      {showDeleteError && (
+        <div className="floating-error-delete-carte">
+          Carte momentan împrumutată!
         </div>
       )}
     </div>

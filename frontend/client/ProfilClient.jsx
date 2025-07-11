@@ -35,6 +35,7 @@ function ProfilClient() {
   const [floatingErrorMessage, setFloatingErrorMessage] = useState("");
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
+  const [showFloatingPozaStearsa, setShowFloatingPozaStearsa] = useState(false);
 
   const userId = localStorage.getItem("utilizator_id");
 
@@ -223,8 +224,8 @@ function ProfilClient() {
           pozaProfil: "",
         }));
         setPozaMareDropdownDeschis(false);
-        setSuccessMessage("Poza de profil a fost ștearsă cu succes!");
-        setShowSuccessPopup(true);
+        setShowFloatingPozaStearsa(true);
+        setTimeout(() => setShowFloatingPozaStearsa(false), 5000);
       })
       .catch((err) => console.error("Eroare la ștergerea pozei:", err));
   };
@@ -508,6 +509,11 @@ function ProfilClient() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {showFloatingPozaStearsa && (
+        <div className="floating-success-stergere-pfp">
+          Poza de profil ștearsă!
         </div>
       )}
       <ChatWidget />

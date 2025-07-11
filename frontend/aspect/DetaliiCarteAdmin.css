@@ -364,7 +364,7 @@ body.no-scroll {
 
 
 
-.floating-error-adauga-exemplar {
+.floating-error-adauga-exemplar, .floating-error-delete-carte {
   position: fixed;
   bottom: 30px;
   right: 30px;

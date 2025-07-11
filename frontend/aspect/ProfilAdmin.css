@@ -274,7 +274,7 @@
     margin-bottom: 20px;
 }
 
-  .floating-success-modificare-profil {
+  .floating-success-modificare-profil, .floating-success-stergere-pfp {
     position: fixed;
     bottom: 30px;
     right: 30px;

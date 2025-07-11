@@ -39,6 +39,7 @@ function ProfilAdmin() {
   const [mesajEroareCod, setMesajEroareCod] = useState("");
   const [detaliiImprumut, setDetaliiImprumut] = useState(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showFloatingPozaStearsa, setShowFloatingPozaStearsa] = useState(false);
 
   const userId = localStorage.getItem("utilizator_id");
 
@@ -72,7 +73,7 @@ function ProfilAdmin() {
     const handleClickOutside = (e) => {
       if (
         !e.target.closest(".profile-img") &&
-        !e.target.closest(".dropdown-poza-mare")
+        !e.target.closest(".dropdown-poza-admin")
       ) {
         setPozaMareDropdownDeschis(false);
       }
@@ -219,6 +220,7 @@ function ProfilAdmin() {
         }
         setPreviewPoza(null);
         setPozaSelectata(null);
+        window.location.reload();
       })
       .catch((err) => console.error("Eroare la upload poză:", err));
   };
@@ -244,8 +246,8 @@ function ProfilAdmin() {
           pozaProfil: "",
         }));
         setPozaMareDropdownDeschis(false);
-        setSuccessMessage("Poza de profil a fost ștearsă cu succes!");
-        setShowSuccessPopup(true);
+        setShowFloatingPozaStearsa(true);
+        setTimeout(() => setShowFloatingPozaStearsa(false), 5000);
       })
       .catch((err) => {
         console.error("Eroare la ștergerea pozei din backend:", err);
@@ -347,20 +349,23 @@ function ProfilAdmin() {
                 src={pozaAfisata}
                 alt="Poza profil"
                 className="profile-img"
-                onClick={() => {
-                  if (userData.pozaProfil !== "/images/default-avatar.jpg") {
-                    setPozaMareDropdownDeschis((prev) => !prev);
-                  }
+                onClick={(e) => {
+                  setPozaMareDropdownDeschis(true);
                 }}
               />
 
-              {pozaMareDropdownDeschis &&
-                userData.pozaProfil !== "/images/default-avatar.jpg" && (
-                  <div className="dropdown-poza-admin">
-                    <button onClick={handleSelectPoza}>Schimbă poza</button>
+              {pozaMareDropdownDeschis && (
+                <div className="dropdown-poza-admin">
+                  <button onClick={handleSelectPoza}>
+                    {userData.pozaProfil === "/images/default-avatar.jpg"
+                      ? "Adaugă poză"
+                      : "Schimbă poza"}
+                  </button>
+                  {userData.pozaProfil !== "/images/default-avatar.jpg" && (
                     <button onClick={handleDeletePicture}>Șterge poza</button>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
             </div>
 
             {previewPoza && (
@@ -424,55 +429,50 @@ function ProfilAdmin() {
           </div>
         </div>
 
-        <div className="zona-butoane-profil">
-          {isEditing ? (
-            <>
-              <button
-                id="btnsalveazaModificarile"
-                onClick={handleSaveProfileChanges}
-              >
-                Salvează modificările
-              </button>
-              <button
-                id="btnAnuleazaModificarile"
-                onClick={() => setIsEditing(false)}
-              >
-                Anulează
-              </button>
-            </>
-          ) : (
-            <>
-              <button id="btnEditProfil" onClick={handleEditProfile}>
-                Editează profilul
-              </button>
-              <button
-                id="btnSchimbaParola"
-                onClick={() => setIsChangingPassword(true)}
-              >
-                Schimbă parola
-              </button>
-              <button
-                id="btnDelogare"
-                onClick={() => {
-                  localStorage.clear();
-                  navigate("/", { replace: true });
-                }}
-              >
-                Deloghează-te
-              </button>
-              {pozaAfisata.includes("/images/default-avatar.jpg") &&
-                !previewPoza && (
-                  <button id="btnAdaugaPoza" onClick={handleSelectPoza}>
-                    Adaugă poză
-                  </button>
-                )}
-            </>
-          )}
-
-          <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
-            Șterge cont
-          </button>
-        </div>
+        {!previewPoza && (
+          <div className="zona-butoane-profil">
+            {isEditing ? (
+              <>
+                <button
+                  id="btnsalveazaModificarile"
+                  onClick={handleSaveProfileChanges}
+                >
+                  Salvează modificările
+                </button>
+                <button
+                  id="btnAnuleazaModificarile"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Anulează
+                </button>
+              </>
+            ) : (
+              <>
+                <button id="btnEditProfil" onClick={handleEditProfile}>
+                  Editează profilul
+                </button>
+                <button
+                  id="btnSchimbaParola"
+                  onClick={() => setIsChangingPassword(true)}
+                >
+                  Schimbă parola
+                </button>
+                <button
+                  id="btnDelogare"
+                  onClick={() => {
+                    localStorage.clear();
+                    navigate("/", { replace: true });
+                  }}
+                >
+                  Deloghează-te
+                </button>
+              </>
+            )}
+            <button id="btnStergeCont" onClick={() => setShowDeletePopup(true)}>
+              Șterge cont
+            </button>
+          </div>
+        )}
       </div>
 
       {isChangingPassword && (
@@ -559,6 +559,11 @@ function ProfilAdmin() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {showFloatingPozaStearsa && (
+        <div className="floating-success-stergere-pfp">
+          Poza de profil ștearsă!
         </div>
       )}
     </div>

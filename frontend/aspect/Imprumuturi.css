@@ -143,6 +143,28 @@
     justify-content: space-around;
 }
 
+.popup-buttons button {
+    color: #ffffff;
+    padding: 12px 24px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Times New Roman', Times, serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: linear-gradient(to bottom right, #4f3b67c5, #f3b190c8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+}
+
+.popup-buttons button:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+}
+
 
 .expired-row {
     background-color: #741c1ce2 !important;
