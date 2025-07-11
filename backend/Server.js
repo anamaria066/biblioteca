@@ -1212,7 +1212,7 @@ app.delete('/sterge-recenzie/:id', async (req, res) => {
             return res.status(404).json({ message: "Recenzia nu a fost găsită!" });
         }
 
-        const carte_id = recenzie.carte_id;
+        const  carte_id = recenzie;
 
         // Șterge recenzia
         await recenzie.destroy();
@@ -1224,6 +1224,7 @@ app.delete('/sterge-recenzie/:id', async (req, res) => {
             : 0;
 
         await Carte.update({ rating: ratingMediu.toFixed(1) }, { where: { id: carte_id } });
+
 
         res.status(200).json({ message: "Recenzia a fost ștearsă și rating-ul cărții a fost actualizat!" });
     } catch (error) {
