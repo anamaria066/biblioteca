@@ -395,7 +395,7 @@ padding: 10px;
   gap: 16px;
 }
 
-.popup-adauga-recenzie input,
+.popup-adauga-recenzie select,
 .popup-adauga-recenzie textarea {
   width: 400px;
   padding: 10px;
@@ -407,6 +407,10 @@ padding: 10px;
   background-color: #fdf6f0;
   resize: vertical;
   margin-top: 22px;
+}
+
+.popup-adauga-recenzie select:focus {
+  outline: none;
 }
 
 

@@ -357,15 +357,16 @@ function DetaliiCarte() {
         return;
       }
 
-      const eDisponibila = await verificaDisponibilitate(id);
+      // const eDisponibila = await verificaDisponibilitate(id);
 
-      if (eDisponibila) {
-        setShowPopupImprumut(true);
-      } else {
-        setMesajImprumut("Carte indisponibilă momentan!");
-        setEsteSucces(false);
-        afiseazaPopupTemporar();
-      }
+      // if (eDisponibila) {
+      //   setShowPopupImprumut(true);
+      // } else {
+      //   setMesajImprumut("Carte indisponibilă momentan!");
+      //   setEsteSucces(false);
+      //   afiseazaPopupTemporar();
+      // }
+      setShowPopupImprumut(true);
     } catch (error) {
       console.error("Eroare la validarea împrumutului:", error);
       setMesajImprumut("Eroare la verificări!");
@@ -600,17 +601,31 @@ function DetaliiCarte() {
           <div className="popup-adauga-recenzie">
             <h3>Adaugă recenzie</h3>
             <form onSubmit={handleSubmitRecenzie}>
-              <input
+              {/* <input
                 type="number"
-                step="0.1"
-                min="0"
+                step="1"
+                min="1"
                 max="5"
-                placeholder="Rating (0-5)"
+                placeholder="Rating (1-5)"
                 value={recenzie.rating}
                 onChange={(e) =>
                   setRecenzie({ ...recenzie, rating: e.target.value })
                 }
-              />
+              /> */}
+              <select
+                value={recenzie.rating}
+                onChange={(e) =>
+                  setRecenzie({ ...recenzie, rating: e.target.value })
+                }
+                required
+              >
+                <option value="">Selectează nota</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
               <textarea
                 placeholder="Comentariu"
                 value={recenzie.comentariu}

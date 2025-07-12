@@ -137,7 +137,7 @@ function ImprumuturiClient() {
           const start = new Date(impr.data_imprumut);
           const end = new Date(impr.data_returnare);
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            toateZilele.push(new Date(d).toISOString().slice(0, 10));
+            toateZilele.push(new Date(d).toLocaleDateString().slice(0, 10)); //aici modificare
           }
         }
       });
@@ -248,6 +248,22 @@ function ImprumuturiClient() {
   const indexOfLast = indexOfFirst + randuriPerPagina;
   const currentRows = cartiImprumutate.slice(indexOfFirst, indexOfLast);
 
+  const eExpirat = (carte) => {
+    const azi = new Date();
+    const aziNormalizat = new Date(
+      azi.getFullYear(),
+      azi.getMonth(),
+      azi.getDate()
+    );
+    const returnare = new Date(carte.dataReturnare);
+    const returnareNormalizata = new Date(
+      returnare.getFullYear(),
+      returnare.getMonth(),
+      returnare.getDate()
+    );
+    return aziNormalizat > returnareNormalizata;
+  };
+
   return (
     <div className="imprumuturile-mele-container">
       {/* ======= HEADER ======= */}
@@ -291,10 +307,17 @@ function ImprumuturiClient() {
                       azi.getMonth(),
                       azi.getDate()
                     );
+
                     const returnareNormalizata = new Date(
                       dataReturnare.getFullYear(),
                       dataReturnare.getMonth(),
                       dataReturnare.getDate()
+                    );
+
+                    const dataReturnarePlus1 = new Date(
+                      returnareNormalizata.getFullYear(),
+                      returnareNormalizata.getMonth(),
+                      returnareNormalizata.getDate() + 1
                     );
 
                     return aziNormalizat > returnareNormalizata &&
@@ -438,18 +461,29 @@ function ImprumuturiClient() {
                       Anulează
                     </button>
                   )}
-                  {carte.status === "activ" &&
+                  {/* {carte.status === "activ" &&
                     new Date() > new Date(carte.dataReturnare) && (
                       <button onClick={() => deschidePopupTaxa(carte)}>
                         Vezi taxa
                       </button>
-                    )}
-                  {carte.status === "activ" &&
+                    )} */}
+                  {carte.status === "activ" && eExpirat(carte) && (
+                    <button onClick={() => deschidePopupTaxa(carte)}>
+                      Vezi taxa
+                    </button>
+                  )}
+
+                  {carte.status === "activ" && !eExpirat(carte) && (
+                    <button onClick={() => deschidePopupPrelungire(carte)}>
+                      Prelungește
+                    </button>
+                  )}
+                  {/* {carte.status === "activ" &&
                     new Date() <= new Date(carte.dataReturnare) && (
                       <button onClick={() => deschidePopupPrelungire(carte)}>
                         Prelungește
                       </button>
-                    )}
+                    )} */}
                 </>
               );
             })()}

@@ -156,6 +156,22 @@ function Imprumuturi() {
     }
   };
 
+  const esteExpirat = (dataReturnare) => {
+    const azi = new Date();
+    const aziNormalizat = new Date(
+      azi.getFullYear(),
+      azi.getMonth(),
+      azi.getDate()
+    );
+    const returnare = new Date(dataReturnare);
+    const returnareNormalizata = new Date(
+      returnare.getFullYear(),
+      returnare.getMonth(),
+      returnare.getDate()
+    );
+    return aziNormalizat > returnareNormalizata;
+  };
+
   return (
     <div className="imprumuturi-container">
       {/* ======= HEADER ======= */}
@@ -185,12 +201,18 @@ function Imprumuturi() {
               </tr>
             ) : (
               currentRows.map((imprumut, index) => (
+                // <tr
+                //   key={imprumut.id}
+                //   className={
+                //     new Date() > new Date(imprumut.dataReturnare)
+                //       ? "expired-row"
+                //       : ""
+                //   }
+                // >
                 <tr
                   key={imprumut.id}
                   className={
-                    new Date() > new Date(imprumut.dataReturnare)
-                      ? "expired-row"
-                      : ""
+                    esteExpirat(imprumut.dataReturnare) ? "expired-row" : ""
                   }
                 >
                   <td>{indexStart + index + 1}</td>
