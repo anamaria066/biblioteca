@@ -207,6 +207,8 @@ function MainPageAdmin() {
                   ticks: {
                     color: "#333",
                     font: { size: 12 },
+                    maxRotation: 0, //AICI
+                    autoSkip: false, //AICI
                   },
                   grid: {
                     display: false,
@@ -291,8 +293,13 @@ function MainPageAdmin() {
           <Bar
             data={{
               // labels: imprumuturi.map((i) => i.luna),
-              labels: cheltuieli.map((c) =>
-                new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+              // labels: cheltuieli.map((c) =>
+              //   new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+              //     month: "long",
+              //   })
+              // ),
+              labels: imprumuturi.map((i) =>
+                new Date(0, i.luna - 1).toLocaleString("ro-RO", {
                   month: "long",
                 })
               ),
@@ -343,6 +350,8 @@ function MainPageAdmin() {
                 x: {
                   ticks: {
                     color: "#444",
+                    maxRotation: 0, //AICI
+                    autoSkip: false, //AICI
                   },
                   grid: {
                     display: false,
@@ -359,8 +368,13 @@ function MainPageAdmin() {
           <Bar
             data={{
               // labels: utilizatori.map((u) => u.luna),
-              labels: cheltuieli.map((c) =>
-                new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+              // labels: cheltuieli.map((c) =>
+              //   new Date(0, c.luna - 1).toLocaleString("ro-RO", {
+              //     month: "long",
+              //   })
+              // ),
+              labels: utilizatori.map((u) =>
+                new Date(0, u.luna - 1).toLocaleString("ro-RO", {
                   month: "long",
                 })
               ),
@@ -411,6 +425,8 @@ function MainPageAdmin() {
                 x: {
                   ticks: {
                     color: "#444",
+                    maxRotation: 0, //AICI
+                    autoSkip: false, //AICI
                   },
                   grid: {
                     display: false,
