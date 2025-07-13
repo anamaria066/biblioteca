@@ -275,7 +275,20 @@ function DetaliiCarte() {
       afiseazaPopupTemporar();
       return;
     }
+    //
+    const dataStart = new Date(startDate);
+    const dataEnd = new Date(endDate);
+    const diferentaZile = Math.ceil(
+      (dataEnd - dataStart) / (1000 * 60 * 60 * 24)
+    );
 
+    if (diferentaZile > 30) {
+      setMesajImprumut("Limita de împrumut: 30 zile!");
+      setEsteSucces(false);
+      afiseazaPopupTemporar();
+      return;
+    }
+    //
     try {
       const res = await fetch("http://localhost:3000/creeaza-imprumut", {
         method: "POST",
