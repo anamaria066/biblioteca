@@ -2509,10 +2509,9 @@ console.log(">>> Received:", { intrebare, userId });
       //  Întrebări despre date personale sensibile
 if (
   intrebare.includes("parola mea") ||
+  intrebare.includes("parola") ||
   intrebare.includes("cnp") ||
   intrebare.includes("adresa mea") || // "adresa" sau "adresă"
-  intrebare.includes("email am") ||
-  intrebare.includes("mail am") ||
   intrebare.includes("numele meu complet") ||
   intrebare.includes("data nasterii") ||
   intrebare.includes("telefon") ||
@@ -2521,7 +2520,7 @@ if (
   return res.json({
     type: "dynamic",
     text:
-      "Din motive de confidențialitate, nu am acces la informații personale sau sensibile din contul tău. ",
+      "Din motive de confidențialitate, nu pot avea acces la informații personale sau sensibile. ",
   });
 }
 
